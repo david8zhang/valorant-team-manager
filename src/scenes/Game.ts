@@ -1,34 +1,22 @@
 import Phaser from 'phaser'
 
 export default class Game extends Phaser.Scene {
+  public tilemap!: Phaser.Tilemaps.Tilemap
+
   constructor() {
     super('game')
   }
-  preload() {
-    this.load.setBaseURL('http://labs.phaser.io')
-
-    this.load.image('sky', 'assets/skies/space3.png')
-    this.load.image('logo', 'assets/sprites/phaser3-logo.png')
-    this.load.image('red', 'assets/particles/red.png')
-  }
 
   create() {
-    this.add.image(400, 300, 'sky')
-
-    const particles = this.add.particles('red')
-
-    const emitter = particles.createEmitter({
-      speed: 100,
-      scale: { start: 1, end: 0 },
-      blendMode: 'ADD',
+    this.tilemap = this.make.tilemap({
+      key: 'map',
     })
+    const tileset = this.tilemap.addTilesetImage('map-tiles', 'map-tiles')
+    this.createLayer('Base', tileset)
+    this.createLayer('Top', tileset)
+  }
 
-    const logo = this.physics.add.image(400, 100, 'logo')
-
-    logo.setVelocity(100, 200)
-    logo.setBounce(1, 1)
-    logo.setCollideWorldBounds(true)
-
-    emitter.startFollow(logo)
+  createLayer(layerName: string, tileset: Phaser.Tilemaps.Tileset) {
+    this.tilemap.createLayer(layerName, tileset)
   }
 }
