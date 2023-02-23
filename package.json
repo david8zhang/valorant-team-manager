@@ -1,0 +1,46 @@
+{
+  "name": "cat-spray",
+  "version": "1.0.0",
+  "description": "A boilerplate for phaser typescript games, based on the Ourcade phaser3-typescript-parcel template",
+  "scripts": {
+    "start": "parcel src/index.html -p 8000",
+    "build": "parcel --version && parcel build src/index.html --out-dir dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx"
+  },
+  "author": "david8zhang",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/david8zhang"
+  },
+  "homepage": "https://github.com/david8zhang",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@typescript-eslint/eslint-plugin": "^2.29.0",
+    "@typescript-eslint/parser": "^2.29.0",
+    "cssnano": "^4.1.11",
+    "eslint": "^6.8.0",
+    "minimist": ">=1.2.2",
+    "parcel-plugin-clean-easy": "^1.0.2",
+    "parcel-plugin-static-files-copy": "^2.4.3",
+    "postcss": "^8.3.11",
+    "typescript": "^3.8.3"
+  },
+  "dependencies": {
+    "jsx-dom": "^7.0.0-beta.4",
+    "phaser": "^3.52.0",
+    "parcel": "^1.12.3",
+    "phaser3-nineslice": "^0.5.0",
+    "phaser3-rex-plugins": "^1.1.44",
+    "phaser3-rex-plugins-types": "^0.1.3"
+  },
+  "parcelCleanPaths": [
+    "dist"
+  ],
+  "staticFiles": {
+    "staticPath": "public",
+    "watcherGlob": "**"
+  }
+}
