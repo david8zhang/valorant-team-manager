@@ -1,5 +1,4 @@
 import Phaser from 'phaser'
-import { Agent } from '~/core/Agent'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Constants } from '~/utils/Constants'
@@ -15,8 +14,10 @@ export default class Game extends Phaser.Scene {
   public raycaster: any
   public ray: any
 
-  public playerAgents: Agent[] = []
+  public player!: Player
   public pathfinding!: Pathfinding
+  public isPaused: boolean = false
+  public pausedStateText!: Phaser.GameObjects.Text
 
   constructor() {
     super('game')
@@ -53,6 +54,15 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    this.pausedStateText = this.add
+      .text(Constants.WINDOW_WIDTH, 10, 'Playing')
+      .setDepth(100)
+      .setFontSize(12)
+    this.pausedStateText.setPosition(
+      Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20,
+      10
+    )
+
     this.raycaster = this.raycasterPlugin.createRaycaster()
     this.ray = this.raycaster.createRay({
       origin: {
@@ -73,32 +83,13 @@ export default class Game extends Phaser.Scene {
     })
 
     this.createFOV()
-    this.fow.setDepth(1)
-    topLayer.setDepth(2)
-    this.createPlayerAgents()
-
+    this.fow.setDepth(Constants.SORT_LAYERS.BottomLayer + 1)
+    topLayer.setDepth(Constants.SORT_LAYERS.TopLayer)
     this.pathfinding = new Pathfinding({
       tilemap: this.tilemap,
       unwalkableTiles: [1],
     })
-
-    const player = new Player()
-  }
-
-  createPlayerAgents() {
-    let startX = 320
-    let startY = 20
-    for (let i = 1; i <= 3; i++) {
-      const newAgent = new Agent({
-        position: {
-          x: startX,
-          y: startY,
-        },
-        texture: 'player-agent',
-      })
-      this.playerAgents.push(newAgent)
-      startX += newAgent.sprite.displayWidth + 20
-    }
+    this.player = new Player()
   }
 
   createLayer(layerName: string, tileset: Phaser.Tilemaps.Tileset) {
@@ -116,9 +107,23 @@ export default class Game extends Phaser.Scene {
 
   update() {
     this.maskGraphics.clear()
-    this.playerAgents.forEach((agent) => {
-      agent.update()
-    })
+    this.player.update()
+  }
+
+  pause() {
+    this.isPaused = true
+    this.pausedStateText
+      .setText('Paused')
+      .setPosition(Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20, 10)
+    this.player.pause()
+  }
+
+  unPause() {
+    this.isPaused = false
+    this.pausedStateText
+      .setText('Playing')
+      .setPosition(Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20, 10)
+    this.player.unpause()
   }
 
   public draw(intersections: any[]) {
