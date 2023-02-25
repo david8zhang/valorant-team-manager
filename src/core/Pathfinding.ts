@@ -10,7 +10,7 @@ interface NodeConfig {
   }
 }
 
-class Node {
+export class Node {
   public position: { row: number; col: number }
   public gCost: number = -1
   public hCost: number = -1
@@ -78,8 +78,7 @@ export class Pathfinding {
       closedSet.add(`${currNode.position.row},${currNode.position.col}`)
 
       if (currNode.equals(endNode)) {
-        this.retracePath(startNode, endNode)
-        return
+        return this.retracePath(startNode, endNode)
       }
 
       const neighbors = this.getNeighbors(currNode)
@@ -98,6 +97,7 @@ export class Pathfinding {
         }
       })
     }
+    return []
   }
 
   public retracePath(startNode: Node, endNode: Node) {
@@ -107,11 +107,7 @@ export class Pathfinding {
       path.push(currNode)
       currNode = currNode.parent
     }
-    const layer = this.tilemap.getLayer('Base')
-    path.forEach((node) => {
-      const tile = layer.data[node.position.row][node.position.col]
-      tile.setAlpha(0.2)
-    })
+    return path.reverse()
   }
 
   public getDistance(nodeA: Node, nodeB: Node) {

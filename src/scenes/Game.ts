@@ -36,6 +36,15 @@ export default class Game extends Phaser.Scene {
     return layer.data[y][x]
   }
 
+  getWorldPosForTilePos(row: number, col: number) {
+    const layer = this.tilemap.getLayer('Base')
+    const tile = layer.data[row][col]
+    return {
+      x: tile.pixelX + tile.width / 2,
+      y: tile.pixelY + tile.height / 2,
+    }
+  }
+
   getTilePosForWorldPos(worldX: number, worldY: number) {
     return {
       col: Math.floor(worldX / 16),
