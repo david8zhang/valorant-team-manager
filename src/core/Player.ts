@@ -4,14 +4,14 @@ import { Agent } from './Agent'
 export class Player {
   public game: Game
   public cursorRect!: Phaser.GameObjects.Rectangle
-  public playerAgents: Agent[] = []
+  public agents: Agent[] = []
   public selectedAgentIndex: number = 0
 
   constructor() {
     this.game = Game.instance
     this.setupCursor()
     this.setupInputListeners()
-    this.createPlayerAgents()
+    this.createAgents()
     this.selectAgent(this.selectedAgentIndex)
   }
 
@@ -42,39 +42,39 @@ export class Player {
 
   handleDigit(digit: string) {
     const indexToSelect = parseInt(digit) - 1
-    if (indexToSelect >= 0 && indexToSelect < this.playerAgents.length) {
+    if (indexToSelect >= 0 && indexToSelect < this.agents.length) {
       this.selectAgent(indexToSelect)
     }
   }
 
   pause() {
-    this.playerAgents.forEach((agent) => {
+    this.agents.forEach((agent) => {
       agent.pause()
     })
   }
 
   unpause() {
-    this.playerAgents.forEach((agent) => {
+    this.agents.forEach((agent) => {
       agent.unpause()
     })
   }
 
   selectAgent(newAgentIndex: number) {
     if (this.selectedAgentIndex !== newAgentIndex) {
-      const oldAgent = this.playerAgents[this.selectedAgentIndex]
+      const oldAgent = this.agents[this.selectedAgentIndex]
       oldAgent.dehighlight()
     }
-    const selectedAgent = this.playerAgents[newAgentIndex]
+    const selectedAgent = this.agents[newAgentIndex]
     selectedAgent.highlight()
     this.selectedAgentIndex = newAgentIndex
   }
 
   queueAgentMoveCommand(worldX: number, worldY: number) {
-    const agent = this.playerAgents[this.selectedAgentIndex]
+    const agent = this.agents[this.selectedAgentIndex]
     agent.moveToLocation(worldX, worldY)
   }
 
-  createPlayerAgents() {
+  createAgents() {
     let startX = 320
     let startY = 20
     for (let i = 1; i <= 3; i++) {
@@ -84,8 +84,10 @@ export class Player {
           y: startY,
         },
         texture: 'player-agent',
+        sightAngleDeg: 90,
+        raycaster: this.game.playerRaycaster,
       })
-      this.playerAgents.push(newAgent)
+      this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20
     }
   }
@@ -113,7 +115,7 @@ export class Player {
   }
 
   update() {
-    this.playerAgents.forEach((agent) => {
+    this.agents.forEach((agent) => {
       agent.update()
     })
   }

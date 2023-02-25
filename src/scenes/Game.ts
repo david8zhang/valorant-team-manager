@@ -1,4 +1,5 @@
 import Phaser from 'phaser'
+import { CPU } from '~/core/CPU'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Constants } from '~/utils/Constants'
@@ -11,10 +12,11 @@ export default class Game extends Phaser.Scene {
   public mask!: Phaser.Display.Masks.GeometryMask
   public fow!: Phaser.GameObjects.Graphics
   public raycasterPlugin: any
-  public raycaster: any
-  public ray: any
+  public playerRaycaster: any
+  public cpuRaycaster: any
 
   public player!: Player
+  public cpu!: CPU
   public pathfinding!: Pathfinding
   public isPaused: boolean = false
   public pausedStateText!: Phaser.GameObjects.Text
@@ -63,14 +65,7 @@ export default class Game extends Phaser.Scene {
       10
     )
 
-    this.raycaster = this.raycasterPlugin.createRaycaster()
-    this.ray = this.raycaster.createRay({
-      origin: {
-        x: 200,
-        y: 200,
-      },
-    })
-
+    // Initialize tilemap
     this.tilemap = this.make.tilemap({
       key: 'map',
     })
@@ -78,7 +73,13 @@ export default class Game extends Phaser.Scene {
     const baseLayer = this.createLayer('Base', tileset)
     const topLayer = this.createLayer('Top', tileset)
 
-    this.raycaster.mapGameObjects(baseLayer, false, {
+    this.playerRaycaster = this.raycasterPlugin.createRaycaster()
+    this.playerRaycaster.mapGameObjects(baseLayer, false, {
+      collisionTiles: [1],
+    })
+
+    this.cpuRaycaster = this.raycasterPlugin.createRaycaster()
+    this.cpuRaycaster.mapGameObjects(baseLayer, false, {
       collisionTiles: [1],
     })
 
@@ -90,6 +91,14 @@ export default class Game extends Phaser.Scene {
       unwalkableTiles: [1],
     })
     this.player = new Player()
+    this.cpu = new CPU()
+
+    this.cpu.agents.forEach((agent) => {
+      this.playerRaycaster.mapGameObjects(agent.sprite)
+    })
+    this.player.agents.forEach((agent) => {
+      this.cpuRaycaster.mapGameObjects(agent)
+    })
   }
 
   createLayer(layerName: string, tileset: Phaser.Tilemaps.Tileset) {
@@ -107,6 +116,7 @@ export default class Game extends Phaser.Scene {
 
   update() {
     this.maskGraphics.clear()
+    this.cpu.update()
     this.player.update()
   }
 

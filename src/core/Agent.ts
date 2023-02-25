@@ -8,6 +8,9 @@ export interface AgentConfig {
     y: number
   }
   texture: string
+  sightAngleDeg: number
+  hideSightCones?: boolean
+  raycaster: any
 }
 
 export class Agent {
@@ -22,17 +25,22 @@ export class Agent {
 
   public highlightCircle: Phaser.Physics.Arcade.Sprite
   public isPaused: boolean = false
+  public hideSightCones: boolean = false
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
-    this.ray = this.game.raycaster.createRay({
+    if (config.hideSightCones) {
+      this.hideSightCones = config.hideSightCones
+    }
+    this.ray = config.raycaster.createRay({
       origin: config.position,
     })
-    this.ray.setAngle(Phaser.Math.DegToRad(90))
+    this.ray.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
     this.ray.setConeDeg(60)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
       .setDepth(50)
+      .setName('agent')
     this.highlightCircle = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
       .setTintFill(0xffff00)
@@ -60,7 +68,16 @@ export class Agent {
 
     const intersections = this.ray.castCone()
     intersections.push(this.ray.origin)
-    this.game.draw(intersections)
+    intersections.forEach((n) => {
+      if (n.object && n.object.name === 'agent') {
+        n.object.setVisible(true)
+      }
+    })
+
+    if (!this.hideSightCones) {
+      this.game.draw(intersections)
+    }
+
     this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
   }
 
@@ -115,6 +132,7 @@ export class Agent {
 
   moveToLocation(worldX: number, worldY: number) {
     this.shouldStop = false
+    this.moveTarget = null
     const endTilePos = this.game.getTilePosForWorldPos(worldX, worldY)
     const currTilePos = this.game.getTilePosForWorldPos(this.sprite.x, this.sprite.y)
     const path = this.game.pathfinding.getPath(currTilePos, endTilePos)
