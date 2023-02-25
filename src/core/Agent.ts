@@ -14,7 +14,8 @@ export interface AgentConfig {
 }
 
 export class Agent {
-  public ray: any
+  public visionRay: any
+  public crosshairRay: any
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
   public currPath: Node[] = []
@@ -32,11 +33,17 @@ export class Agent {
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
-    this.ray = config.raycaster.createRay({
+    this.visionRay = config.raycaster.createRay({
       origin: config.position,
     })
-    this.ray.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
-    this.ray.setConeDeg(60)
+    this.visionRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
+    this.visionRay.setConeDeg(60)
+
+    this.crosshairRay = config.raycaster.createRay({
+      origin: config.position,
+    })
+    this.crosshairRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
+
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
       .setDepth(50)
@@ -63,21 +70,24 @@ export class Agent {
       }
     }
     this.moveTowardTarget()
-    this.ray.setOrigin(this.sprite.x, this.sprite.y)
-    this.setRayDirection()
 
-    const intersections = this.ray.castCone()
-    intersections.push(this.ray.origin)
-    intersections.forEach((n) => {
+    // Update vision/crosshair raycast
+    this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
+    this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
+    this.setRayDirection()
+    const visionIntersections = this.visionRay.castCone()
+    visionIntersections.push(this.visionRay.origin)
+    visionIntersections.forEach((n) => {
       if (n.object && n.object.name === 'agent') {
         n.object.setVisible(true)
       }
     })
-
+    const crosshairIntersection = this.crosshairRay.cast()
     if (!this.hideSightCones) {
-      this.game.draw(intersections)
+      // hide sight cones (for CPU agents)
+      this.game.draw(visionIntersections)
+      this.game.drawCrosshair(this.crosshairRay.origin, crosshairIntersection)
     }
-
     this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
   }
 
@@ -89,7 +99,8 @@ export class Agent {
         this.moveTarget.x,
         this.moveTarget.y
       )
-      this.ray.setAngle(angle)
+      this.visionRay.setAngle(angle)
+      this.crosshairRay.setAngle(angle)
     }
   }
 
@@ -156,7 +167,7 @@ export class Agent {
     )
     const initialLine = this.game.add
       .line(0, 0, this.sprite.x, this.sprite.y, currNodeWorldPos.x, currNodeWorldPos.y)
-      .setStrokeStyle(1, 0x00ff00)
+      .setStrokeStyle(0.5, 0x00ff00)
       .setDisplayOrigin(0.5)
       .setDepth(Constants.SORT_LAYERS.UI)
 
@@ -174,7 +185,7 @@ export class Agent {
       )
       const line = this.game.add
         .line(0, 0, currNodeWorldPos.x, currNodeWorldPos.y, prevNodeWorldPos.x, prevNodeWorldPos.y)
-        .setStrokeStyle(1, 0x00ff00)
+        .setStrokeStyle(0.5, 0x00ff00)
         .setDisplayOrigin(0.5)
         .setDepth(Constants.SORT_LAYERS.UI)
 

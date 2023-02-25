@@ -9,6 +9,7 @@ export default class Game extends Phaser.Scene {
   public tilemap!: Phaser.Tilemaps.Tilemap
 
   public maskGraphics!: Phaser.GameObjects.Graphics
+  public graphics!: Phaser.GameObjects.Graphics
   public mask!: Phaser.Display.Masks.GeometryMask
   public fow!: Phaser.GameObjects.Graphics
   public raycasterPlugin: any
@@ -107,6 +108,9 @@ export default class Game extends Phaser.Scene {
 
   createFOV() {
     this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 } })
+    this.graphics = this.add.graphics({
+      lineStyle: { width: 2, color: 0x00ffff },
+    })
     this.mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics)
     this.mask.setInvertAlpha()
     this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.2 } }).setDepth(100)
@@ -116,6 +120,7 @@ export default class Game extends Phaser.Scene {
 
   update() {
     this.maskGraphics.clear()
+    this.graphics.clear()
     this.cpu.update()
     this.player.update()
   }
@@ -138,5 +143,10 @@ export default class Game extends Phaser.Scene {
 
   public draw(intersections: any[]) {
     this.maskGraphics.fillPoints(intersections)
+  }
+
+  public drawCrosshair(origin: any, intersection: any) {
+    const line = new Phaser.Geom.Line(origin.x, origin.y, intersection.x, intersection.y)
+    this.graphics.strokeLineShape(line)
   }
 }
