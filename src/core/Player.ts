@@ -1,4 +1,5 @@
 import Game from '~/scenes/Game'
+import UI, { CommandState } from '~/scenes/UI'
 import { Agent } from './Agent'
 import { States } from './states/States'
 
@@ -18,7 +19,8 @@ export class Player {
 
   setupInputListeners() {
     this.game.input.on(Phaser.Input.Events.POINTER_DOWN, (e) => {
-      this.queueAgentMoveCommand(e.worldX, e.worldY)
+      this.handleClick(e)
+      // this.queueAgentMoveCommand(e.worldX, e.worldY)
     })
     this.game.input.on(Phaser.Input.Events.POINTER_MOVE, (e) => {
       this.updateCursor()
@@ -27,7 +29,6 @@ export class Player {
       if (e.code.includes('Digit')) {
         this.handleDigit(e.key)
       }
-
       switch (e.code) {
         case 'Space': {
           if (this.game.isPaused) {
@@ -39,6 +40,21 @@ export class Player {
         }
       }
     })
+  }
+
+  handleClick(e: any) {
+    if (UI.instance) {
+      const uiInstance = UI.instance
+      switch (uiInstance.currCommandState) {
+        case CommandState.HOLD: {
+          this.queueAgentHoldCommand(e.worldX, e.worldY)
+          break
+        }
+        case CommandState.MOVE: {
+          this.queueAgentMoveCommand(e.worldX, e.worldY)
+        }
+      }
+    }
   }
 
   handleDigit(digit: string) {
@@ -73,6 +89,14 @@ export class Player {
   queueAgentMoveCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
     agent.setState(States.MOVE, {
+      x: worldX,
+      y: worldY,
+    })
+  }
+
+  queueAgentHoldCommand(worldX: number, worldY: number) {
+    const agent = this.agents[this.selectedAgentIndex]
+    agent.setState(States.HOLD, {
       x: worldX,
       y: worldY,
     })

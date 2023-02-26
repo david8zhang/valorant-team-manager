@@ -3,11 +3,13 @@ import PhaserRaycaster from 'phaser-raycaster'
 
 import Game from './scenes/Game'
 import Preload from './scenes/Preload'
+import UI from './scenes/UI'
+import { Constants } from './utils/Constants'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: 640,
-  height: 480,
+  width: Constants.WINDOW_WIDTH,
+  height: Constants.WINDOW_HEIGHT,
   parent: 'phaser',
   physics: {
     default: 'arcade',
@@ -32,7 +34,7 @@ const config: Phaser.Types.Core.GameConfig = {
       },
     ],
   },
-  scene: [Preload, Game],
+  scene: [Preload, Game, UI],
 }
 
 export default new Phaser.Game(config)

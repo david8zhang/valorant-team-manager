@@ -57,12 +57,13 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.setBackgroundColor('#dddddd')
     this.pausedStateText = this.add
-      .text(Constants.WINDOW_WIDTH, 10, 'Playing')
+      .text(Constants.MAP_WIDTH, 10, 'Playing')
       .setDepth(100)
       .setFontSize(12)
     this.pausedStateText.setPosition(
-      Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20,
+      Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20,
       10
     )
 
@@ -108,19 +109,15 @@ export default class Game extends Phaser.Scene {
 
   createFOV() {
     this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 } })
-    this.graphics = this.add.graphics({
-      lineStyle: { width: 2, color: 0x00ffff },
-    })
     this.mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics)
     this.mask.setInvertAlpha()
     this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.2 } }).setDepth(100)
     this.fow.setMask(this.mask)
-    this.fow.fillRect(0, 0, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT)
+    this.fow.fillRect(0, 0, Constants.MAP_WIDTH, Constants.MAP_HEIGHT)
   }
 
   update() {
     this.maskGraphics.clear()
-    this.graphics.clear()
     this.cpu.update()
     this.player.update()
   }
@@ -129,7 +126,7 @@ export default class Game extends Phaser.Scene {
     this.isPaused = true
     this.pausedStateText
       .setText('Paused')
-      .setPosition(Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20, 10)
+      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.pause()
   }
 
@@ -137,16 +134,11 @@ export default class Game extends Phaser.Scene {
     this.isPaused = false
     this.pausedStateText
       .setText('Playing')
-      .setPosition(Constants.WINDOW_WIDTH - this.pausedStateText.displayWidth - 20, 10)
+      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.unpause()
   }
 
   public draw(intersections: any[]) {
     this.maskGraphics.fillPoints(intersections)
-  }
-
-  public drawCrosshair(origin: any, intersection: any) {
-    const line = new Phaser.Geom.Line(origin.x, origin.y, intersection.x, intersection.y)
-    this.graphics.strokeLineShape(line)
   }
 }

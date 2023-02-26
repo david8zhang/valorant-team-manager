@@ -1,6 +1,7 @@
 import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
 import { Node } from './Pathfinding'
+import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
 import { StateMachine } from './states/StateMachine'
@@ -22,16 +23,11 @@ export class Agent {
   public crosshairRay: any
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
-  public currPath: Node[] = []
-  public currNodeToMoveTo: Node | undefined
-  public pathLines: Phaser.GameObjects.Line[] = []
-  public moveTarget: { x: number; y: number } | null = null
-  public shouldStop: boolean = false
-
   public highlightCircle: Phaser.Physics.Arcade.Sprite
   public isPaused: boolean = false
   public hideSightCones: boolean = false
 
+  public graphics: Phaser.GameObjects.Graphics
   public stateMachine: StateMachine
 
   constructor(config: AgentConfig) {
@@ -55,9 +51,14 @@ export class Agent {
       {
         [States.IDLE]: new IdleState(),
         [States.MOVE]: new MoveState(),
+        [States.HOLD]: new HoldState(),
       },
       [this]
     )
+
+    this.graphics = this.game.add.graphics({
+      lineStyle: { width: 2, color: 0x00ffff },
+    })
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {
@@ -74,6 +75,7 @@ export class Agent {
   }
 
   update() {
+    this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
     this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
@@ -93,8 +95,18 @@ export class Agent {
     if (!this.hideSightCones) {
       // hide sight cones (for CPU agents)
       this.game.draw(visionIntersections)
-      this.game.drawCrosshair(this.crosshairRay.origin, crosshairIntersection)
+      this.drawCrosshair(crosshairIntersection)
     }
+  }
+
+  drawCrosshair(intersection: { x: number; y: number }) {
+    const line = new Phaser.Geom.Line(
+      this.crosshairRay.origin.x,
+      this.crosshairRay.origin.y,
+      intersection.x,
+      intersection.y
+    )
+    this.graphics.strokeLineShape(line)
   }
 
   setState(state: States, enterArgs?: any) {

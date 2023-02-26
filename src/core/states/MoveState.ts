@@ -39,6 +39,13 @@ export class MoveState extends State {
     this.setRayDirection(agent)
   }
 
+  exit() {
+    this.pathLines.forEach((pathLine) => {
+      pathLine.destroy()
+    })
+    this.pathLines = []
+  }
+
   private tracePath(agent: Agent) {
     this.pathLines.forEach((line) => {
       line.destroy()
