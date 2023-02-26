@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { Agent } from './Agent'
+import { States } from './states/States'
 
 export class Player {
   public game: Game
@@ -71,7 +72,10 @@ export class Player {
 
   queueAgentMoveCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
-    agent.moveToLocation(worldX, worldY)
+    agent.setState(States.MOVE, {
+      x: worldX,
+      y: worldY,
+    })
   }
 
   createAgents() {
