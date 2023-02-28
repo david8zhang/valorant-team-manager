@@ -1,6 +1,7 @@
 import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
-import { Agent } from './Agent'
+import { Constants } from '~/utils/Constants'
+import { Agent, Side } from './Agent'
 import { States } from './states/States'
 
 export class Player {
@@ -20,7 +21,6 @@ export class Player {
   setupInputListeners() {
     this.game.input.on(Phaser.Input.Events.POINTER_DOWN, (e) => {
       this.handleClick(e)
-      // this.queueAgentMoveCommand(e.worldX, e.worldY)
     })
     this.game.input.on(Phaser.Input.Events.POINTER_MOVE, (e) => {
       this.updateCursor()
@@ -114,6 +114,7 @@ export class Player {
         texture: 'player-agent',
         sightAngleDeg: 90,
         raycaster: this.game.playerRaycaster,
+        side: Side.PLAYER,
       })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20
@@ -122,15 +123,25 @@ export class Player {
 
   updateCursor() {
     const mousePointer = this.game.input.mousePointer
-    const tilePos = this.game.getTilePosForWorldPos(mousePointer.worldX, mousePointer.worldY)
-    const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
-    const tile = this.game.getTileAt(mousePointer.worldX, mousePointer.worldY)
 
-    this.cursorRect.setPosition(tileCenter.x, tileCenter.y)
-    if (tile.index === 1) {
-      this.cursorRect.setStrokeStyle(2, 0xff0000)
-    } else {
-      this.cursorRect.setStrokeStyle(2, 0x00ff00)
+    const tilePos = this.game.getTilePosForWorldPos(mousePointer.worldX, mousePointer.worldY)
+
+    const layer = this.game.tilemap.getLayer('Base')
+    if (
+      tilePos.row >= 0 &&
+      tilePos.row < layer.data.length &&
+      tilePos.col >= 0 &&
+      tilePos.col < layer.data[0].length
+    ) {
+      const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
+      const tile = this.game.getTileAt(mousePointer.worldX, mousePointer.worldY)
+
+      this.cursorRect.setPosition(tileCenter.x, tileCenter.y)
+      if (tile.index === 1) {
+        this.cursorRect.setStrokeStyle(2, 0xff0000)
+      } else {
+        this.cursorRect.setStrokeStyle(2, 0x00ff00)
+      }
     }
   }
 

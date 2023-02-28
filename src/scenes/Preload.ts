@@ -11,6 +11,7 @@ export default class Preload extends Phaser.Scene {
 
     this.load.image('move-icon', 'ui/move-icon.png')
     this.load.image('watch-icon', 'ui/watch-icon.png')
+    this.load.image('muzzle-flare', 'effects/muzzle-flare.png')
   }
 
   create() {

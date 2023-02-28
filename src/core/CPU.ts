@@ -1,5 +1,5 @@
 import Game from '~/scenes/Game'
-import { Agent } from './Agent'
+import { Agent, Side } from './Agent'
 
 export class CPU {
   public game: Game
@@ -23,6 +23,7 @@ export class CPU {
         sightAngleDeg: 270,
         hideSightCones: true,
         raycaster: this.game.cpuRaycaster,
+        side: Side.CPU,
       })
       newAgent.sprite.setVisible(false)
       this.agents.push(newAgent)

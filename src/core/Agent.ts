@@ -1,11 +1,15 @@
 import Game from '~/scenes/Game'
-import { Constants } from '~/utils/Constants'
-import { Node } from './Pathfinding'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
+import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
+
+export enum Side {
+  PLAYER = 'PLAYER',
+  CPU = 'CPU',
+}
 
 export interface AgentConfig {
   position: {
@@ -16,6 +20,7 @@ export interface AgentConfig {
   sightAngleDeg: number
   hideSightCones?: boolean
   raycaster: any
+  side: Side
 }
 
 export class Agent {
@@ -29,6 +34,7 @@ export class Agent {
 
   public graphics: Phaser.GameObjects.Graphics
   public stateMachine: StateMachine
+  public side: Side
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -40,6 +46,7 @@ export class Agent {
       .sprite(config.position.x, config.position.y, config.texture)
       .setDepth(50)
       .setName('agent')
+      .setData('ref', this)
     this.highlightCircle = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
       .setTintFill(0xffff00)
@@ -52,13 +59,15 @@ export class Agent {
         [States.IDLE]: new IdleState(),
         [States.MOVE]: new MoveState(),
         [States.HOLD]: new HoldState(),
+        [States.SHOOT]: new ShootingState(),
       },
       [this]
     )
 
     this.graphics = this.game.add.graphics({
-      lineStyle: { width: 2, color: 0x00ffff },
+      lineStyle: { width: 2, color: 0x00ffff, alpha: 0.3 },
     })
+    this.side = config.side
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {
@@ -74,11 +83,23 @@ export class Agent {
     this.crosshairRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
   }
 
+  didDetectEnemy() {
+    const intersections = this.visionRay.castCone()
+    return (
+      intersections.find((n) => {
+        return n.object && n.object.name === 'agent'
+      }) !== undefined
+    )
+  }
+
   update() {
     this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
     this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
+    if (this.didDetectEnemy() && this.stateMachine.getState() !== States.SHOOT) {
+      this.stateMachine.transition(States.SHOOT)
+    }
   }
 
   updateVisionAndCrosshair() {
