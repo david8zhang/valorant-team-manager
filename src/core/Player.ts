@@ -1,6 +1,5 @@
 import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
-import { Constants } from '~/utils/Constants'
 import { Agent, Side } from './Agent'
 import { States } from './states/States'
 
@@ -123,9 +122,7 @@ export class Player {
 
   updateCursor() {
     const mousePointer = this.game.input.mousePointer
-
     const tilePos = this.game.getTilePosForWorldPos(mousePointer.worldX, mousePointer.worldY)
-
     const layer = this.game.tilemap.getLayer('Base')
     if (
       tilePos.row >= 0 &&
@@ -135,7 +132,6 @@ export class Player {
     ) {
       const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
       const tile = this.game.getTileAt(mousePointer.worldX, mousePointer.worldY)
-
       this.cursorRect.setPosition(tileCenter.x, tileCenter.y)
       if (tile.index === 1) {
         this.cursorRect.setStrokeStyle(2, 0xff0000)

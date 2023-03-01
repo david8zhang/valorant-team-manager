@@ -34,6 +34,7 @@ export class CPU {
   update() {
     this.agents.forEach((agent) => {
       agent.sprite.setVisible(false)
+      agent.healthBar.setVisible(false)
       agent.update()
     })
   }

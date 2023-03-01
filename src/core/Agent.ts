@@ -1,14 +1,22 @@
 import Game from '~/scenes/Game'
+import { GunTypes } from '~/utils/Constants'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
 import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
+import { UIValueBar } from './UIValueBar'
 
 export enum Side {
   PLAYER = 'PLAYER',
   CPU = 'CPU',
+}
+
+export enum WeaponTypes {
+  PRIMARY = 'PRIMARY',
+  SECONDARY = 'SECONDARY',
+  MELEE = 'MELEE',
 }
 
 export interface AgentConfig {
@@ -35,6 +43,12 @@ export class Agent {
   public graphics: Phaser.GameObjects.Graphics
   public stateMachine: StateMachine
   public side: Side
+
+  public healthBar!: UIValueBar
+  public weapons: {
+    [key in WeaponTypes]: GunTypes | null
+  }
+  private currEquippedWeapon: WeaponTypes = WeaponTypes.SECONDARY
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -68,6 +82,30 @@ export class Agent {
       lineStyle: { width: 2, color: 0x00ffff, alpha: 0.3 },
     })
     this.side = config.side
+    this.setupHealthBar()
+    this.weapons = {
+      [WeaponTypes.PRIMARY]: null,
+      [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
+      [WeaponTypes.MELEE]: null,
+    }
+  }
+
+  setupHealthBar() {
+    const healthBarWidth = this.sprite.displayWidth * 2
+    this.healthBar = new UIValueBar(this.game, {
+      x: this.sprite.x - healthBarWidth / 2,
+      y: this.sprite.y - this.sprite.displayHeight - 5,
+      height: 2,
+      width: healthBarWidth,
+      maxValue: 100,
+      borderWidth: 0,
+      fillColor: 0x00ff00,
+    })
+  }
+
+  takeDamage(damage: number) {
+    const newValue = Math.max(0, this.healthBar.currValue - damage)
+    this.healthBar.setCurrValue(newValue)
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {
@@ -92,6 +130,10 @@ export class Agent {
     )
   }
 
+  get currWeapon(): GunTypes | null {
+    return this.weapons[this.currEquippedWeapon]
+  }
+
   update() {
     this.graphics.clear()
     this.stateMachine.step()
@@ -100,6 +142,9 @@ export class Agent {
     if (this.didDetectEnemy() && this.stateMachine.getState() !== States.SHOOT) {
       this.stateMachine.transition(States.SHOOT)
     }
+    this.healthBar.x = this.sprite.x - this.healthBar.width / 2
+    this.healthBar.y = this.sprite.y - this.sprite.displayHeight - 5
+    this.healthBar.draw()
   }
 
   updateVisionAndCrosshair() {
@@ -109,7 +154,9 @@ export class Agent {
     visionIntersections.push(this.visionRay.origin)
     visionIntersections.forEach((n) => {
       if (n.object && n.object.name === 'agent') {
-        n.object.setVisible(true)
+        const agent = n.object.getData('ref') as Agent
+        agent.sprite.setVisible(true)
+        agent.healthBar.setVisible(true)
       }
     })
     const crosshairIntersection = this.crosshairRay.cast()
