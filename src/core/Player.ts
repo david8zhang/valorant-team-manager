@@ -42,7 +42,7 @@ export class Player {
   }
 
   handleClick(e: any) {
-    if (UI.instance) {
+    if (UI.instance && !this.areAllAgentsDead()) {
       const uiInstance = UI.instance
       switch (uiInstance.currCommandState) {
         case CommandState.HOLD: {
@@ -54,6 +54,15 @@ export class Player {
         }
       }
     }
+  }
+
+  areAllAgentsDead() {
+    for (let i = 0; i < this.agents.length; i++) {
+      if (this.agents[i].getCurrState() !== States.DIE) {
+        return false
+      }
+    }
+    return true
   }
 
   handleDigit(digit: string) {
@@ -76,13 +85,15 @@ export class Player {
   }
 
   selectAgent(newAgentIndex: number) {
-    if (this.selectedAgentIndex !== newAgentIndex) {
-      const oldAgent = this.agents[this.selectedAgentIndex]
-      oldAgent.dehighlight()
-    }
     const selectedAgent = this.agents[newAgentIndex]
-    selectedAgent.highlight()
-    this.selectedAgentIndex = newAgentIndex
+    if (selectedAgent.getCurrState() !== States.DIE) {
+      if (this.selectedAgentIndex !== newAgentIndex) {
+        const oldAgent = this.agents[this.selectedAgentIndex]
+        oldAgent.dehighlight()
+      }
+      selectedAgent.highlight()
+      this.selectedAgentIndex = newAgentIndex
+    }
   }
 
   queueAgentMoveCommand(worldX: number, worldY: number) {
@@ -110,6 +121,7 @@ export class Player {
           x: startX,
           y: startY,
         },
+        name: `player-${i}`,
         texture: 'player-agent',
         sightAngleDeg: 90,
         raycaster: this.game.playerRaycaster,
@@ -149,7 +161,23 @@ export class Player {
     this.cursorRect.setStrokeStyle(2, 0x00ff00).setDepth(100)
   }
 
+  get selectedAgent() {
+    return this.agents[this.selectedAgentIndex]
+  }
+
+  selectNextLivingAgent() {
+    for (let i = 0; i < this.agents.length; i++) {
+      if (this.agents[i].getCurrState() !== States.DIE) {
+        this.selectAgent(i)
+      }
+    }
+  }
+
   update() {
+    if (this.selectedAgent.getCurrState() === States.DIE) {
+      this.selectNextLivingAgent()
+    }
+
     this.agents.forEach((agent) => {
       agent.update()
     })

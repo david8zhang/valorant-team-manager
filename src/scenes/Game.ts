@@ -96,10 +96,10 @@ export default class Game extends Phaser.Scene {
     this.cpu = new CPU()
 
     this.cpu.agents.forEach((agent) => {
-      this.playerRaycaster.mapGameObjects(agent.sprite)
+      this.playerRaycaster.mapGameObjects(agent.sprite, true)
     })
     this.player.agents.forEach((agent) => {
-      this.cpuRaycaster.mapGameObjects(agent)
+      this.cpuRaycaster.mapGameObjects(agent.sprite, true)
     })
   }
 

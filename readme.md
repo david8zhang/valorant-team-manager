@@ -4,6 +4,6 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- Agents shoot enemies when they see them
+- Barriers and pre-round
 - CPU AI movement
-- Agent crosshair line
+- Scoreboard to the right

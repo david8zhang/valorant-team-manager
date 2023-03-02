@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { Agent, Side } from './Agent'
+import { States } from './states/States'
 
 export class CPU {
   public game: Game
@@ -19,6 +20,7 @@ export class CPU {
           x: startX,
           y: startY,
         },
+        name: `cpu-${i}`,
         texture: 'cpu-agent',
         sightAngleDeg: 270,
         hideSightCones: true,

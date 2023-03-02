@@ -62,6 +62,14 @@ export default class UI extends Phaser.Scene {
   }
 
   create() {
+    const backgroundRectangle = this.add
+      .rectangle(
+        0,
+        Constants.MAP_HEIGHT,
+        Constants.MAP_WIDTH,
+        Constants.WINDOW_HEIGHT - Constants.MAP_HEIGHT
+      )
+      .setOrigin(0)
     this.createCommandIcon(
       'move-icon',
       Constants.WINDOW_WIDTH / 2 - 24,
@@ -76,6 +84,7 @@ export default class UI extends Phaser.Scene {
       CommandState.HOLD,
       'S'
     )
+    backgroundRectangle.setFillStyle(0xdddddd)
     this.selectNewCommand(this.currCommandState)
     this.setupKeyboardShortcutListener()
   }

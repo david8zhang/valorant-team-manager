@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { GunTypes } from '~/utils/Constants'
+import { DeathState } from './states/DeathState'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
@@ -24,6 +25,7 @@ export interface AgentConfig {
     x: number
     y: number
   }
+  name: string
   texture: string
   sightAngleDeg: number
   hideSightCones?: boolean
@@ -39,6 +41,7 @@ export class Agent {
   public highlightCircle: Phaser.Physics.Arcade.Sprite
   public isPaused: boolean = false
   public hideSightCones: boolean = false
+  public name: string
 
   public graphics: Phaser.GameObjects.Graphics
   public stateMachine: StateMachine
@@ -55,6 +58,7 @@ export class Agent {
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
+    this.name = config.name
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
@@ -74,6 +78,7 @@ export class Agent {
         [States.MOVE]: new MoveState(),
         [States.HOLD]: new HoldState(),
         [States.SHOOT]: new ShootingState(),
+        [States.DIE]: new DeathState(),
       },
       [this]
     )
@@ -103,9 +108,16 @@ export class Agent {
     })
   }
 
+  getCurrState() {
+    return this.stateMachine.getState()
+  }
+
   takeDamage(damage: number) {
     const newValue = Math.max(0, this.healthBar.currValue - damage)
     this.healthBar.setCurrValue(newValue)
+    if (newValue == 0) {
+      this.stateMachine.transition(States.DIE)
+    }
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {
@@ -125,7 +137,11 @@ export class Agent {
     const intersections = this.visionRay.castCone()
     return (
       intersections.find((n) => {
-        return n.object && n.object.name === 'agent'
+        if (!n.object || n.object.name !== 'agent') {
+          return false
+        }
+        const agent = n.object.getData('ref') as Agent
+        return agent.side !== this.side
       }) !== undefined
     )
   }
@@ -139,7 +155,7 @@ export class Agent {
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
     this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
-    if (this.didDetectEnemy() && this.stateMachine.getState() !== States.SHOOT) {
+    if (this.didDetectEnemy() && this.canShootEnemy()) {
       this.stateMachine.transition(States.SHOOT)
     }
     this.healthBar.x = this.sprite.x - this.healthBar.width / 2
@@ -147,23 +163,33 @@ export class Agent {
     this.healthBar.draw()
   }
 
+  canShootEnemy() {
+    return (
+      this.stateMachine.getState() !== States.SHOOT && this.stateMachine.getState() !== States.DIE
+    )
+  }
+
   updateVisionAndCrosshair() {
-    this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
-    this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
-    const visionIntersections = this.visionRay.castCone()
-    visionIntersections.push(this.visionRay.origin)
-    visionIntersections.forEach((n) => {
-      if (n.object && n.object.name === 'agent') {
-        const agent = n.object.getData('ref') as Agent
-        agent.sprite.setVisible(true)
-        agent.healthBar.setVisible(true)
+    if (this.getCurrState() !== States.DIE) {
+      this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
+      this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
+      const visionIntersections = this.visionRay.castCone()
+      visionIntersections.push(this.visionRay.origin)
+      visionIntersections.forEach((n) => {
+        if (n.object && n.object.name === 'agent') {
+          const agent = n.object.getData('ref') as Agent
+          if (agent.getCurrState() !== States.DIE) {
+            agent.sprite.setVisible(true)
+            agent.healthBar.setVisible(true)
+          }
+        }
+      })
+      const crosshairIntersection = this.crosshairRay.cast()
+      if (!this.hideSightCones) {
+        // hide sight cones (for CPU agents)
+        this.game.draw(visionIntersections)
+        this.drawCrosshair(crosshairIntersection)
       }
-    })
-    const crosshairIntersection = this.crosshairRay.cast()
-    if (!this.hideSightCones) {
-      // hide sight cones (for CPU agents)
-      this.game.draw(visionIntersections)
-      this.drawCrosshair(crosshairIntersection)
     }
   }
 
