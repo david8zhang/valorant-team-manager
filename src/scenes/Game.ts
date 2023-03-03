@@ -17,10 +17,16 @@ export default class Game extends Phaser.Scene {
   public cpuRaycaster: any
 
   public player!: Player
+  public playerAgentsGroup!: Phaser.GameObjects.Group
   public cpu!: CPU
+  public cpuAgentsGroup!: Phaser.GameObjects.Group
+
   public pathfinding!: Pathfinding
   public isPaused: boolean = false
   public pausedStateText!: Phaser.GameObjects.Text
+
+  public layers: any = {}
+  public walls: Phaser.GameObjects.Group | any
 
   constructor() {
     super('game')
@@ -57,7 +63,6 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
-    this.cameras.main.setBackgroundColor('#dddddd')
     this.pausedStateText = this.add
       .text(Constants.MAP_WIDTH, 10, 'Playing')
       .setDepth(100)
@@ -66,7 +71,53 @@ export default class Game extends Phaser.Scene {
       Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20,
       10
     )
+    this.initMap()
+    this.initRaycaster()
+    this.createFOV()
+    this.fow.setDepth(Constants.SORT_LAYERS.BottomLayer + 1)
+    this.layers.top.setDepth(Constants.SORT_LAYERS.TopLayer)
+    this.pathfinding = new Pathfinding({
+      tilemap: this.tilemap,
+      unwalkableTiles: [1],
+    })
+    this.initPlayerAndCPU()
+    this.initColliders()
+  }
 
+  initColliders() {
+    this.physics.add.collider(this.playerAgentsGroup, this.walls)
+    this.physics.add.collider(this.cpuAgentsGroup, this.walls)
+  }
+
+  initRaycaster() {
+    const baseLayer = this.layers.base
+    this.playerRaycaster = this.raycasterPlugin.createRaycaster()
+    this.playerRaycaster.mapGameObjects(baseLayer, false, {
+      collisionTiles: [1],
+    })
+    this.cpuRaycaster = this.raycasterPlugin.createRaycaster()
+    this.cpuRaycaster.mapGameObjects(baseLayer, false, {
+      collisionTiles: [1],
+    })
+  }
+
+  initPlayerAndCPU() {
+    this.player = new Player()
+    this.cpu = new CPU()
+    this.playerAgentsGroup = this.add.group()
+    this.cpuAgentsGroup = this.add.group()
+
+    this.cpu.agents.forEach((agent) => {
+      this.playerAgentsGroup.add(agent.sprite)
+      this.playerRaycaster.mapGameObjects(agent.sprite, true)
+    })
+    this.player.agents.forEach((agent) => {
+      this.cpuAgentsGroup.add(agent.sprite)
+      this.cpuRaycaster.mapGameObjects(agent.sprite, true)
+    })
+  }
+
+  initMap() {
     // Initialize tilemap
     this.tilemap = this.make.tilemap({
       key: 'map',
@@ -74,33 +125,34 @@ export default class Game extends Phaser.Scene {
     const tileset = this.tilemap.addTilesetImage('map-tiles', 'map-tiles')
     const baseLayer = this.createLayer('Base', tileset)
     const topLayer = this.createLayer('Top', tileset)
+    this.layers.base = baseLayer
+    this.layers.top = topLayer
+    this.walls = this.add.group()
 
-    this.playerRaycaster = this.raycasterPlugin.createRaycaster()
-    this.playerRaycaster.mapGameObjects(baseLayer, false, {
-      collisionTiles: [1],
-    })
+    // TODO: Load walls from a config
+    this.createWall({ x: 8, y: 168 }, { x: 104, y: 168 })
+    this.createWall({ x: 200, y: 152 }, { x: 248, y: 152 })
+    this.createWall({ x: 520, y: 152 }, { x: 568, y: 152 })
+  }
 
-    this.cpuRaycaster = this.raycasterPlugin.createRaycaster()
-    this.cpuRaycaster.mapGameObjects(baseLayer, false, {
-      collisionTiles: [1],
-    })
+  createWall(
+    start: { x: number; y: number },
+    end: { x: number; y: number },
+    isVertical: boolean = false
+  ) {
+    const startXPos = isVertical ? start.x : start.x - 8
+    const startYPos = isVertical ? start.y - 8 : start.y
+    const wallSprite = this.physics.add
+      .sprite(startXPos, startYPos, 'wall')
+      .setDepth(Constants.SORT_LAYERS.UI)
+      .setOrigin(0, 0.5)
+    wallSprite.setImmovable(true)
 
-    this.createFOV()
-    this.fow.setDepth(Constants.SORT_LAYERS.BottomLayer + 1)
-    topLayer.setDepth(Constants.SORT_LAYERS.TopLayer)
-    this.pathfinding = new Pathfinding({
-      tilemap: this.tilemap,
-      unwalkableTiles: [1],
-    })
-    this.player = new Player()
-    this.cpu = new CPU()
-
-    this.cpu.agents.forEach((agent) => {
-      this.playerRaycaster.mapGameObjects(agent.sprite, true)
-    })
-    this.player.agents.forEach((agent) => {
-      this.cpuRaycaster.mapGameObjects(agent.sprite, true)
-    })
+    let scaledWidth = isVertical ? wallSprite.displayWidth : end.x - start.x
+    let scaledHeight = isVertical ? end.y - start.y : wallSprite.displayHeight
+    wallSprite.setDisplaySize(scaledWidth, scaledHeight)
+    this.walls.add(wallSprite)
+    return wallSprite
   }
 
   createLayer(layerName: string, tileset: Phaser.Tilemaps.Tileset) {

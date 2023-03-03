@@ -38,7 +38,6 @@ export class Agent {
   public crosshairRay: any
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
-  public highlightCircle: Phaser.Physics.Arcade.Sprite
   public isPaused: boolean = false
   public hideSightCones: boolean = false
   public name: string
@@ -65,12 +64,6 @@ export class Agent {
       .setDepth(50)
       .setName('agent')
       .setData('ref', this)
-    this.highlightCircle = this.game.physics.add
-      .sprite(config.position.x, config.position.y, config.texture)
-      .setTintFill(0xffff00)
-      .setVisible(false)
-      .setScale(1.5)
-      .setDepth(this.sprite.depth - 1)
     this.stateMachine = new StateMachine(
       States.IDLE,
       {
@@ -154,7 +147,6 @@ export class Agent {
     this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
-    this.highlightCircle.setVelocity(this.sprite.body.velocity.x, this.sprite.body.velocity.y)
     if (this.didDetectEnemy() && this.canShootEnemy()) {
       this.stateMachine.transition(States.SHOOT)
     }
@@ -208,11 +200,11 @@ export class Agent {
   }
 
   highlight() {
-    this.highlightCircle.setPosition(this.sprite.x, this.sprite.y).setVisible(true)
+    this.sprite.setTintFill(0xffff00)
   }
 
   dehighlight() {
-    this.highlightCircle.setVisible(false)
+    this.sprite.clearTint()
   }
 
   pause() {

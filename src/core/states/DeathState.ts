@@ -5,7 +5,6 @@ import { State } from './StateMachine'
 export class DeathState extends State {
   enter(agent: Agent) {
     agent.sprite.setVisible(false)
-    agent.highlightCircle.setVisible(false)
     agent.healthBar.setVisible(false)
     agent.hideSightCones = true
 

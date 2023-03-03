@@ -16,7 +16,6 @@ export class ShootingState extends State {
       this.target = target
     } else {
       agent.sprite.setVelocity(0, 0)
-      agent.highlightCircle.setVelocity(0, 0)
       this.setTarget(agent)
       if (!this.muzzleFlareSprite) {
         this.muzzleFlareSprite = Game.instance.add

@@ -19,7 +19,6 @@ export class HoldState extends State {
         this.target.y
       )
       agent.sprite.setVelocity(0, 0)
-      agent.highlightCircle.setVelocity(0, 0)
       agent.visionRay.setAngle(angle)
       agent.crosshairRay.setAngle(angle)
     }
