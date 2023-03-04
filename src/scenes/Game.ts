@@ -27,6 +27,8 @@ export default class Game extends Phaser.Scene {
 
   public layers: any = {}
   public walls: Phaser.GameObjects.Group | any
+  public isDebug: boolean = false
+  public debugHandlers: Function[] = []
 
   constructor() {
     super('game')
@@ -62,7 +64,20 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  setupDebugKeyListener() {
+    this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
+      if (e.code === 'Backquote') {
+        this.isDebug = !this.isDebug
+        this.debugHandlers.forEach((handler) => {
+          handler(this.isDebug)
+        })
+      }
+    })
+  }
+
   create() {
+    this.setupDebugKeyListener()
+    this.cameras.main.setScroll(0, -Constants.TOP_BAR_HEIGHT)
     this.pausedStateText = this.add
       .text(Constants.MAP_WIDTH, 10, 'Playing')
       .setDepth(100)
@@ -130,9 +145,15 @@ export default class Game extends Phaser.Scene {
     this.walls = this.add.group()
 
     // TODO: Load walls from a config
+    // Player side walls
     this.createWall({ x: 8, y: 168 }, { x: 104, y: 168 })
     this.createWall({ x: 200, y: 152 }, { x: 248, y: 152 })
     this.createWall({ x: 520, y: 152 }, { x: 568, y: 152 })
+
+    // CPU side walls
+    this.createWall({ x: 152, y: 392 }, { x: 152, y: 440 }, true)
+    this.createWall({ x: 296, y: 296 }, { x: 344, y: 296 })
+    this.createWall({ x: 440, y: 376 }, { x: 440, y: 456 }, true)
   }
 
   createWall(
@@ -143,9 +164,13 @@ export default class Game extends Phaser.Scene {
     const startXPos = isVertical ? start.x : start.x - 8
     const startYPos = isVertical ? start.y - 8 : start.y
     const wallSprite = this.physics.add
-      .sprite(startXPos, startYPos, 'wall')
+      .sprite(startXPos, startYPos, isVertical ? 'wall-vertical' : 'wall-horizontal')
       .setDepth(Constants.SORT_LAYERS.UI)
-      .setOrigin(0, 0.5)
+    if (isVertical) {
+      wallSprite.setOrigin(0.5, 0)
+    } else {
+      wallSprite.setOrigin(0, 0.5)
+    }
     wallSprite.setImmovable(true)
 
     let scaledWidth = isVertical ? wallSprite.displayWidth : end.x - start.x

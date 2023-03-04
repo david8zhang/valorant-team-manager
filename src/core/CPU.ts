@@ -9,6 +9,23 @@ export class CPU {
   constructor() {
     this.game = Game.instance
     this.createAgents()
+    this.setupDebugListener()
+  }
+
+  setupDebugListener() {
+    this.game.debugHandlers.push((isDebug) => {
+      this.agents.forEach((agent) => {
+        if (isDebug) {
+          agent.sprite.setVisible(true)
+          agent.healthBar.setVisible(true)
+          agent.hideSightCones = false
+        } else {
+          agent.sprite.setVisible(false)
+          agent.healthBar.setVisible(false)
+          agent.hideSightCones = true
+        }
+      })
+    })
   }
 
   createAgents() {
@@ -35,8 +52,10 @@ export class CPU {
 
   update() {
     this.agents.forEach((agent) => {
-      agent.sprite.setVisible(false)
-      agent.healthBar.setVisible(false)
+      if (!this.game.isDebug) {
+        agent.sprite.setVisible(false)
+        agent.healthBar.setVisible(false)
+      }
       agent.update()
     })
   }

@@ -14,11 +14,14 @@ export interface GunConfig {
 }
 
 export class Constants {
+  public static TOP_BAR_HEIGHT = 60
+  public static BOTTOM_BAR_HEIGHT = 60
   public static MAP_WIDTH = 640
   public static MAP_HEIGHT = 480
 
   public static WINDOW_WIDTH = 640
-  public static WINDOW_HEIGHT = 540
+  public static WINDOW_HEIGHT =
+    Constants.MAP_HEIGHT + Constants.TOP_BAR_HEIGHT + Constants.BOTTOM_BAR_HEIGHT
 
   public static SORT_LAYERS = {
     UI: 30,

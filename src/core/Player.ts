@@ -28,16 +28,6 @@ export class Player {
       if (e.code.includes('Digit')) {
         this.handleDigit(e.key)
       }
-      switch (e.code) {
-        case 'Space': {
-          if (this.game.isPaused) {
-            this.game.unPause()
-          } else {
-            this.game.pause()
-          }
-          break
-        }
-      }
     })
   }
 
