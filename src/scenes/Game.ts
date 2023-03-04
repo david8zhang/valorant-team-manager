@@ -100,8 +100,8 @@ export default class Game extends Phaser.Scene {
   }
 
   initColliders() {
-    this.physics.add.collider(this.playerAgentsGroup, this.walls)
-    this.physics.add.collider(this.cpuAgentsGroup, this.walls)
+    // this.physics.add.collider(this.playerAgentsGroup, this.walls)
+    // this.physics.add.collider(this.cpuAgentsGroup, this.walls)
   }
 
   initRaycaster() {

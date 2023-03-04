@@ -134,6 +134,10 @@ export class Player {
     ) {
       const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
       const tile = this.game.getTileAt(mousePointer.worldX, mousePointer.worldY)
+      if (this.game.isDebug) {
+        console.info('[Cursor]: ', tileCenter.x, tileCenter.y)
+      }
+
       this.cursorRect.setPosition(tileCenter.x, tileCenter.y)
       if (tile.index === 1) {
         this.cursorRect.setStrokeStyle(2, 0xff0000)

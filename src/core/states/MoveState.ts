@@ -9,12 +9,20 @@ export class MoveState extends State {
   public currPath: Node[] = []
   public currNodeToMoveTo: Node | undefined
   public pathLines: Phaser.GameObjects.Line[] = []
-  public shouldStop: boolean = false
+  public arrivedAtDestination: boolean = false
   public moveTarget: { x: number; y: number } | null = null
 
-  enter(agent: Agent, pointToMoveTo: { x: number; y: number }) {
-    this.shouldStop = false
+  // On reached destination callback
+  public onReachedDestination: Function | null = null
+  public onReachedDestinationInvoked: boolean = false
+
+  enter(agent: Agent, pointToMoveTo: { x: number; y: number }, onReachedDestination?: Function) {
+    this.onReachedDestinationInvoked = false
+    this.arrivedAtDestination = false
     this.moveTarget = null
+    if (onReachedDestination) {
+      this.onReachedDestination = onReachedDestination
+    }
     const endTilePos = Game.instance.getTilePosForWorldPos(pointToMoveTo.x, pointToMoveTo.y)
     const currTilePos = Game.instance.getTilePosForWorldPos(agent.sprite.x, agent.sprite.y)
     const path = Game.instance.pathfinding.getPath(currTilePos, endTilePos)
@@ -24,7 +32,7 @@ export class MoveState extends State {
 
   execute(agent: Agent) {
     this.tracePath(agent)
-    if (this.isAtMoveTarget(agent) || !this.moveTarget) {
+    if (MoveState.isAtMoveTarget(agent, this.moveTarget) || !this.moveTarget) {
       const currNode = this.currPath.shift()
       if (currNode) {
         this.moveTarget = Game.instance.getWorldPosForTilePos(
@@ -32,7 +40,7 @@ export class MoveState extends State {
           currNode.position.col
         )
       } else {
-        this.shouldStop = true
+        this.arrivedAtDestination = true
       }
     }
     this.moveTowardTarget(agent)
@@ -86,13 +94,13 @@ export class MoveState extends State {
     }
   }
 
-  private isAtMoveTarget(agent: Agent) {
-    if (!this.moveTarget) {
+  public static isAtMoveTarget(agent: Agent, moveTarget: { x: number; y: number } | null) {
+    if (!moveTarget) {
       return false
     }
     const distanceToTarget = Phaser.Math.Distance.Between(
-      this.moveTarget.x,
-      this.moveTarget.y,
+      moveTarget.x,
+      moveTarget.y,
       agent.sprite.x,
       agent.sprite.y
     )
@@ -100,7 +108,7 @@ export class MoveState extends State {
   }
 
   private setRayDirection(agent: Agent) {
-    if (this.moveTarget && !this.shouldStop && !agent.isPaused) {
+    if (this.moveTarget && !this.arrivedAtDestination && !agent.isPaused) {
       const angle = Phaser.Math.Angle.Between(
         agent.sprite.x,
         agent.sprite.y,
@@ -117,7 +125,11 @@ export class MoveState extends State {
       agent.sprite.setVelocity(0, 0)
       return
     }
-    if (this.shouldStop) {
+    if (this.arrivedAtDestination) {
+      if (this.onReachedDestination && !this.onReachedDestinationInvoked) {
+        this.onReachedDestinationInvoked = true
+        this.onReachedDestination()
+      }
       this.moveTarget = null
       agent.setState(States.IDLE)
       return

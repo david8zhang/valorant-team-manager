@@ -147,9 +147,6 @@ export class Agent {
     this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
-    if (this.didDetectEnemy() && this.canShootEnemy()) {
-      this.stateMachine.transition(States.SHOOT)
-    }
     this.healthBar.x = this.sprite.x - this.healthBar.width / 2
     this.healthBar.y = this.sprite.y - this.sprite.displayHeight - 5
     this.healthBar.draw()
@@ -195,8 +192,8 @@ export class Agent {
     this.graphics.strokeLineShape(line)
   }
 
-  setState(state: States, enterArgs?: any) {
-    this.stateMachine.transition(state, enterArgs)
+  setState(state: States, ...enterArgs: any) {
+    this.stateMachine.transition(state, ...enterArgs)
   }
 
   highlight() {

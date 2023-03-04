@@ -58,4 +58,53 @@ export class Constants {
       fireDelay: 200,
     },
   }
+
+  private static _A_SITE_POSITIONS: any[] | null = null
+  private static _B_SITE_POSITIONS: any[] | null = null
+  public static get A_SITE_POSITIONS() {
+    if (Constants._A_SITE_POSITIONS) {
+      return Constants._A_SITE_POSITIONS
+    } else {
+      console.log('Calculating a site positions...')
+      const start = {
+        x: 8,
+        y: 8,
+      }
+      const end = {
+        x: 88,
+        y: 120,
+      }
+      const positions: any[] = []
+      for (let x = start.x; x <= end.x; x += 16) {
+        for (let y = start.y; y <= end.y; y += 16) {
+          positions.push({ x, y })
+        }
+      }
+      Constants._A_SITE_POSITIONS = positions
+      return positions
+    }
+  }
+  public static get B_SITE_POSITIONS() {
+    if (Constants._B_SITE_POSITIONS) {
+      return Constants._B_SITE_POSITIONS
+    } else {
+      console.log('Calculating b site positions...')
+      const start = {
+        x: 568,
+        y: 216,
+      }
+      const end = {
+        x: 632,
+        y: 312,
+      }
+      const positions: any[] = []
+      for (let x = start.x; x <= end.x; x += 16) {
+        for (let y = start.y; y <= end.y; y += 16) {
+          positions.push({ x, y })
+        }
+      }
+      Constants._B_SITE_POSITIONS = positions
+      return positions
+    }
+  }
 }
