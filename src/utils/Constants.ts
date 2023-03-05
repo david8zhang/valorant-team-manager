@@ -1,3 +1,9 @@
+export enum RoundState {
+  PREROUND = 'PREROUND',
+  ROUND = 'ROUND',
+  POSTROUND = 'POSTROUND',
+}
+
 export enum GunTypes {
   PISTOL = 'PISTOL',
   SMG = 'SMG',
@@ -59,13 +65,22 @@ export class Constants {
     },
   }
 
+  public static A_SITE_CENTER_POS: { x: number; y: number } = {
+    x: 48,
+    y: 64,
+  }
+
+  public static B_SITE_CENTER_POS: { x: number; y: number } = {
+    x: 600,
+    y: 264,
+  }
+
   private static _A_SITE_POSITIONS: any[] | null = null
   private static _B_SITE_POSITIONS: any[] | null = null
   public static get A_SITE_POSITIONS() {
     if (Constants._A_SITE_POSITIONS) {
       return Constants._A_SITE_POSITIONS
     } else {
-      console.log('Calculating a site positions...')
       const start = {
         x: 8,
         y: 8,
@@ -84,11 +99,11 @@ export class Constants {
       return positions
     }
   }
+
   public static get B_SITE_POSITIONS() {
     if (Constants._B_SITE_POSITIONS) {
       return Constants._B_SITE_POSITIONS
     } else {
-      console.log('Calculating b site positions...')
       const start = {
         x: 568,
         y: 216,

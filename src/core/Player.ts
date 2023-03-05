@@ -9,6 +9,9 @@ export class Player {
   public agents: Agent[] = []
   public selectedAgentIndex: number = 0
 
+  public static AGENT_START_X = 320
+  public static AGENT_START_Y = 20
+
   constructor() {
     this.game = Game.instance
     this.setupCursor()
@@ -103,8 +106,8 @@ export class Player {
   }
 
   createAgents() {
-    let startX = 320
-    let startY = 20
+    let startX = Player.AGENT_START_X
+    let startY = Player.AGENT_START_Y
     for (let i = 1; i <= 3; i++) {
       const newAgent = new Agent({
         position: {
@@ -145,6 +148,29 @@ export class Player {
         this.cursorRect.setStrokeStyle(2, 0x00ff00)
       }
     }
+  }
+
+  resetAgents() {
+    let startX = Player.AGENT_START_X
+    let startY = Player.AGENT_START_Y
+    this.agents.forEach((agent) => {
+      agent.setState(States.IDLE)
+      agent.sprite.setPosition(startX, startY)
+      agent.setHealth(Agent.FULL_HEALTH)
+      agent.sprite.setVisible(true)
+      agent.healthBar.setVisible(true)
+
+      agent.visionRay.setAngle(Phaser.Math.DegToRad(90))
+      agent.crosshairRay.setAngle(Phaser.Math.DegToRad(90))
+
+      agent.hideSightCones = false
+
+      startX += agent.sprite.displayWidth + 20
+      if (agent.getCurrState() === States.DIE) {
+        const enemyRayCaster = this.game.cpuRaycaster
+        enemyRayCaster.mapGameObjects(agent.sprite)
+      }
+    })
   }
 
   setupCursor() {

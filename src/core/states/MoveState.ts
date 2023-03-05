@@ -125,7 +125,7 @@ export class MoveState extends State {
   }
 
   private moveTowardTarget(agent: Agent) {
-    if (agent.isPaused) {
+    if (Game.instance.isPaused) {
       agent.sprite.setVelocity(0, 0)
       return
     }

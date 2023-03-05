@@ -8,10 +8,14 @@ import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
 import { SelectorNode } from './behavior-tree/SelectorNode'
 import { SequenceNode } from './behavior-tree/SequenceNode'
+import { States } from './states/States'
 
 export class CPU {
   public game: Game
   public agents: Agent[] = []
+
+  public static AGENT_START_X = 280
+  public static AGENT_START_Y = 460
 
   private agentMoveTargetMapping: {
     [key: string]: {
@@ -101,6 +105,29 @@ export class CPU {
       ),
     ])
     return rootNode
+  }
+
+  resetAgents() {
+    let startX = CPU.AGENT_START_X
+    let startY = CPU.AGENT_START_Y
+    this.agents.forEach((agent) => {
+      agent.setState(States.IDLE)
+      agent.sprite.setPosition(startX, startY)
+      agent.setHealth(Agent.FULL_HEALTH)
+      agent.visionRay.setAngle(Phaser.Math.DegToRad(270))
+      agent.crosshairRay.setAngle(Phaser.Math.DegToRad(270))
+      if (this.game.isDebug) {
+        agent.sprite.setVisible(true)
+        agent.healthBar.setVisible(true)
+        agent.hideSightCones = false
+      }
+
+      startX += agent.sprite.displayWidth + 20
+      if (agent.getCurrState() === States.DIE) {
+        const enemyRayCaster = this.game.cpuRaycaster
+        enemyRayCaster.mapGameObjects(agent.sprite)
+      }
+    })
   }
 
   update() {

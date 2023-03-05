@@ -34,6 +34,8 @@ export interface AgentConfig {
 }
 
 export class Agent {
+  public static FULL_HEALTH: number = 100
+
   public visionRay: any
   public crosshairRay: any
   public game: Game
@@ -107,7 +109,7 @@ export class Agent {
       y: this.sprite.y - this.sprite.displayHeight - 5,
       height: 2,
       width: healthBarWidth,
-      maxValue: 100,
+      maxValue: Agent.FULL_HEALTH,
       borderWidth: 0,
       fillColor: 0x00ff00,
     })
@@ -173,6 +175,10 @@ export class Agent {
         this.sprite.y - 20
       )
     }
+  }
+
+  setHealth(health: number) {
+    this.healthBar.setCurrValue(health)
   }
 
   canShootEnemy() {

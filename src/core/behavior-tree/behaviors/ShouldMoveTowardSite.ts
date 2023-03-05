@@ -2,6 +2,8 @@ import { Agent } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { MoveState } from '~/core/states/MoveState'
 import { States } from '~/core/states/States'
+import Game from '~/scenes/Game'
+import { RoundState } from '~/utils/Constants'
 import { BehaviorStatus } from '../BehaviorStatus'
 import { BehaviorTreeNode } from '../BehaviorTreeNode'
 import { Blackboard } from '../Blackboard'
@@ -26,6 +28,10 @@ export class ShouldMoveTowardSite extends BehaviorTreeNode {
   }
 
   canMoveTowardTarget(currAgent: Agent) {
-    return currAgent.getCurrState() !== States.SHOOT && currAgent.getCurrState() !== States.DIE
+    return (
+      currAgent.getCurrState() !== States.SHOOT &&
+      currAgent.getCurrState() !== States.DIE &&
+      Game.instance.roundState !== RoundState.PREROUND
+    )
   }
 }

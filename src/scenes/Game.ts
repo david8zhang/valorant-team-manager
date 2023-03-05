@@ -1,8 +1,11 @@
 import Phaser from 'phaser'
+import { Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
-import { Constants } from '~/utils/Constants'
+import { States } from '~/core/states/States'
+import { Constants, RoundState } from '~/utils/Constants'
+import UI from './UI'
 
 export default class Game extends Phaser.Scene {
   private static _instance: Game
@@ -26,9 +29,19 @@ export default class Game extends Phaser.Scene {
   public pausedStateText!: Phaser.GameObjects.Text
 
   public layers: any = {}
-  public walls: Phaser.GameObjects.Group | any
+  public walls!: Phaser.GameObjects.Group
   public isDebug: boolean = true
   public debugHandlers: Function[] = []
+  public colliders: Phaser.Physics.Arcade.Collider[] = []
+
+  public roundState: RoundState = RoundState.PREROUND
+  public attackSide: Side = Side.CPU
+  public roundScoreMapping: {
+    [key in Side]: number
+  } = {
+    [Side.PLAYER]: 0,
+    [Side.CPU]: 0,
+  }
 
   constructor() {
     super('game')
@@ -100,8 +113,10 @@ export default class Game extends Phaser.Scene {
   }
 
   initColliders() {
-    // this.physics.add.collider(this.playerAgentsGroup, this.walls)
-    // this.physics.add.collider(this.cpuAgentsGroup, this.walls)
+    const playerWallCollider = this.physics.add.collider(this.playerAgentsGroup, this.walls)
+    const agentWallCollider = this.physics.add.collider(this.cpuAgentsGroup, this.walls)
+    this.colliders.push(playerWallCollider)
+    this.colliders.push(agentWallCollider)
   }
 
   initRaycaster() {
@@ -144,7 +159,6 @@ export default class Game extends Phaser.Scene {
     this.layers.top = topLayer
     this.walls = this.add.group()
 
-    // TODO: Load walls from a config
     // Player side walls
     this.createWall({ x: 8, y: 168 }, { x: 104, y: 168 })
     this.createWall({ x: 200, y: 152 }, { x: 248, y: 152 })
@@ -154,6 +168,47 @@ export default class Game extends Phaser.Scene {
     this.createWall({ x: 152, y: 392 }, { x: 152, y: 440 }, true)
     this.createWall({ x: 296, y: 296 }, { x: 344, y: 296 })
     this.createWall({ x: 440, y: 376 }, { x: 440, y: 456 }, true)
+
+    // Show site names
+    const aSitePos = Constants.A_SITE_CENTER_POS
+    const aSiteText = this.add
+      .text(aSitePos.x, aSitePos.y, 'A', { fontSize: '20px' })
+      .setOrigin(0.5)
+    const bSitePos = Constants.B_SITE_CENTER_POS
+    const bSiteText = this.add
+      .text(bSitePos.x, bSitePos.y, 'B', { fontSize: '20px' })
+      .setOrigin(0.5)
+  }
+
+  dropBarriers() {
+    this.tweens.add({
+      targets: this.walls.children.entries,
+      alpha: {
+        from: 1,
+        to: 0,
+      },
+      duration: 250,
+      onComplete: () => {
+        this.colliders.forEach((collider) => {
+          collider.active = false
+        })
+      },
+    })
+  }
+
+  resetAgentPositions() {
+    this.player.resetAgents()
+    this.cpu.resetAgents()
+  }
+
+  raiseBarriers() {
+    this.walls.children.entries.forEach((child: Phaser.GameObjects.GameObject) => {
+      const sprite = child as Phaser.Physics.Arcade.Sprite
+      sprite.setAlpha(1)
+    })
+    this.colliders.forEach((collider) => {
+      collider.active = true
+    })
   }
 
   createWall(
@@ -172,7 +227,6 @@ export default class Game extends Phaser.Scene {
       wallSprite.setOrigin(0, 0.5)
     }
     wallSprite.setImmovable(true)
-
     let scaledWidth = isVertical ? wallSprite.displayWidth : end.x - start.x
     let scaledHeight = isVertical ? end.y - start.y : wallSprite.displayHeight
     wallSprite.setDisplaySize(scaledWidth, scaledHeight)
@@ -197,6 +251,31 @@ export default class Game extends Phaser.Scene {
     this.maskGraphics.clear()
     this.cpu.update()
     this.player.update()
+    this.checkRoundOver()
+  }
+
+  checkRoundOver() {
+    if (this.roundState === RoundState.ROUND) {
+      const livingPlayerAgents = this.player.agents.filter(
+        (agent) => agent.getCurrState() !== States.DIE
+      )
+      const livingCPUAgents = this.cpu.agents.filter((agent) => agent.getCurrState() !== States.DIE)
+      let shouldRoundEnd: boolean = false
+
+      if (livingPlayerAgents.length == 0) {
+        this.roundScoreMapping[Side.CPU]++
+        UI.instance.updateScores()
+        shouldRoundEnd = true
+      } else if (livingCPUAgents.length === 0) {
+        this.roundScoreMapping[Side.PLAYER]++
+        UI.instance.updateScores()
+        shouldRoundEnd = true
+      }
+      if (shouldRoundEnd) {
+        this.roundState = RoundState.POSTROUND
+        UI.instance.endRoundPrematurely()
+      }
+    }
   }
 
   pause() {
