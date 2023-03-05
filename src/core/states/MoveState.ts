@@ -1,6 +1,6 @@
 import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
-import { Agent } from '../Agent'
+import { Agent, Side } from '../Agent'
 import { Node } from '../Pathfinding'
 import { State } from './StateMachine'
 import { States } from './States'
@@ -27,11 +27,15 @@ export class MoveState extends State {
     const currTilePos = Game.instance.getTilePosForWorldPos(agent.sprite.x, agent.sprite.y)
     const path = Game.instance.pathfinding.getPath(currTilePos, endTilePos)
     this.currPath = path
-    this.tracePath(agent)
+    if (agent.side === Side.PLAYER) {
+      this.tracePath(agent)
+    }
   }
 
   execute(agent: Agent) {
-    this.tracePath(agent)
+    if (agent.side === Side.PLAYER) {
+      this.tracePath(agent)
+    }
     if (MoveState.isAtMoveTarget(agent, this.moveTarget) || !this.moveTarget) {
       const currNode = this.currPath.shift()
       if (currNode) {

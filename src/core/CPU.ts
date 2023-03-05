@@ -74,11 +74,11 @@ export class CPU {
         name: `cpu-${i}`,
         texture: 'cpu-agent',
         sightAngleDeg: 270,
-        hideSightCones: true,
+        hideSightCones: !this.game.isDebug,
         raycaster: this.game.cpuRaycaster,
         side: Side.CPU,
       })
-      newAgent.sprite.setVisible(false)
+      newAgent.sprite.setVisible(this.game.isDebug)
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)
       this.behaviorTrees.push(newBehaviorTree)
       this.agents.push(newAgent)

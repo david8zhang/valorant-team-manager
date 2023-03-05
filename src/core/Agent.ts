@@ -1,5 +1,5 @@
 import Game from '~/scenes/Game'
-import { GunTypes } from '~/utils/Constants'
+import { Constants, GunTypes } from '~/utils/Constants'
 import { DeathState } from './states/DeathState'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
@@ -51,6 +51,7 @@ export class Agent {
     [key in WeaponTypes]: GunTypes | null
   }
   private currEquippedWeapon: WeaponTypes = WeaponTypes.SECONDARY
+  public currStateText: Phaser.GameObjects.Text
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -86,6 +87,17 @@ export class Agent {
       [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
       [WeaponTypes.MELEE]: null,
     }
+    this.currStateText = this.game.add
+      .text(
+        this.sprite.x,
+        this.sprite.y - this.sprite.displayHeight,
+        this.stateMachine.getState(),
+        {
+          fontSize: '12px',
+          color: '#ffffff',
+        }
+      )
+      .setDepth(Constants.SORT_LAYERS.UI)
   }
 
   setupHealthBar() {
@@ -147,9 +159,20 @@ export class Agent {
     this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
+    if (this.didDetectEnemy() && this.canShootEnemy()) {
+      this.stateMachine.transition(States.SHOOT)
+    }
     this.healthBar.x = this.sprite.x - this.healthBar.width / 2
     this.healthBar.y = this.sprite.y - this.sprite.displayHeight - 5
     this.healthBar.draw()
+
+    if (this.game.isDebug) {
+      this.currStateText.setText(this.stateMachine.getState()).setVisible(true)
+      this.currStateText.setPosition(
+        this.sprite.x - this.currStateText.displayWidth / 2,
+        this.sprite.y - 20
+      )
+    }
   }
 
   canShootEnemy() {

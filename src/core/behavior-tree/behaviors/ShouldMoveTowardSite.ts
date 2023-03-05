@@ -16,13 +16,16 @@ export class ShouldMoveTowardSite extends BehaviorTreeNode {
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
     const cpu = this.blackboard.getData(BlackboardKeys.CPU) as CPU
     const currAgentDest = cpu.getCurrAgentMoveTarget(currAgent)
-    if (MoveState.isAtMoveTarget(currAgent, currAgentDest)) {
+    if (
+      MoveState.isAtMoveTarget(currAgent, currAgentDest) ||
+      !this.canMoveTowardTarget(currAgent)
+    ) {
       return BehaviorStatus.FAILURE
     }
     return BehaviorStatus.SUCCESS
   }
 
-  canMoveTowardSite(agent: Agent) {
-    return agent.getCurrState() === States.IDLE || agent.getCurrState() === States.HOLD
+  canMoveTowardTarget(currAgent: Agent) {
+    return currAgent.getCurrState() !== States.SHOOT && currAgent.getCurrState() !== States.DIE
   }
 }

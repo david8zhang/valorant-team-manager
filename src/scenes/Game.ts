@@ -27,7 +27,7 @@ export default class Game extends Phaser.Scene {
 
   public layers: any = {}
   public walls: Phaser.GameObjects.Group | any
-  public isDebug: boolean = false
+  public isDebug: boolean = true
   public debugHandlers: Function[] = []
 
   constructor() {

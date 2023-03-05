@@ -62,8 +62,25 @@ export class ShootingState extends State {
     this.target = closestAgent
   }
 
-  execute(agent: Agent) {
+  isTargetVisible(agent) {
+    const intersections = agent.visionRay.castCone()
     if (!this.target) {
+      return false
+    }
+    return (
+      intersections
+        .filter((n) => {
+          return n.object && n.object.name === 'agent'
+        })
+        .map((n) => {
+          return n.object.getData('ref') as Agent
+        })
+        .find((agent) => agent.name === this.target!.name) !== undefined
+    )
+  }
+
+  execute(agent: Agent) {
+    if (!this.target || !this.isTargetVisible(agent)) {
       agent.setState(States.IDLE)
     } else {
       if (!this.isWithinReactionDelay) {

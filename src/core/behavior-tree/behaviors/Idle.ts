@@ -12,7 +12,9 @@ export class Idle extends BehaviorTreeNode {
 
   public process(): BehaviorStatus {
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
-    currAgent.setState(States.IDLE)
+    if (currAgent.getCurrState() !== States.DIE && currAgent.getCurrState() !== States.SHOOT) {
+      currAgent.setState(States.IDLE)
+    }
     return BehaviorStatus.SUCCESS
   }
 }
