@@ -105,7 +105,7 @@ export default class UI extends Phaser.Scene {
       onTimerExpired: () => {
         this.handleTimerExpired()
       },
-      time: 5,
+      time: Constants.PREROUND_TIME_SEC,
     })
 
     // Setup player score text
@@ -211,20 +211,28 @@ export default class UI extends Phaser.Scene {
     const game = Game.instance
     switch (game.roundState) {
       case RoundState.PREROUND: {
-        this.timer.setTime(30)
+        this.timer.setTime(Constants.PREPLANT_ROUND_TIME_SEC)
         this.timer.start()
-        game.roundState = RoundState.ROUND
+        game.roundState = RoundState.PRE_PLANT_ROUND
         game.dropBarriers()
         break
       }
-      case RoundState.ROUND: {
-        this.timer.setTime(5)
+      case RoundState.PRE_PLANT_ROUND: {
+        this.timer.setTime(Constants.POST_ROUND)
         this.timer.start()
         game.roundState = RoundState.POSTROUND
+        game.plantTimeExpire()
+        break
+      }
+      case RoundState.POST_PLANT_ROUND: {
+        this.timer.setTime(Constants.POST_ROUND)
+        this.timer.start()
+        game.roundState = RoundState.POSTROUND
+        game.detonateSpike()
         break
       }
       case RoundState.POSTROUND: {
-        this.timer.setTime(5)
+        this.timer.setTime(Constants.PREROUND_TIME_SEC)
         game.resetAgentPositions()
         game.raiseBarriers()
         game.roundState = RoundState.PREROUND
@@ -236,7 +244,7 @@ export default class UI extends Phaser.Scene {
 
   endRoundPrematurely() {
     this.timer.stop()
-    this.timer.setTime(5)
+    this.timer.setTime(Constants.POST_ROUND)
     this.timer.start()
   }
 

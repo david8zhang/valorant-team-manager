@@ -3,6 +3,7 @@ import { Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
+import { Spike } from '~/core/Spike'
 import { States } from '~/core/states/States'
 import { Constants, RoundState } from '~/utils/Constants'
 import UI from './UI'
@@ -42,6 +43,7 @@ export default class Game extends Phaser.Scene {
     [Side.PLAYER]: 0,
     [Side.CPU]: 0,
   }
+  public spike!: Spike
 
   constructor() {
     super('game')
@@ -110,6 +112,7 @@ export default class Game extends Phaser.Scene {
     })
     this.initPlayerAndCPU()
     this.initColliders()
+    this.setupSpike()
   }
 
   initColliders() {
@@ -144,6 +147,15 @@ export default class Game extends Phaser.Scene {
     this.player.agents.forEach((agent) => {
       this.cpuAgentsGroup.add(agent.sprite)
       this.cpuRaycaster.mapGameObjects(agent.sprite, true)
+    })
+  }
+
+  setupSpike() {
+    this.spike = new Spike({
+      position: {
+        x: 312,
+        y: 408,
+      },
     })
   }
 
@@ -255,7 +267,7 @@ export default class Game extends Phaser.Scene {
   }
 
   checkRoundOver() {
-    if (this.roundState === RoundState.ROUND) {
+    if (this.roundState !== RoundState.POSTROUND) {
       const livingPlayerAgents = this.player.agents.filter(
         (agent) => agent.getCurrState() !== States.DIE
       )
@@ -276,6 +288,17 @@ export default class Game extends Phaser.Scene {
         UI.instance.endRoundPrematurely()
       }
     }
+  }
+
+  plantTimeExpire() {
+    const defenseSide = this.attackSide === Side.PLAYER ? Side.CPU : Side.PLAYER
+    this.roundScoreMapping[defenseSide]++
+    UI.instance.updateScores()
+  }
+
+  detonateSpike() {
+    this.roundScoreMapping[this.attackSide]++
+    UI.instance.updateScores()
   }
 
   pause() {

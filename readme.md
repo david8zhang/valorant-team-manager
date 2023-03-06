@@ -4,7 +4,7 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- CPU AI movement
+- Spike planting
 - Scoreboard to the right:
   - K/D/A ratio
   - Gun icons

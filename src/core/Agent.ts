@@ -40,6 +40,7 @@ export class Agent {
   public crosshairRay: any
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
+  public spikeIcon: Phaser.GameObjects.Image
   public isPaused: boolean = false
   public hideSightCones: boolean = false
   public name: string
@@ -54,6 +55,7 @@ export class Agent {
   }
   private currEquippedWeapon: WeaponTypes = WeaponTypes.SECONDARY
   public currStateText: Phaser.GameObjects.Text
+  public hasSpike: boolean = false
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -64,9 +66,16 @@ export class Agent {
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
-      .setDepth(50)
+      .setDepth(Constants.SORT_LAYERS.Player)
       .setName('agent')
       .setData('ref', this)
+
+    this.spikeIcon = this.game.add
+      .image(config.position.x + 4, config.position.y + 4, 'spike-icon')
+      .setDepth(Constants.SORT_LAYERS.UI)
+      .setScale(1)
+      .setVisible(false)
+
     this.stateMachine = new StateMachine(
       States.IDLE,
       {
@@ -174,6 +183,9 @@ export class Agent {
         this.sprite.x - this.currStateText.displayWidth / 2,
         this.sprite.y - 20
       )
+    }
+    if (this.hasSpike) {
+      this.spikeIcon.setPosition(this.sprite.x + 4, this.sprite.y + 4).setVisible(true)
     }
   }
 

@@ -1,6 +1,7 @@
 export enum RoundState {
   PREROUND = 'PREROUND',
-  ROUND = 'ROUND',
+  PRE_PLANT_ROUND = 'PRE_PLANT_ROUND',
+  POST_PLANT_ROUND = 'POST_PLANT_ROUND',
   POSTROUND = 'POSTROUND',
 }
 
@@ -20,6 +21,11 @@ export interface GunConfig {
 }
 
 export class Constants {
+  public static PREROUND_TIME_SEC = 5
+  public static PREPLANT_ROUND_TIME_SEC = 100
+  public static POSTPLANT_ROUND_TIME_SEC = 45
+  public static POST_ROUND = 10
+
   public static TOP_BAR_HEIGHT = 60
   public static BOTTOM_BAR_HEIGHT = 60
   public static MAP_WIDTH = 640
