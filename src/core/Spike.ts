@@ -1,5 +1,7 @@
 import Game from '~/scenes/Game'
+import { Constants } from '~/utils/Constants'
 import { Agent } from './Agent'
+import { States } from './states/States'
 
 export interface SpikeConfig {
   position: {
@@ -24,11 +26,28 @@ export class Spike {
     })
   }
 
+  drop(x: number, y: number) {
+    this.sprite.setPosition(x, y).setVisible(true)
+    this.sprite.body.enable = true
+  }
+
   handleSpikePickup(agentSprite: Phaser.GameObjects.GameObject) {
     const agent = agentSprite.getData('ref') as Agent
-    if (agent.side === this.game.attackSide && !this.isPlanted) {
+    if (
+      agent.side === this.game.attackSide &&
+      !this.isPlanted &&
+      agent.getCurrState() !== States.DIE
+    ) {
       agent.hasSpike = true
       this.sprite.setVisible(false)
+      this.sprite.body.enable = false
     }
+  }
+
+  reset() {
+    this.sprite.body.enable = true
+    this.sprite.setVisible(true)
+    const initialSpikePosition = Constants.INITIAL_SPIKE_POSITION
+    this.sprite.setPosition(initialSpikePosition.x, initialSpikePosition.y)
   }
 }

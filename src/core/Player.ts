@@ -2,12 +2,14 @@ import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
 import { Agent, Side } from './Agent'
 import { States } from './states/States'
+import { Team } from './Team'
 
-export class Player {
+export class Player implements Team {
   public game: Game
   public cursorRect!: Phaser.GameObjects.Rectangle
   public agents: Agent[] = []
   public selectedAgentIndex: number = 0
+  public onAgentDeathHandlers: Function[] = []
 
   public static AGENT_START_X = 320
   public static AGENT_START_Y = 20
@@ -119,6 +121,7 @@ export class Player {
         sightAngleDeg: 90,
         raycaster: this.game.playerRaycaster,
         side: Side.PLAYER,
+        team: this,
       })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20

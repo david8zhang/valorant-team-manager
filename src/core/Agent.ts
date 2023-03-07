@@ -7,6 +7,7 @@ import { MoveState } from './states/MoveState'
 import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
+import { Team } from './Team'
 import { UIValueBar } from './UIValueBar'
 
 export enum Side {
@@ -31,6 +32,7 @@ export interface AgentConfig {
   hideSightCones?: boolean
   raycaster: any
   side: Side
+  team: Team
 }
 
 export class Agent {
@@ -56,9 +58,11 @@ export class Agent {
   private currEquippedWeapon: WeaponTypes = WeaponTypes.SECONDARY
   public currStateText: Phaser.GameObjects.Text
   public hasSpike: boolean = false
+  public team: Team
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
+    this.team = config.team
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
@@ -184,9 +188,7 @@ export class Agent {
         this.sprite.y - 20
       )
     }
-    if (this.hasSpike) {
-      this.spikeIcon.setPosition(this.sprite.x + 4, this.sprite.y + 4).setVisible(true)
-    }
+    this.spikeIcon.setPosition(this.sprite.x + 4, this.sprite.y + 4).setVisible(this.hasSpike)
   }
 
   setHealth(health: number) {

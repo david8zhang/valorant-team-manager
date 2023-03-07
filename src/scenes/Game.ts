@@ -152,10 +152,7 @@ export default class Game extends Phaser.Scene {
 
   setupSpike() {
     this.spike = new Spike({
-      position: {
-        x: 312,
-        y: 408,
-      },
+      position: Constants.INITIAL_SPIKE_POSITION,
     })
   }
 
@@ -206,6 +203,12 @@ export default class Game extends Phaser.Scene {
         })
       },
     })
+  }
+
+  restartRound() {
+    this.resetAgentPositions()
+    this.spike.reset()
+    this.raiseBarriers()
   }
 
   resetAgentPositions() {

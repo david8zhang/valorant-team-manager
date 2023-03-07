@@ -233,8 +233,7 @@ export default class UI extends Phaser.Scene {
       }
       case RoundState.POSTROUND: {
         this.timer.setTime(Constants.PREROUND_TIME_SEC)
-        game.resetAgentPositions()
-        game.raiseBarriers()
+        game.restartRound()
         game.roundState = RoundState.PREROUND
         this.timer.start()
         break

@@ -3,4 +3,5 @@ export enum BlackboardKeys {
   CPU_AGENTS = 'cpuAgents',
   CURR_AGENT = 'currAgent',
   CPU = 'cpu',
+  SPIKE = 'spike',
 }

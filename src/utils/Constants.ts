@@ -21,6 +21,11 @@ export interface GunConfig {
 }
 
 export class Constants {
+  public static INITIAL_SPIKE_POSITION = {
+    x: 312,
+    y: 408,
+  }
+
   public static PREROUND_TIME_SEC = 5
   public static PREPLANT_ROUND_TIME_SEC = 100
   public static POSTPLANT_ROUND_TIME_SEC = 45

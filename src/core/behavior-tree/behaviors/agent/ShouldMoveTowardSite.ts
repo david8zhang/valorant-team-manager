@@ -4,9 +4,9 @@ import { MoveState } from '~/core/states/MoveState'
 import { States } from '~/core/states/States'
 import Game from '~/scenes/Game'
 import { RoundState } from '~/utils/Constants'
-import { BehaviorStatus } from '../BehaviorStatus'
-import { BehaviorTreeNode } from '../BehaviorTreeNode'
-import { Blackboard } from '../Blackboard'
+import { BehaviorStatus } from '../../BehaviorStatus'
+import { BehaviorTreeNode } from '../../BehaviorTreeNode'
+import { Blackboard } from '../../Blackboard'
 import { BlackboardKeys } from './BlackboardKeys'
 
 export class ShouldMoveTowardSite extends BehaviorTreeNode {
