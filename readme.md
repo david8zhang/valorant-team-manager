@@ -11,3 +11,7 @@ Management sim / strategy game where you manage a professional Valorant e-sports
   - Available credits
   - Health / Shields
 - Jiggle-peeking around corner states
+
+## Bugs:
+
+- Sometimes after a fight, player raycast won't pick up other enemy agents

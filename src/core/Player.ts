@@ -157,6 +157,7 @@ export class Player implements Team {
     let startX = Player.AGENT_START_X
     let startY = Player.AGENT_START_Y
     this.agents.forEach((agent) => {
+      agent.hasSpike = false
       agent.setState(States.IDLE)
       agent.sprite.setPosition(startX, startY)
       agent.setHealth(Agent.FULL_HEALTH)

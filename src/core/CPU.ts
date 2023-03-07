@@ -139,6 +139,7 @@ export class CPU implements Team {
     let startX = CPU.AGENT_START_X
     let startY = CPU.AGENT_START_Y
     this.agents.forEach((agent) => {
+      agent.hasSpike = false
       agent.setState(States.IDLE)
       agent.sprite.setPosition(startX, startY)
       agent.setHealth(Agent.FULL_HEALTH)
