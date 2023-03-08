@@ -9,6 +9,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('wall-horizontal', 'map/wall-horizontal.png')
     this.load.image('wall-vertical', 'map/wall-vertical.png')
     this.load.image('spike', 'map/spike.png')
+    this.load.image('spike-planted', 'map/spike-planted.png')
     this.load.image('spike-icon', 'map/spike-icon.png')
 
     this.load.image('player-agent', 'agents/player-agent.png')

@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { Side } from '~/core/Agent'
+import { Agent, Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
@@ -36,7 +36,7 @@ export default class Game extends Phaser.Scene {
   public colliders: Phaser.Physics.Arcade.Collider[] = []
 
   public roundState: RoundState = RoundState.PREROUND
-  public attackSide: Side = Side.CPU
+  public attackSide: Side = Side.PLAYER
   public roundScoreMapping: {
     [key in Side]: number
   } = {
@@ -291,6 +291,14 @@ export default class Game extends Phaser.Scene {
         UI.instance.endRoundPrematurely()
       }
     }
+  }
+
+  plantSpike(agent: Agent, x: number, y: number) {
+    this.spike.plant(x, y)
+    if (this.roundState === RoundState.PRE_PLANT_ROUND) {
+      UI.instance.plantSpike()
+    }
+    agent.hasSpike = false
   }
 
   plantTimeExpire() {

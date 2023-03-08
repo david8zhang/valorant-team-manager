@@ -6,13 +6,17 @@ import Game from './Game'
 export enum CommandState {
   MOVE = 'MOVE',
   HOLD = 'HOLD',
+  PLANT = 'PLANT',
 }
 
 export default class UI extends Phaser.Scene {
   public currCommandState: CommandState = CommandState.MOVE
   private static _instance: UI
   private commandMapping: {
-    [key in CommandState]?: Phaser.GameObjects.Rectangle
+    [key in CommandState]?: {
+      boundingBox: Phaser.GameObjects.Rectangle
+      icon: Phaser.GameObjects.Image
+    }
   }
   private shortcutMapping: {
     [key: string]: CommandState
@@ -43,12 +47,15 @@ export default class UI extends Phaser.Scene {
   ) {
     const boundingBox = this.add.rectangle(x, y, 36, 36, 0xffffff)
     boundingBox.setStrokeStyle(1, 0x000000)
-    this.add.image(x, y, texture)
+    const icon = this.add.image(x, y, texture)
     boundingBox.setInteractive()
     boundingBox.on(Phaser.Input.Events.POINTER_DOWN, (e) => {
       this.selectNewCommand(commandState)
     })
-    this.commandMapping[commandState] = boundingBox
+    this.commandMapping[commandState] = {
+      boundingBox: boundingBox,
+      icon: icon,
+    }
     this.add
       .text(boundingBox.x + 10, boundingBox.y - 30, shortcut)
       .setFontSize(12)
@@ -57,8 +64,14 @@ export default class UI extends Phaser.Scene {
   }
 
   selectNewCommand(newCommandState: CommandState) {
-    const prevCommandBox = this.commandMapping[this.currCommandState]
-    const newCommandBox = this.commandMapping[newCommandState]
+    if (newCommandState === CommandState.PLANT) {
+      if (!this.canPlantSpike()) {
+        return
+      }
+    }
+
+    const prevCommandBox = this.commandMapping[this.currCommandState]!.boundingBox
+    const newCommandBox = this.commandMapping[newCommandState]!.boundingBox
     if (prevCommandBox && this.currCommandState !== newCommandState) {
       prevCommandBox.setStrokeStyle(1, 0x000000)
       prevCommandBox.setFillStyle(0xffffff)
@@ -69,7 +82,18 @@ export default class UI extends Phaser.Scene {
     this.currCommandState = newCommandState
   }
 
+  canPlantSpike() {
+    return !Game.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
+  }
+
   create() {
+    this.createCommandBar()
+    this.selectNewCommand(this.currCommandState)
+    this.setupKeyboardShortcutListener()
+    this.createTopBar()
+  }
+
+  createCommandBar() {
     const backgroundRectangle = this.add
       .rectangle(
         0,
@@ -80,23 +104,26 @@ export default class UI extends Phaser.Scene {
       .setOrigin(0)
     this.createCommandIcon(
       'move-icon',
-      Constants.WINDOW_WIDTH / 2 - 24,
+      Constants.WINDOW_WIDTH / 2 - 48,
       Constants.WINDOW_HEIGHT - 27,
       CommandState.MOVE,
       'A'
     )
     this.createCommandIcon(
       'watch-icon',
-      Constants.WINDOW_WIDTH / 2 + 24,
+      Constants.WINDOW_WIDTH / 2,
       Constants.WINDOW_HEIGHT - 27,
       CommandState.HOLD,
       'S'
     )
+    this.createCommandIcon(
+      'watch-icon',
+      Constants.WINDOW_WIDTH / 2 + 48,
+      Constants.WINDOW_HEIGHT - 27,
+      CommandState.PLANT,
+      'D'
+    )
     backgroundRectangle.setFillStyle(0xdddddd)
-    this.selectNewCommand(this.currCommandState)
-    this.setupKeyboardShortcutListener()
-
-    this.createTopBar()
   }
 
   createTopBar() {
@@ -247,6 +274,12 @@ export default class UI extends Phaser.Scene {
     this.timer.start()
   }
 
+  plantSpike() {
+    this.timer.stop()
+    this.timer.setTime(Constants.POSTPLANT_ROUND_TIME_SEC)
+    this.timer.start()
+  }
+
   setupKeyboardShortcutListener() {
     this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       const keyPressed = e.key.toUpperCase()
@@ -255,5 +288,23 @@ export default class UI extends Phaser.Scene {
         this.selectNewCommand(commandState)
       }
     })
+  }
+
+  update() {
+    const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
+    const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
+    if (this.isSelectingSpikeCarrier()) {
+      commandBtn.setAlpha(1)
+      commandIcon.setAlpha(1)
+    } else {
+      commandBtn.setAlpha(0.25)
+      commandIcon.setAlpha(0.25)
+    }
+  }
+
+  isSelectingSpikeCarrier() {
+    const player = Game.instance.player
+    const selectedAgent = player.selectedAgent
+    return selectedAgent.hasSpike
   }
 }

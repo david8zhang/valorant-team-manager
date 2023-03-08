@@ -46,6 +46,11 @@ export class Player implements Team {
         }
         case CommandState.MOVE: {
           this.queueAgentMoveCommand(e.worldX, e.worldY)
+          break
+        }
+        case CommandState.PLANT: {
+          this.queueAgentPlantCommand(e.worldX, e.worldY)
+          break
         }
       }
     }
@@ -82,6 +87,7 @@ export class Player implements Team {
   selectAgent(newAgentIndex: number) {
     const selectedAgent = this.agents[newAgentIndex]
     if (selectedAgent.getCurrState() !== States.DIE) {
+      UI.instance.selectNewCommand(CommandState.MOVE)
       if (this.selectedAgentIndex !== newAgentIndex) {
         const oldAgent = this.agents[this.selectedAgentIndex]
         oldAgent.dehighlight()
@@ -102,6 +108,14 @@ export class Player implements Team {
   queueAgentHoldCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
     agent.setState(States.HOLD, {
+      x: worldX,
+      y: worldY,
+    })
+  }
+
+  queueAgentPlantCommand(worldX: number, worldY: number) {
+    const agent = this.agents[this.selectedAgentIndex]
+    agent.setState(States.PLANT, {
       x: worldX,
       y: worldY,
     })

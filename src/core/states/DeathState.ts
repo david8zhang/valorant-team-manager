@@ -12,15 +12,12 @@ export class DeathState extends State {
     agent.team.onAgentDeathHandlers.forEach((handler) => {
       handler(agent)
     })
-    const enemyRaycaster =
-      agent.side === Side.PLAYER ? Game.instance.cpuRaycaster : Game.instance.playerRaycaster
-    try {
-      enemyRaycaster.removeMappedObjects(agent.sprite)
-      agent.sprite.setVisible(false)
-      agent.healthBar.setVisible(false)
-      agent.hideSightCones = true
-    } catch (e) {
-      console.info(e)
-    }
+    agent.sprite.setScale(0)
+    agent.healthBar.setVisible(false)
+    agent.hideSightCones = true
+  }
+
+  exit(agent: Agent) {
+    agent.sprite.setScale(1)
   }
 }

@@ -4,4 +4,5 @@ export enum States {
   HOLD = 'HOLD',
   SHOOT = 'SHOOT',
   DIE = 'DIE',
+  PLANT = 'PLANT',
 }

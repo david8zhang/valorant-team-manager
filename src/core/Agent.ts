@@ -4,6 +4,7 @@ import { DeathState } from './states/DeathState'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
+import { PlantState } from './states/PlantState'
 import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
@@ -88,6 +89,7 @@ export class Agent {
         [States.HOLD]: new HoldState(),
         [States.SHOOT]: new ShootingState(),
         [States.DIE]: new DeathState(),
+        [States.PLANT]: new PlantState(),
       },
       [this]
     )
@@ -161,7 +163,7 @@ export class Agent {
           return false
         }
         const agent = n.object.getData('ref') as Agent
-        return agent.side !== this.side
+        return agent.side !== this.side && agent.getCurrState() !== States.DIE
       }) !== undefined
     )
   }

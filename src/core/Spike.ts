@@ -1,5 +1,5 @@
 import Game from '~/scenes/Game'
-import { Constants } from '~/utils/Constants'
+import { Constants, RoundState } from '~/utils/Constants'
 import { Agent } from './Agent'
 import { States } from './states/States'
 
@@ -26,6 +26,12 @@ export class Spike {
     })
   }
 
+  plant(x: number, y: number) {
+    this.sprite.setPosition(x, y).setVisible(true).setTexture('spike-planted')
+    this.isPlanted = true
+    Game.instance.roundState = RoundState.POST_PLANT_ROUND
+  }
+
   drop(x: number, y: number) {
     this.sprite.setPosition(x, y).setVisible(true)
     this.sprite.body.enable = true
@@ -45,6 +51,9 @@ export class Spike {
   }
 
   reset() {
+    this.isPlanted = false
+    this.sprite.setAlpha(1)
+    this.sprite.setTexture('spike')
     this.sprite.body.enable = true
     this.sprite.setVisible(true)
     const initialSpikePosition = Constants.INITIAL_SPIKE_POSITION
