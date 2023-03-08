@@ -6,7 +6,7 @@ import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
 import { States } from '~/core/states/States'
 import { Constants, RoundState } from '~/utils/Constants'
-import UI from './UI'
+import UI, { CommandState } from './UI'
 
 export default class Game extends Phaser.Scene {
   private static _instance: Game
@@ -297,7 +297,9 @@ export default class Game extends Phaser.Scene {
     this.spike.plant(x, y)
     if (this.roundState === RoundState.PRE_PLANT_ROUND) {
       UI.instance.plantSpike()
+      Game.instance.roundState = RoundState.POST_PLANT_ROUND
     }
+    UI.instance.selectNewCommand(CommandState.MOVE)
     agent.hasSpike = false
   }
 

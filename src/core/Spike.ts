@@ -29,7 +29,6 @@ export class Spike {
   plant(x: number, y: number) {
     this.sprite.setPosition(x, y).setVisible(true).setTexture('spike-planted')
     this.isPlanted = true
-    Game.instance.roundState = RoundState.POST_PLANT_ROUND
   }
 
   drop(x: number, y: number) {
