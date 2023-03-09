@@ -1,3 +1,9 @@
+export enum Sites {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+}
+
 export enum RoundState {
   PREROUND = 'PREROUND',
   PRE_PLANT_ROUND = 'PRE_PLANT_ROUND',
@@ -21,7 +27,12 @@ export interface GunConfig {
 }
 
 export class Constants {
-  public static INITIAL_SPIKE_POSITION = {
+  public static INITIAL_SPIKE_POSITION_CPU_SIDE = {
+    x: 312,
+    y: 408,
+  }
+
+  public static INITIAL_SPIKE_POSITION_PLAYER_SIDE = {
     x: 344,
     y: 56,
   }

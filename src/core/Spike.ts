@@ -55,7 +55,7 @@ export class Spike {
     this.sprite.setTexture('spike')
     this.sprite.body.enable = true
     this.sprite.setVisible(true)
-    const initialSpikePosition = Constants.INITIAL_SPIKE_POSITION
+    const initialSpikePosition = Constants.INITIAL_SPIKE_POSITION_CPU_SIDE
     this.sprite.setPosition(initialSpikePosition.x, initialSpikePosition.y)
   }
 }

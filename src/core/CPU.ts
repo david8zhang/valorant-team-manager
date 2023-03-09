@@ -2,12 +2,14 @@ import Game from '~/scenes/Game'
 import { Agent, Side } from './Agent'
 import { Idle } from './behavior-tree/behaviors/agent/Idle'
 import { MoveTowardSite } from './behavior-tree/behaviors/agent/MoveTowardSite'
+import { PlantSpike } from './behavior-tree/behaviors/agent/PlantSpike'
 import { PopulateBlackboard } from './behavior-tree/behaviors/agent/PopulateBlackboard'
 import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpike'
 import { ShouldMoveTowardSite } from './behavior-tree/behaviors/agent/ShouldMoveTowardSite'
+import { ShouldPlantSpike } from './behavior-tree/behaviors/agent/ShouldPlantSpike'
 import { ShouldRetrieveSpike } from './behavior-tree/behaviors/agent/ShouldRetrieveSpike'
+import { AssignMoveTargets } from './behavior-tree/behaviors/team/AssignMoveTargets'
 import { SelectNewSpikeCarrier } from './behavior-tree/behaviors/team/SelectNewSpikeCarrier'
-import { ShouldSelectNewSpikeCarrier } from './behavior-tree/behaviors/team/ShouldSelectNewSpikeCarrier'
 import { TeamBlackboardKeys } from './behavior-tree/behaviors/team/TeamBlackboardKeys'
 import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
@@ -26,7 +28,7 @@ export class CPU implements Team {
 
   private agentBehaviorTrees: BehaviorTreeNode[] = []
   private cpuBehaviorTree!: BehaviorTreeNode
-  public globalBlackboard!: Blackboard
+  public teamBlackboard!: Blackboard
 
   constructor() {
     this.game = Game.instance
@@ -36,13 +38,13 @@ export class CPU implements Team {
   }
 
   setupCPUBehaviorTree() {
-    this.globalBlackboard = new Blackboard()
-    this.globalBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, {})
-    this.globalBlackboard.setData(TeamBlackboardKeys.SPIKE_CARRIER_NAME, '')
-    this.globalBlackboard.setData(TeamBlackboardKeys.AGENTS, this.agents)
-    this.cpuBehaviorTree = new SequenceNode('SelectNewSpikeCarrierSeq', this.globalBlackboard, [
-      new ShouldSelectNewSpikeCarrier(this.globalBlackboard),
-      new SelectNewSpikeCarrier(this.globalBlackboard),
+    this.teamBlackboard = new Blackboard()
+    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, null)
+    this.teamBlackboard.setData(TeamBlackboardKeys.SPIKE_CARRIER_NAME, '')
+    this.teamBlackboard.setData(TeamBlackboardKeys.AGENTS, this.agents)
+    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [
+      new SelectNewSpikeCarrier(this.teamBlackboard),
+      new AssignMoveTargets(this.teamBlackboard),
     ])
   }
 
@@ -69,19 +71,19 @@ export class CPU implements Team {
   }
 
   setAgentMoveTarget(agent: Agent, moveTarget: { x: number; y: number } | null) {
-    const agentMoveTargets = this.globalBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
+    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
     agentMoveTargets[agent.name] = moveTarget
-    this.globalBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
+    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
   }
 
   clearAgentMoveTarget(agent: Agent) {
-    const agentMoveTargets = this.globalBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
+    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
     agentMoveTargets[agent.name] = null
-    this.globalBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
+    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
   }
 
   getCurrAgentMoveTarget(agent: Agent) {
-    const agentMoveTargets = this.globalBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
+    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
     return agentMoveTargets[agent.name]
   }
 
@@ -122,13 +124,21 @@ export class CPU implements Team {
           new RetrieveSpike(blackboard),
         ]),
         new SelectorNode(
-          'MoveTowardSiteOrIdle',
+          'PlantSpikeSelector',
           blackboard,
-          new SequenceNode('MoveTowardSiteSeq', blackboard, [
-            new ShouldMoveTowardSite(blackboard),
-            new MoveTowardSite(blackboard),
+          new SequenceNode('PlantSpikeSeq', blackboard, [
+            new ShouldPlantSpike(blackboard),
+            new PlantSpike(blackboard),
           ]),
-          new Idle(blackboard)
+          new SelectorNode(
+            'MoveTowardSiteOrIdle',
+            blackboard,
+            new SequenceNode('MoveTowardSiteSeq', blackboard, [
+              new ShouldMoveTowardSite(blackboard),
+              new MoveTowardSite(blackboard),
+            ]),
+            new Idle(blackboard)
+          )
         )
       ),
     ])

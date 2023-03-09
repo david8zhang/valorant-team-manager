@@ -36,7 +36,7 @@ export default class Game extends Phaser.Scene {
   public colliders: Phaser.Physics.Arcade.Collider[] = []
 
   public roundState: RoundState = RoundState.PREROUND
-  public attackSide: Side = Side.PLAYER
+  public attackSide: Side = Side.CPU
   public roundScoreMapping: {
     [key in Side]: number
   } = {
@@ -152,7 +152,7 @@ export default class Game extends Phaser.Scene {
 
   setupSpike() {
     this.spike = new Spike({
-      position: Constants.INITIAL_SPIKE_POSITION,
+      position: Constants.INITIAL_SPIKE_POSITION_CPU_SIDE,
     })
   }
 

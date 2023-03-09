@@ -8,7 +8,7 @@ import { Blackboard } from '../../Blackboard'
 import { BlackboardKeys } from './BlackboardKeys'
 
 export class MoveTowardSite extends BehaviorTreeNode {
-  public currDest: { x: number; y: number } | null = null
+  public isMoving: boolean = false
 
   constructor(blackboard: Blackboard) {
     super('MoveTowardSite', blackboard)
@@ -18,22 +18,19 @@ export class MoveTowardSite extends BehaviorTreeNode {
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
     const cpu = this.blackboard.getData(BlackboardKeys.CPU) as CPU
 
-    if (!this.currDest) {
-      this.currDest = this.getSiteToAttackLocation()
-      cpu.setAgentMoveTarget(currAgent, this.currDest)
-      currAgent.setState(States.MOVE, this.currDest)
+    if (!this.isMoving) {
+      const currDest = cpu.getCurrAgentMoveTarget(currAgent)
+      if (currDest) {
+        this.isMoving = true
+        currAgent.setState(States.MOVE, currDest)
+      }
       return BehaviorStatus.SUCCESS
     } else {
       if (currAgent.getCurrState() !== States.MOVE) {
-        currAgent.setState(States.MOVE, this.currDest)
+        const currDest = cpu.getCurrAgentMoveTarget(currAgent)
+        currAgent.setState(States.MOVE, currDest)
       }
       return BehaviorStatus.RUNNING
     }
-  }
-
-  getSiteToAttackLocation() {
-    const randSitePositions =
-      Phaser.Math.Between(0, 1) === 0 ? Constants.A_SITE_POSITIONS : Constants.B_SITE_POSITIONS
-    return randSitePositions[Phaser.Math.Between(0, randSitePositions.length - 1)]
   }
 }
