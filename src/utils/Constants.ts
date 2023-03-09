@@ -97,51 +97,30 @@ export class Constants {
     y: 264,
   }
 
-  private static _A_SITE_POSITIONS: any[] | null = null
-  private static _B_SITE_POSITIONS: any[] | null = null
-  public static get A_SITE_POSITIONS() {
-    if (Constants._A_SITE_POSITIONS) {
-      return Constants._A_SITE_POSITIONS
-    } else {
-      const start = {
-        x: 8,
-        y: 8,
+  public static A_SITE_POSITIONS: any[] = []
+  public static B_SITE_POSITIONS: any[] = []
+  public static A_SITE_START: { x: number; y: number } = { x: 8, y: 8 }
+  public static A_SITE_END: { x: number; y: number } = { x: 88, y: 120 }
+  public static B_SITE_START: { x: number; y: number } = { x: 568, y: 216 }
+  public static B_SITE_END: { x: number; y: number } = { x: 632, y: 312 }
+
+  public static CALC_A_SITE_POSITIONS() {
+    const start = Constants.A_SITE_START
+    const end = Constants.A_SITE_END
+    for (let x = start.x; x <= end.x; x += 16) {
+      for (let y = start.y; y <= end.y; y += 16) {
+        Constants.A_SITE_POSITIONS.push({ x, y })
       }
-      const end = {
-        x: 88,
-        y: 120,
-      }
-      const positions: any[] = []
-      for (let x = start.x; x <= end.x; x += 16) {
-        for (let y = start.y; y <= end.y; y += 16) {
-          positions.push({ x, y })
-        }
-      }
-      Constants._A_SITE_POSITIONS = positions
-      return positions
     }
   }
 
-  public static get B_SITE_POSITIONS() {
-    if (Constants._B_SITE_POSITIONS) {
-      return Constants._B_SITE_POSITIONS
-    } else {
-      const start = {
-        x: 568,
-        y: 216,
+  public static CALC_B_SITE_POSITIONS() {
+    const start = Constants.B_SITE_START
+    const end = Constants.B_SITE_END
+    for (let x = start.x; x <= end.x; x += 16) {
+      for (let y = start.y; y <= end.y; y += 16) {
+        Constants.B_SITE_POSITIONS.push({ x, y })
       }
-      const end = {
-        x: 632,
-        y: 312,
-      }
-      const positions: any[] = []
-      for (let x = start.x; x <= end.x; x += 16) {
-        for (let y = start.y; y <= end.y; y += 16) {
-          positions.push({ x, y })
-        }
-      }
-      Constants._B_SITE_POSITIONS = positions
-      return positions
     }
   }
 }

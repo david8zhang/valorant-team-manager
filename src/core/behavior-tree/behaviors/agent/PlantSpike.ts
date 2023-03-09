@@ -16,8 +16,6 @@ export class PlantSpike extends BehaviorTreeNode {
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
     const plantLocation = cpu.getCurrAgentMoveTarget(currAgent)
 
-    console.log('Plant location', plantLocation)
-
     if (plantLocation) {
       const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
       if (currAgent.getCurrState() !== States.PLANT) {

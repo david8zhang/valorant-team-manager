@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
+import { Constants } from '~/utils/Constants'
 import { Agent, Side } from './Agent'
 import { States } from './states/States'
 import { Team } from './Team'
@@ -115,10 +116,41 @@ export class Player implements Team {
 
   queueAgentPlantCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
-    agent.setState(States.PLANT, {
-      x: worldX,
-      y: worldY,
-    })
+    if (this.isWithinSite(worldX, worldY)) {
+      agent.setState(States.PLANT, {
+        x: worldX,
+        y: worldY,
+      })
+    }
+  }
+
+  private isWithinSitePositions(
+    positions: { x: number; y: number }[],
+    worldX: number,
+    worldY: number
+  ) {
+    const tile = this.game.getTileAt(worldX, worldY)
+    const firstSitePos = positions[0]
+    const lastSitePos = positions[positions.length - 1]
+    const adjustedLastSitePos = {
+      x: lastSitePos.x + 8,
+      y: lastSitePos.y + 8,
+    }
+    const tileX = tile.getCenterX()
+    const tileY = tile.getCenterY()
+    return (
+      firstSitePos.x <= tileX &&
+      tileX <= adjustedLastSitePos.x &&
+      firstSitePos.y <= tileY &&
+      tileY <= adjustedLastSitePos.y
+    )
+  }
+
+  isWithinSite(worldX: number, worldY: number) {
+    return (
+      this.isWithinSitePositions(Constants.A_SITE_POSITIONS, worldX, worldY) ||
+      this.isWithinSitePositions(Constants.B_SITE_POSITIONS, worldX, worldY)
+    )
   }
 
   createAgents() {
@@ -162,7 +194,14 @@ export class Player implements Team {
       if (tile.index === 1) {
         this.cursorRect.setStrokeStyle(2, 0xff0000)
       } else {
-        this.cursorRect.setStrokeStyle(2, 0x00ff00)
+        if (
+          UI.instance.currCommandState === CommandState.PLANT &&
+          !this.isWithinSite(mousePointer.worldX, mousePointer.worldY)
+        ) {
+          this.cursorRect.setStrokeStyle(2, 0xff0000)
+        } else {
+          this.cursorRect.setStrokeStyle(2, 0x00ff00)
+        }
       }
     }
   }

@@ -15,7 +15,9 @@ export class AssignMoveTargets extends BehaviorTreeNode {
     if (!moveTargets) {
       const newMoveTargets = {}
       const shouldAttackASite = Phaser.Math.Between(0, 1) == 0
-      let positions = shouldAttackASite ? Constants.A_SITE_POSITIONS : Constants.B_SITE_POSITIONS
+      let positions = shouldAttackASite
+        ? [...Constants.A_SITE_POSITIONS]
+        : [...Constants.B_SITE_POSITIONS]
       this.shuffle(positions)
       const agents = this.blackboard.getData(TeamBlackboardKeys.AGENTS) as Agent[]
       agents.forEach((agent, index) => {
