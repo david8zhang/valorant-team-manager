@@ -117,7 +117,7 @@ export default class UI extends Phaser.Scene {
       'S'
     )
     this.createCommandIcon(
-      'watch-icon',
+      'plant-icon',
       Constants.WINDOW_WIDTH / 2 + 48,
       Constants.WINDOW_HEIGHT - 27,
       CommandState.PLANT,

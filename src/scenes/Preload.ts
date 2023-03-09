@@ -19,6 +19,7 @@ export default class Preload extends Phaser.Scene {
 
     this.load.image('move-icon', 'ui/move-icon.png')
     this.load.image('watch-icon', 'ui/watch-icon.png')
+    this.load.image('plant-icon', 'ui/plant-icon.png')
     this.load.image('pause', 'ui/pause.png')
     this.load.image('play', 'ui/play.png')
 
