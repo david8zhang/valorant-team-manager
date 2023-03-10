@@ -320,6 +320,7 @@ export default class Game extends Phaser.Scene {
 
   detonateSpike() {
     this.roundScoreMapping[this.attackSide]++
+    this.spike.detonate()
     UI.instance.updateScores()
   }
 

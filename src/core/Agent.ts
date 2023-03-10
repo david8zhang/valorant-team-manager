@@ -193,6 +193,13 @@ export class Agent {
       )
     }
     this.spikeIcon.setPosition(this.sprite.x + 4, this.sprite.y + 4).setVisible(this.hasSpike)
+    if (this.isWithinSpikeExplosion() && this.game.spike.isDetonated) {
+      this.setState(States.DIE)
+    }
+  }
+
+  isWithinSpikeExplosion() {
+    return this.game.spike.explosionCircleDetector.contains(this.sprite.x, this.sprite.y)
   }
 
   setHealth(health: number) {

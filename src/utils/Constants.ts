@@ -39,7 +39,7 @@ export class Constants {
 
   public static PREROUND_TIME_SEC = 5
   public static PREPLANT_ROUND_TIME_SEC = 100
-  public static POSTPLANT_ROUND_TIME_SEC = 45
+  public static POSTPLANT_ROUND_TIME_SEC = 5
   public static POST_ROUND = 10
 
   public static TOP_BAR_HEIGHT = 60
