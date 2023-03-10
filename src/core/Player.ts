@@ -53,6 +53,10 @@ export class Player implements Team {
           this.queueAgentPlantCommand(e.worldX, e.worldY)
           break
         }
+        case CommandState.DEFUSE: {
+          this.queueAgentDefuseCommand(e.worldX, e.worldY)
+          break
+        }
       }
     }
   }
@@ -118,6 +122,17 @@ export class Player implements Team {
     const agent = this.agents[this.selectedAgentIndex]
     if (this.isWithinSite(worldX, worldY)) {
       agent.setState(States.PLANT, {
+        x: worldX,
+        y: worldY,
+      })
+    }
+  }
+
+  queueAgentDefuseCommand(worldX: number, worldY: number) {
+    const agent = this.agents[this.selectedAgentIndex]
+    const spike = this.game.spike
+    if (spike.defuseCircleDetector.contains(worldX, worldY) && !spike.isDefused) {
+      agent.setState(States.DEFUSE, {
         x: worldX,
         y: worldY,
       })

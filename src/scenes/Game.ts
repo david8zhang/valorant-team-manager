@@ -36,7 +36,7 @@ export default class Game extends Phaser.Scene {
   public colliders: Phaser.Physics.Arcade.Collider[] = []
 
   public roundState: RoundState = RoundState.PREROUND
-  public attackSide: Side = Side.PLAYER
+  public attackSide: Side = Side.CPU
   public roundScoreMapping: {
     [key in Side]: number
   } = {
@@ -152,8 +152,8 @@ export default class Game extends Phaser.Scene {
 
   setupSpike() {
     this.spike = new Spike({
-      // position: Constants.INITIAL_SPIKE_POSITION_CPU_SIDE,
-      position: Constants.INITIAL_SPIKE_POSITION_PLAYER_SIDE,
+      position: Constants.INITIAL_SPIKE_POSITION_CPU_SIDE,
+      // position: Constants.INITIAL_SPIKE_POSITION_PLAYER_SIDE,
     })
   }
 
@@ -272,23 +272,21 @@ export default class Game extends Phaser.Scene {
 
   checkRoundOver() {
     if (this.roundState !== RoundState.POSTROUND) {
-      const livingPlayerAgents = this.player.agents.filter(
-        (agent) => agent.getCurrState() !== States.DIE
-      )
-      const livingCPUAgents = this.cpu.agents.filter((agent) => agent.getCurrState() !== States.DIE)
-      let shouldRoundEnd: boolean = false
+      const defenderAgents = this.attackSide === Side.CPU ? this.player.agents : this.cpu.agents
+      const attackerAgents = this.attackSide === Side.CPU ? this.cpu.agents : this.player.agents
 
-      if (livingPlayerAgents.length == 0) {
-        this.roundScoreMapping[Side.CPU]++
+      const areAllDefDead =
+        defenderAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
+      const areAllAtkDead =
+        attackerAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
+      if (areAllDefDead) {
+        this.roundScoreMapping[this.attackSide]++
         UI.instance.updateScores()
-        shouldRoundEnd = true
-      } else if (livingCPUAgents.length === 0) {
-        this.roundScoreMapping[Side.PLAYER]++
+        UI.instance.endRoundPrematurely()
+      } else if (areAllAtkDead && !this.spike.isPlanted) {
+        const defSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
+        this.roundScoreMapping[defSide]++
         UI.instance.updateScores()
-        shouldRoundEnd = true
-      }
-      if (shouldRoundEnd) {
-        this.roundState = RoundState.POSTROUND
         UI.instance.endRoundPrematurely()
       }
     }
@@ -302,6 +300,16 @@ export default class Game extends Phaser.Scene {
     }
     UI.instance.selectNewCommand(CommandState.MOVE)
     agent.hasSpike = false
+  }
+
+  defuseSpike() {
+    this.spike.defuse()
+    const defenseSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
+    this.roundScoreMapping[defenseSide]++
+    UI.instance.updateScores()
+    UI.instance.endRoundPrematurely()
+    Game.instance.roundState = RoundState.POSTROUND
+    UI.instance.selectNewCommand(CommandState.MOVE)
   }
 
   plantTimeExpire() {

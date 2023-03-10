@@ -1,6 +1,7 @@
 import Game from '~/scenes/Game'
 import { Constants, GunTypes } from '~/utils/Constants'
 import { DeathState } from './states/DeathState'
+import { DefuseState } from './states/DefuseState'
 import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
@@ -90,6 +91,7 @@ export class Agent {
         [States.SHOOT]: new ShootingState(),
         [States.DIE]: new DeathState(),
         [States.PLANT]: new PlantState(),
+        [States.DEFUSE]: new DefuseState(),
       },
       [this]
     )

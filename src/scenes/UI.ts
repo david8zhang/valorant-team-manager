@@ -7,6 +7,7 @@ export enum CommandState {
   MOVE = 'MOVE',
   HOLD = 'HOLD',
   PLANT = 'PLANT',
+  DEFUSE = 'DEFUSE',
 }
 
 export default class UI extends Phaser.Scene {
@@ -64,8 +65,16 @@ export default class UI extends Phaser.Scene {
   }
 
   selectNewCommand(newCommandState: CommandState) {
+    // If the user is not selecting the current spike carrier, they cannot plant
     if (newCommandState === CommandState.PLANT) {
       if (!this.canPlantSpike()) {
+        return
+      }
+    }
+
+    // If the spike is not planted yet, the user cannot defuse
+    if (newCommandState === CommandState.DEFUSE) {
+      if (!Game.instance.spike.isPlanted) {
         return
       }
     }
@@ -116,11 +125,15 @@ export default class UI extends Phaser.Scene {
       CommandState.HOLD,
       'S'
     )
+
+    // Render Plant icon or Defuse icon based on player side
+    const dCommand =
+      Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
     this.createCommandIcon(
       'plant-icon',
       Constants.WINDOW_WIDTH / 2 + 48,
       Constants.WINDOW_HEIGHT - 27,
-      CommandState.PLANT,
+      dCommand,
       'D'
     )
     backgroundRectangle.setFillStyle(0xdddddd)
@@ -291,14 +304,26 @@ export default class UI extends Phaser.Scene {
   }
 
   update() {
-    const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
-    const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
-    if (this.isSelectingSpikeCarrier()) {
-      commandBtn.setAlpha(1)
-      commandIcon.setAlpha(1)
+    if (Game.instance.attackSide === Side.PLAYER) {
+      const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
+      const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
+      if (this.isSelectingSpikeCarrier()) {
+        commandBtn.setAlpha(1)
+        commandIcon.setAlpha(1)
+      } else {
+        commandBtn.setAlpha(0.25)
+        commandIcon.setAlpha(0.25)
+      }
     } else {
-      commandBtn.setAlpha(0.25)
-      commandIcon.setAlpha(0.25)
+      const commandBtn = this.commandMapping[CommandState.DEFUSE]!.boundingBox
+      const commandIcon = this.commandMapping[CommandState.DEFUSE]!.icon
+      if (Game.instance.spike.isPlanted || Game.instance.spike.isDefused) {
+        commandBtn.setAlpha(1)
+        commandIcon.setAlpha(1)
+      } else {
+        commandBtn.setAlpha(0.25)
+        commandIcon.setAlpha(0.25)
+      }
     }
   }
 
