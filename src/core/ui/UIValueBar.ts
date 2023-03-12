@@ -8,6 +8,7 @@ interface UIValueBarConfig {
   width: number
   borderWidth: number
   fillColor?: number
+  bgColor?: number
   showBorder?: boolean
   isVertical?: boolean
 }
@@ -25,10 +26,11 @@ export class UIValueBar {
   showBorder: boolean
   borderWidth: number
   isVertical: boolean = false
+  bgColor: number = 0x000000
 
   constructor(scene: Phaser.Scene, config: UIValueBarConfig) {
     this.bar = new Phaser.GameObjects.Graphics(scene)
-    const { x, y, maxValue, width, height, fillColor, showBorder, borderWidth } = config
+    const { x, y, maxValue, width, height, fillColor, showBorder, borderWidth, bgColor } = config
     this.x = x
     this.y = y
     this.maxValue = maxValue
@@ -36,6 +38,10 @@ export class UIValueBar {
     this.width = width
     this.height = height
     this.borderWidth = borderWidth
+
+    if (bgColor) {
+      this.bgColor = bgColor
+    }
 
     if (config.isVertical) {
       this.isVertical = config.isVertical
@@ -79,7 +85,7 @@ export class UIValueBar {
 
     // Border
     const borderWidth = this.showBorder ? this.borderWidth : 0
-    this.bar.fillStyle(0x000000)
+    this.bar.fillStyle(this.bgColor)
 
     this.bar.fillRect(
       this.x - borderWidth / 2,

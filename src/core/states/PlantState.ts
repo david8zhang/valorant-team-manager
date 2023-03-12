@@ -3,7 +3,7 @@ import UI, { CommandState } from '~/scenes/UI'
 import { Constants } from '~/utils/Constants'
 import { Agent, Side } from '../Agent'
 import { Node } from '../Pathfinding'
-import { UIValueBar } from '../UIValueBar'
+import { UIValueBar } from '../ui/UIValueBar'
 import { State } from './StateMachine'
 import { States } from './States'
 
@@ -71,16 +71,25 @@ export class PlantState extends State {
   }
 
   execute(agent: Agent) {
+    if (this.spikePlantProgressTimerEvent) {
+    }
+
     if (this.arrivedAtDestination) {
       if (!this.hasStartedPlantingSpike) {
         this.hasStartedPlantingSpike = true
         this.startPlantingSpike(agent)
       } else {
-        const currDate = Date.now()
-        if (currDate - this.startPlantingSpikeTimestamp >= PlantState.SPIKE_PLANT_DURATION_MSEC) {
-          Game.instance.plantSpike(agent, agent.sprite.x, agent.sprite.y)
-          this.spikePlantProgressBar.setVisible(false)
-          agent.setState(States.IDLE)
+        if (this.spikePlantProgressTimerEvent) {
+          if (Game.instance.isPaused) {
+            this.spikePlantProgressTimerEvent.paused = true
+          } else {
+            this.spikePlantProgressTimerEvent.paused = false
+            if (this.spikePlantProgressTimerEvent.getOverallProgress() === 1) {
+              Game.instance.plantSpike(agent, agent.sprite.x, agent.sprite.y)
+              this.spikePlantProgressBar.setVisible(false)
+              agent.setState(States.IDLE)
+            }
+          }
         }
       }
     } else {

@@ -104,10 +104,22 @@ export class Player implements Team {
 
   queueAgentMoveCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
-    agent.setState(States.MOVE, {
-      x: worldX,
-      y: worldY,
-    })
+    if (this.isValidMoveDestination(worldX, worldY)) {
+      agent.setState(States.MOVE, {
+        x: worldX,
+        y: worldY,
+      })
+    }
+  }
+
+  isValidMoveDestination(worldX: number, worldY: number) {
+    return (
+      worldX >= 0 &&
+      worldX <= Constants.MAP_WIDTH &&
+      worldY >= 0 &&
+      Constants.MAP_HEIGHT &&
+      this.game.getTileAt(worldX, worldY).index !== 1
+    )
   }
 
   queueAgentHoldCommand(worldX: number, worldY: number) {

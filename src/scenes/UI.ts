@@ -1,5 +1,7 @@
-import { Side } from '~/core/Agent'
+import { Agent, Side } from '~/core/Agent'
 import { Timer } from '~/core/Timer'
+import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
+import { UIValueBar } from '~/core/ui/UIValueBar'
 import { Constants, RoundState } from '~/utils/Constants'
 import Game from './Game'
 
@@ -27,6 +29,15 @@ export default class UI extends Phaser.Scene {
   public playerTeamLabel!: Phaser.GameObjects.Text
   public cpuScoreText!: Phaser.GameObjects.Text
   public cpuTeamLabel!: Phaser.GameObjects.Text
+
+  public playerSidebarTeamLabel!: Phaser.GameObjects.Text
+  public cpuSidebarTeamLabel!: Phaser.GameObjects.Text
+  public didRenderPlayerAgentInfoBoxes: boolean = false
+  public didRenderCPUAgentInfoBoxes: boolean = false
+
+  public agentInfoBoxMapping: {
+    [key: string]: AgentInfoBox
+  } = {}
 
   constructor() {
     super('ui')
@@ -100,6 +111,51 @@ export default class UI extends Phaser.Scene {
     this.selectNewCommand(this.currCommandState)
     this.setupKeyboardShortcutListener()
     this.createTopBar()
+    this.createSideBar()
+  }
+
+  createSideBar() {
+    const teamLabelHeight = 30
+    const playerInfoBoxHeight = 90
+
+    const background = this.add
+      .rectangle(
+        Constants.MAP_WIDTH,
+        0,
+        Constants.RIGHT_BAR_WIDTH,
+        Constants.WINDOW_HEIGHT,
+        0x000000
+      )
+      .setOrigin(0, 0)
+      .setDepth(Constants.SORT_LAYERS.UI)
+
+    this.playerSidebarTeamLabel = this.add
+      .text(Constants.MAP_WIDTH + 10, 10, 'Player', {
+        fontSize: '16px',
+        color: 'white',
+      })
+      .setDepth(Constants.SORT_LAYERS.UI)
+
+    this.cpuSidebarTeamLabel = this.add
+      .text(Constants.MAP_WIDTH + 10, Constants.WINDOW_HEIGHT / 2 + 10, 'CPU', {
+        fontSize: '16px',
+        color: 'white',
+      })
+      .setDepth(Constants.SORT_LAYERS.UI)
+  }
+
+  renderAgentsInfoBoxes(agents: Agent[], startingY: number) {
+    let startY = startingY
+    agents.forEach((agent) => {
+      this.agentInfoBoxMapping[agent.name] = new AgentInfoBox(this, {
+        agent,
+        position: {
+          x: Constants.MAP_WIDTH + 10,
+          y: startY,
+        },
+      })
+      startY += 90
+    })
   }
 
   createCommandBar() {
@@ -113,14 +169,14 @@ export default class UI extends Phaser.Scene {
       .setOrigin(0)
     this.createCommandIcon(
       'move-icon',
-      Constants.WINDOW_WIDTH / 2 - 48,
+      Constants.MAP_WIDTH / 2 - 48,
       Constants.WINDOW_HEIGHT - 27,
       CommandState.MOVE,
       'A'
     )
     this.createCommandIcon(
       'watch-icon',
-      Constants.WINDOW_WIDTH / 2,
+      Constants.MAP_WIDTH / 2,
       Constants.WINDOW_HEIGHT - 27,
       CommandState.HOLD,
       'S'
@@ -131,7 +187,7 @@ export default class UI extends Phaser.Scene {
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
     this.createCommandIcon(
       'plant-icon',
-      Constants.WINDOW_WIDTH / 2 + 48,
+      Constants.MAP_WIDTH / 2 + 48,
       Constants.WINDOW_HEIGHT - 27,
       dCommand,
       'D'
@@ -325,6 +381,33 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(0.25)
       }
     }
+
+    // Render agent info boxes
+    if (Game.instance.player && Game.instance.player.agents) {
+      if (!this.didRenderPlayerAgentInfoBoxes) {
+        this.didRenderPlayerAgentInfoBoxes = true
+        this.renderAgentsInfoBoxes(Game.instance.player.agents, 30)
+      } else {
+        this.updateAgentInfoBoxes(Game.instance.player.agents, Side.PLAYER)
+      }
+    }
+    if (Game.instance.cpu && Game.instance.cpu.agents) {
+      if (!this.didRenderCPUAgentInfoBoxes) {
+        this.didRenderCPUAgentInfoBoxes = true
+        this.renderAgentsInfoBoxes(Game.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
+      } else {
+        this.updateAgentInfoBoxes(Game.instance.cpu.agents, Side.CPU)
+      }
+    }
+  }
+
+  updateAgentInfoBoxes(agents: Agent[], side: Side) {
+    Object.keys(this.agentInfoBoxMapping).forEach((agentName: string) => {
+      const infoBox = this.agentInfoBoxMapping[agentName]
+      if (infoBox) {
+        infoBox.update()
+      }
+    })
   }
 
   isSelectingSpikeCarrier() {

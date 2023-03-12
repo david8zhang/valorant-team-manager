@@ -283,11 +283,13 @@ export default class Game extends Phaser.Scene {
         this.roundScoreMapping[this.attackSide]++
         UI.instance.updateScores()
         UI.instance.endRoundPrematurely()
+        this.roundState = RoundState.POSTROUND
       } else if (areAllAtkDead && !this.spike.isPlanted) {
         const defSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
         this.roundScoreMapping[defSide]++
         UI.instance.updateScores()
         UI.instance.endRoundPrematurely()
+        this.roundState = RoundState.POSTROUND
       }
     }
   }

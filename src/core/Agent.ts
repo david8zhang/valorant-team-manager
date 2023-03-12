@@ -10,7 +10,7 @@ import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
 import { Team } from './Team'
-import { UIValueBar } from './UIValueBar'
+import { UIValueBar } from './ui/UIValueBar'
 
 export enum Side {
   PLAYER = 'PLAYER',
@@ -61,6 +61,10 @@ export class Agent {
   public currStateText: Phaser.GameObjects.Text
   public hasSpike: boolean = false
   public team: Team
+
+  public kills: number = 0
+  public deaths: number = 0
+  public assists: number = 0
 
   constructor(config: AgentConfig) {
     this.game = Game.instance

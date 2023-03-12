@@ -1,7 +1,7 @@
 import Game from '~/scenes/Game'
 import { Node } from '../Pathfinding'
 import { Agent, Side } from '../Agent'
-import { UIValueBar } from '../UIValueBar'
+import { UIValueBar } from '../ui/UIValueBar'
 import { State } from './StateMachine'
 import { States } from './States'
 import { Constants } from '~/utils/Constants'
@@ -109,12 +109,18 @@ export class DefuseState extends State {
         this.hasStartedDefusingSpike = true
         this.startDefusingSpike(agent)
       } else {
-        const currDate = Date.now()
-        if (currDate - this.startDefusingSpikeTimestamp >= DefuseState.SPIKE_DEFUSE_DURATION_MSEC) {
-          Game.instance.defuseSpike()
-          this.spikeDefuseProgressBar.setVisible(false)
-          this.spikeDefuseText.setVisible(false)
-          agent.setState(States.IDLE)
+        if (this.spikeDefuseProgressTimerEvent) {
+          if (Game.instance.isPaused) {
+            this.spikeDefuseProgressTimerEvent.paused = true
+          } else {
+            this.spikeDefuseProgressTimerEvent.paused = false
+            if (this.spikeDefuseProgressTimerEvent.getOverallProgress() === 1) {
+              Game.instance.defuseSpike()
+              this.spikeDefuseProgressBar.setVisible(false)
+              this.spikeDefuseText.setVisible(false)
+              agent.setState(States.IDLE)
+            }
+          }
         }
       }
     } else {
