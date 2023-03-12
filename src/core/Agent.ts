@@ -57,7 +57,7 @@ export class Agent {
   public weapons: {
     [key in WeaponTypes]: GunTypes | null
   }
-  private currEquippedWeapon: WeaponTypes = WeaponTypes.SECONDARY
+  private currEquippedWeapon: WeaponTypes = WeaponTypes.PRIMARY
   public currStateText: Phaser.GameObjects.Text
   public hasSpike: boolean = false
   public team: Team
@@ -65,6 +65,11 @@ export class Agent {
   public kills: number = 0
   public deaths: number = 0
   public assists: number = 0
+
+  private damageMapping: {
+    [key: string]: number
+  } = {}
+  private killerId: string | null = null
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -106,7 +111,7 @@ export class Agent {
     this.side = config.side
     this.setupHealthBar()
     this.weapons = {
-      [WeaponTypes.PRIMARY]: null,
+      [WeaponTypes.PRIMARY]: GunTypes.SMG,
       [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
       [WeaponTypes.MELEE]: null,
     }
@@ -140,11 +145,29 @@ export class Agent {
     return this.stateMachine.getState()
   }
 
-  takeDamage(damage: number) {
+  takeDamage(damage: number, attacker: Agent) {
     const newValue = Math.max(0, this.healthBar.currValue - damage)
     this.healthBar.setCurrValue(newValue)
+    if (!this.damageMapping[attacker.name]) {
+      this.damageMapping[attacker.name] = 0
+    }
+    this.damageMapping[attacker.name] += damage
     if (newValue == 0) {
+      this.deaths++
       this.stateMachine.transition(States.DIE)
+      if (!this.killerId) {
+        console.log(this.name + ' killed by: ' + attacker.name)
+        this.killerId = attacker.name
+        attacker.kills++
+        Object.keys(this.damageMapping).forEach((name) => {
+          if (name !== this.killerId) {
+            const agent = this.game.getAgentByName(name)
+            if (agent) {
+              agent.assists++
+            }
+          }
+        })
+      }
     }
   }
 
@@ -200,6 +223,11 @@ export class Agent {
     if (this.isWithinSpikeExplosion() && this.game.spike.isDetonated) {
       this.setState(States.DIE)
     }
+  }
+
+  resetDamageMapping() {
+    this.damageMapping = {}
+    this.killerId = null
   }
 
   isWithinSpikeExplosion() {

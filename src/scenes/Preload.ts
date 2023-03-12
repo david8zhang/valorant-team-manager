@@ -24,6 +24,12 @@ export default class Preload extends Phaser.Scene {
     this.load.image('play', 'ui/play.png')
 
     this.load.image('muzzle-flare', 'effects/muzzle-flare.png')
+
+    // Weapons
+    this.load.image('classic-icon', 'weapons/classic-icon.png')
+    this.load.image('spectre-icon', 'weapons/spectre-icon.png')
+    this.load.image('vandal-icon', 'weapons/vandal-icon.png')
+
     Constants.CALC_A_SITE_POSITIONS()
     Constants.CALC_B_SITE_POSITIONS()
   }

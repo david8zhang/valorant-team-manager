@@ -243,17 +243,11 @@ export class Player implements Team {
       agent.setHealth(Agent.FULL_HEALTH)
       agent.sprite.setVisible(true)
       agent.healthBar.setVisible(true)
-
       agent.visionRay.setAngle(Phaser.Math.DegToRad(90))
       agent.crosshairRay.setAngle(Phaser.Math.DegToRad(90))
-
+      agent.resetDamageMapping()
       agent.hideSightCones = false
-
       startX += agent.sprite.displayWidth + 20
-      if (agent.getCurrState() === States.DIE) {
-        const enemyRayCaster = this.game.cpuRaycaster
-        enemyRayCaster.mapGameObjects(agent.sprite)
-      }
     })
   }
 

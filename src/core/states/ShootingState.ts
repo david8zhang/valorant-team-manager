@@ -131,7 +131,7 @@ export class ShootingState extends State {
           },
           duration: 75,
           onComplete: () => {
-            this.handleRandomShot(weaponConfig)
+            this.handleRandomShot(agent, weaponConfig)
             if (this.tracerLine) {
               this.tracerLine.destroy()
             }
@@ -141,12 +141,12 @@ export class ShootingState extends State {
     }
   }
 
-  handleRandomShot(weaponConfig: GunConfig) {
+  handleRandomShot(agent: Agent, weaponConfig: GunConfig) {
     const shotTypes = ['body', 'armsAndLegs', 'head']
     const randomShotType = shotTypes[Phaser.Math.Between(0, shotTypes.length - 1)]
     const damage = weaponConfig.damage[randomShotType]
     if (this.target) {
-      this.target.takeDamage(damage)
+      this.target.takeDamage(damage, agent)
     }
   }
 

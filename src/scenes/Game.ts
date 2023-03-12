@@ -342,6 +342,15 @@ export default class Game extends Phaser.Scene {
     this.player.unpause()
   }
 
+  getAgentByName(name: string) {
+    const playerAgent = this.player.agents.find((agent) => agent.name === name)
+    if (playerAgent) {
+      return playerAgent
+    }
+    const cpuAgent = this.cpu.agents.find((agent) => agent.name === name)
+    return cpuAgent
+  }
+
   public draw(intersections: any[]) {
     this.maskGraphics.fillPoints(intersections)
   }

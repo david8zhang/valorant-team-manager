@@ -1,6 +1,6 @@
 import { Scene } from 'phaser'
-import { Constants } from '~/utils/Constants'
-import { Agent } from '../Agent'
+import { Constants, GunTypes } from '~/utils/Constants'
+import { Agent, WeaponTypes } from '../Agent'
 import { UIValueBar } from './UIValueBar'
 
 export interface AgentInfoConfig {
@@ -17,6 +17,7 @@ export class AgentInfoBox {
   public agentHealthBar!: UIValueBar
   public agentKdaText!: Phaser.GameObjects.Text
   public agentUtilityIcons: Phaser.GameObjects.Rectangle[] = []
+  public agentGunIcon!: Phaser.GameObjects.Sprite
   public infoBoxRect!: Phaser.GameObjects.Rectangle
 
   constructor(scene: Scene, config: AgentInfoConfig) {
@@ -67,19 +68,46 @@ export class AgentInfoBox {
       agentNameText.y
     )
     // Utility icons
-    let x = agentProfilePic.x + 100
+    let utilityIconX = agentProfilePic.x + 100
     for (let i = 1; i <= 3; i++) {
       const icon = this.scene.add
-        .rectangle(x, agentProfilePic.y + 25, 30, 30, 0xff0000)
+        .rectangle(utilityIconX, agentProfilePic.y + 25, 30, 30, 0xff0000)
         .setDepth(Constants.SORT_LAYERS.UI)
-      x += icon.displayWidth + 5
+      utilityIconX += icon.displayWidth + 5
       this.agentUtilityIcons.push(icon)
     }
+
+    this.agentGunIcon = this.scene.add
+      .sprite(
+        this.infoBoxRect.x + this.infoBoxRect.displayWidth - 50,
+        agentProfilePic.y + 25,
+        'classic-icon'
+      )
+      .setFlipX(true)
+      .setDepth(Constants.SORT_LAYERS.UI)
   }
 
   update() {
     this.updateHealth()
     this.setKda()
+    this.updateGunIcon()
+  }
+
+  updateGunIcon() {
+    switch (this.agent.currWeapon) {
+      case GunTypes.PISTOL: {
+        this.agentGunIcon.setTexture('classic-icon')
+        break
+      }
+      case GunTypes.SMG: {
+        this.agentGunIcon.setTexture('spectre-icon')
+        break
+      }
+      case GunTypes.RIFLE: {
+        this.agentGunIcon.setTexture('vandal-icon')
+        break
+      }
+    }
   }
 
   updateHealth() {

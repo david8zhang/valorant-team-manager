@@ -155,17 +155,14 @@ export class CPU implements Team {
       agent.setHealth(Agent.FULL_HEALTH)
       agent.visionRay.setAngle(Phaser.Math.DegToRad(270))
       agent.crosshairRay.setAngle(Phaser.Math.DegToRad(270))
+      agent.resetDamageMapping()
+
       if (this.game.isDebug) {
         agent.sprite.setVisible(true)
         agent.healthBar.setVisible(true)
         agent.hideSightCones = false
       }
-
       startX += agent.sprite.displayWidth + 20
-      if (agent.getCurrState() === States.DIE) {
-        const enemyRayCaster = this.game.cpuRaycaster
-        enemyRayCaster.mapGameObjects(agent.sprite)
-      }
     })
   }
 
