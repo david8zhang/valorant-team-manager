@@ -149,19 +149,12 @@ export class CPU implements Team {
     let startX = CPU.AGENT_START_X
     let startY = CPU.AGENT_START_Y
     this.agents.forEach((agent) => {
-      agent.hasSpike = false
-      agent.setState(States.IDLE)
-      agent.sprite.setPosition(startX, startY)
-      agent.setHealth(Agent.FULL_HEALTH)
-      agent.visionRay.setAngle(Phaser.Math.DegToRad(270))
-      agent.crosshairRay.setAngle(Phaser.Math.DegToRad(270))
-      agent.resetDamageMapping()
-
-      if (this.game.isDebug) {
-        agent.sprite.setVisible(true)
-        agent.healthBar.setVisible(true)
-        agent.hideSightCones = false
-      }
+      agent.reset({
+        x: startX,
+        y: startY,
+        sightAngle: 270,
+        showOnMap: this.game.isDebug,
+      })
       startX += agent.sprite.displayWidth + 20
     })
   }

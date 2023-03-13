@@ -4,11 +4,5 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- Scoreboard to the right:
-  - K/D/A ratio
-  - Gun icons
-  - Available credits
-  - Health / Shields
+- Peek state
 - Better CPU AI (with full behavior tree)
-- Watching angle while moving state
-- Jiggle peek state

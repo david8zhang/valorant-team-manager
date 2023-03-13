@@ -34,6 +34,12 @@ export class Player implements Team {
       if (e.code.includes('Digit')) {
         this.handleDigit(e.key)
       }
+      switch (e.key) {
+        case 'd': {
+          this.queueAgentStopHold()
+          break
+        }
+      }
     })
   }
 
@@ -124,10 +130,12 @@ export class Player implements Team {
 
   queueAgentHoldCommand(worldX: number, worldY: number) {
     const agent = this.agents[this.selectedAgentIndex]
-    agent.setState(States.HOLD, {
-      x: worldX,
-      y: worldY,
-    })
+    agent.setHoldLocation(worldX, worldY)
+  }
+
+  queueAgentStopHold() {
+    const agent = this.agents[this.selectedAgentIndex]
+    agent.holdLocation = null
   }
 
   queueAgentPlantCommand(worldX: number, worldY: number) {
@@ -237,16 +245,12 @@ export class Player implements Team {
     let startX = Player.AGENT_START_X
     let startY = Player.AGENT_START_Y
     this.agents.forEach((agent) => {
-      agent.hasSpike = false
-      agent.setState(States.IDLE)
-      agent.sprite.setPosition(startX, startY)
-      agent.setHealth(Agent.FULL_HEALTH)
-      agent.sprite.setVisible(true)
-      agent.healthBar.setVisible(true)
-      agent.visionRay.setAngle(Phaser.Math.DegToRad(90))
-      agent.crosshairRay.setAngle(Phaser.Math.DegToRad(90))
-      agent.resetDamageMapping()
-      agent.hideSightCones = false
+      agent.reset({
+        x: startX,
+        y: startY,
+        sightAngle: 90,
+        showOnMap: true,
+      })
       startX += agent.sprite.displayWidth + 20
     })
   }

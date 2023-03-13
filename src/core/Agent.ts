@@ -2,7 +2,6 @@ import Game from '~/scenes/Game'
 import { Constants, GunTypes } from '~/utils/Constants'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
-import { HoldState } from './states/HoldState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
 import { PlantState } from './states/PlantState'
@@ -65,11 +64,17 @@ export class Agent {
   public kills: number = 0
   public deaths: number = 0
   public assists: number = 0
+  public credits: number = 0
 
   private damageMapping: {
     [key: string]: number
   } = {}
   private killerId: string | null = null
+
+  public holdLocation: {
+    x: number
+    y: number
+  } | null = null
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -96,7 +101,6 @@ export class Agent {
       {
         [States.IDLE]: new IdleState(),
         [States.MOVE]: new MoveState(),
-        [States.HOLD]: new HoldState(),
         [States.SHOOT]: new ShootingState(),
         [States.DIE]: new DeathState(),
         [States.PLANT]: new PlantState(),
@@ -201,6 +205,16 @@ export class Agent {
     return this.weapons[this.currEquippedWeapon]
   }
 
+  setHoldLocation(worldX: number, worldY: number) {
+    this.holdLocation = {
+      x: worldX,
+      y: worldY,
+    }
+    const angle = Phaser.Math.Angle.Between(this.sprite.x, this.sprite.y, worldX, worldY)
+    this.visionRay.setAngle(angle)
+    this.crosshairRay.setAngle(angle)
+  }
+
   update() {
     this.graphics.clear()
     this.stateMachine.step()
@@ -225,9 +239,27 @@ export class Agent {
     }
   }
 
-  resetDamageMapping() {
+  // Reset after a round ends
+  reset(resetConfig: { x: number; y: number; sightAngle: number; showOnMap: boolean }) {
     this.damageMapping = {}
     this.killerId = null
+    this.hasSpike = false
+    this.setState(States.IDLE)
+    this.sprite.setPosition(resetConfig.x, resetConfig.y)
+    this.setHealth(Agent.FULL_HEALTH)
+    this.holdLocation = null
+    this.visionRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
+    this.crosshairRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
+
+    if (resetConfig.showOnMap) {
+      this.sprite.setVisible(true)
+      this.healthBar.setVisible(true)
+      this.hideSightCones = false
+    } else {
+      this.sprite.setVisible(false)
+      this.healthBar.setVisible(false)
+      this.hideSightCones = true
+    }
   }
 
   isWithinSpikeExplosion() {
@@ -245,6 +277,12 @@ export class Agent {
   }
 
   updateVisionAndCrosshair() {
+    if (this.holdLocation) {
+      this.graphics.lineStyle(2, 0xff0000)
+    } else {
+      this.graphics.lineStyle(2, 0x00ffff)
+    }
+
     if (this.getCurrState() !== States.DIE) {
       this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
       this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)

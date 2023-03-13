@@ -8,6 +8,7 @@ import Game from './Game'
 export enum CommandState {
   MOVE = 'MOVE',
   HOLD = 'HOLD',
+  STOP_HOLD = 'STOP_HOLD',
   PLANT = 'PLANT',
   DEFUSE = 'DEFUSE',
 }
@@ -19,6 +20,8 @@ export default class UI extends Phaser.Scene {
     [key in CommandState]?: {
       boundingBox: Phaser.GameObjects.Rectangle
       icon: Phaser.GameObjects.Image
+      shortcutText: Phaser.GameObjects.Text
+      triggerOnPress: boolean
     }
   }
   private shortcutMapping: {
@@ -55,24 +58,32 @@ export default class UI extends Phaser.Scene {
     x: number,
     y: number,
     commandState: CommandState,
-    shortcut: string
+    shortcut: string,
+    triggerOnPress: boolean = false
   ) {
     const boundingBox = this.add.rectangle(x, y, 36, 36, 0xffffff)
+    boundingBox.setOrigin(0, 0.5)
     boundingBox.setStrokeStyle(1, 0x000000)
     const icon = this.add.image(x, y, texture)
     boundingBox.setInteractive()
     boundingBox.on(Phaser.Input.Events.POINTER_DOWN, (e) => {
-      this.selectNewCommand(commandState)
+      if (!triggerOnPress) {
+        this.selectNewCommand(commandState)
+      }
     })
-    this.commandMapping[commandState] = {
-      boundingBox: boundingBox,
-      icon: icon,
-    }
-    this.add
-      .text(boundingBox.x + 10, boundingBox.y - 30, shortcut)
+    const shortcutText = this.add
+      .text(boundingBox.x + 15, boundingBox.y - 30, shortcut)
       .setFontSize(12)
       .setColor('#000000')
+    const command = {
+      boundingBox: boundingBox,
+      icon: icon,
+      shortcutText,
+      triggerOnPress,
+    }
+    this.commandMapping[commandState] = command
     this.shortcutMapping[shortcut] = commandState
+    return command
   }
 
   selectNewCommand(newCommandState: CommandState) {
@@ -115,10 +126,7 @@ export default class UI extends Phaser.Scene {
   }
 
   createSideBar() {
-    const teamLabelHeight = 30
-    const playerInfoBoxHeight = 90
-
-    const background = this.add
+    this.add
       .rectangle(
         Constants.MAP_WIDTH,
         0,
@@ -167,31 +175,61 @@ export default class UI extends Phaser.Scene {
         Constants.BOTTOM_BAR_HEIGHT
       )
       .setOrigin(0)
-    this.createCommandIcon(
-      'move-icon',
-      Constants.MAP_WIDTH / 2 - 48,
-      Constants.WINDOW_HEIGHT - 27,
-      CommandState.MOVE,
-      'A'
+
+    const allCommands: {
+      boundingBox: Phaser.GameObjects.Rectangle
+      icon: Phaser.GameObjects.Image
+      shortcutText: Phaser.GameObjects.Text
+    }[] = []
+    allCommands.push(
+      this.createCommandIcon(
+        'move-icon',
+        Constants.MAP_WIDTH / 2,
+        Constants.WINDOW_HEIGHT - 27,
+        CommandState.MOVE,
+        'A'
+      )
     )
-    this.createCommandIcon(
-      'watch-icon',
-      Constants.MAP_WIDTH / 2,
-      Constants.WINDOW_HEIGHT - 27,
-      CommandState.HOLD,
-      'S'
+    allCommands.push(
+      this.createCommandIcon(
+        'watch-icon',
+        Constants.MAP_WIDTH / 2,
+        Constants.WINDOW_HEIGHT - 27,
+        CommandState.HOLD,
+        'S'
+      )
+    )
+    allCommands.push(
+      this.createCommandIcon(
+        'stop-watch-icon',
+        Constants.MAP_WIDTH / 2,
+        Constants.WINDOW_HEIGHT - 27,
+        CommandState.STOP_HOLD,
+        'D',
+        true
+      )
     )
 
     // Render Plant icon or Defuse icon based on player side
     const dCommand =
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
-    this.createCommandIcon(
-      'plant-icon',
-      Constants.MAP_WIDTH / 2 + 48,
-      Constants.WINDOW_HEIGHT - 27,
-      dCommand,
-      'D'
+    allCommands.push(
+      this.createCommandIcon(
+        'plant-icon',
+        Constants.MAP_WIDTH / 2,
+        Constants.WINDOW_HEIGHT - 27,
+        dCommand,
+        'F'
+      )
     )
+    const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
+    let startX = Constants.MAP_WIDTH / 2 - totalWidth / 2
+    allCommands.forEach((command) => {
+      command.boundingBox.setX(startX)
+      command.icon.setX(startX + 18)
+      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
+      startX += 48
+    })
     backgroundRectangle.setFillStyle(0xdddddd)
   }
 
@@ -354,7 +392,10 @@ export default class UI extends Phaser.Scene {
       const keyPressed = e.key.toUpperCase()
       const commandState = this.shortcutMapping[keyPressed]
       if (commandState) {
-        this.selectNewCommand(commandState)
+        const commandObj = this.commandMapping[commandState]!
+        if (!commandObj.triggerOnPress) {
+          this.selectNewCommand(commandState)
+        }
       }
     })
   }
@@ -379,6 +420,14 @@ export default class UI extends Phaser.Scene {
       } else {
         commandBtn.setAlpha(0.25)
         commandIcon.setAlpha(0.25)
+      }
+
+      if (Game.instance.player) {
+        const selectedAgent = Game.instance.player.selectedAgent
+        const commandBtn = this.commandMapping[CommandState.STOP_HOLD]!.boundingBox
+        const commandIcon = this.commandMapping[CommandState.STOP_HOLD]!.icon
+        commandBtn.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
+        commandIcon.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
       }
     }
 

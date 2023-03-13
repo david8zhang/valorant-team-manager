@@ -112,7 +112,16 @@ export class MoveState extends State {
   }
 
   private setRayDirection(agent: Agent) {
-    if (this.moveTarget && !this.arrivedAtDestination && !agent.isPaused) {
+    if (agent.holdLocation) {
+      const angle = Phaser.Math.Angle.Between(
+        agent.sprite.x,
+        agent.sprite.y,
+        agent.holdLocation.x,
+        agent.holdLocation.y
+      )
+      agent.visionRay.setAngle(angle)
+      agent.crosshairRay.setAngle(angle)
+    } else if (this.moveTarget && !this.arrivedAtDestination && !agent.isPaused) {
       const angle = Phaser.Math.Angle.Between(
         agent.sprite.x,
         agent.sprite.y,
