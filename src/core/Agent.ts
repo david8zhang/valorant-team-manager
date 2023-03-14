@@ -1,8 +1,10 @@
 import Game from '~/scenes/Game'
 import { Constants, GunTypes } from '~/utils/Constants'
+import { PeekCommandState } from './Player'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'
+import { JigglePeekState } from './states/JigglePeekState'
 import { MoveState } from './states/MoveState'
 import { PlantState } from './states/PlantState'
 import { ShootingState } from './states/ShootingState'
@@ -76,6 +78,14 @@ export class Agent {
     y: number
   } | null = null
 
+  public peekState: {
+    [key in PeekCommandState]: Phaser.GameObjects.Arc | null
+  } = {
+    [PeekCommandState.START]: null,
+    [PeekCommandState.END]: null,
+    [PeekCommandState.PEEK_LOCATION]: null,
+  }
+
   constructor(config: AgentConfig) {
     this.game = Game.instance
     this.team = config.team
@@ -105,6 +115,7 @@ export class Agent {
         [States.DIE]: new DeathState(),
         [States.PLANT]: new PlantState(),
         [States.DEFUSE]: new DefuseState(),
+        [States.PEEK]: new JigglePeekState(),
       },
       [this]
     )
@@ -205,6 +216,19 @@ export class Agent {
     return this.weapons[this.currEquippedWeapon]
   }
 
+  clearPeekMarkers() {
+    Object.keys(this.peekState).forEach((key) => {
+      if (this.peekState[key]) {
+        this.peekState[key].destroy()
+      }
+    })
+    this.peekState = {
+      [PeekCommandState.START]: null,
+      [PeekCommandState.END]: null,
+      [PeekCommandState.PEEK_LOCATION]: null,
+    }
+  }
+
   setHoldLocation(worldX: number, worldY: number) {
     this.holdLocation = {
       x: worldX,
@@ -278,9 +302,9 @@ export class Agent {
 
   updateVisionAndCrosshair() {
     if (this.holdLocation) {
-      this.graphics.lineStyle(2, 0xff0000)
+      this.graphics.lineStyle(2, 0xff0000, 0.4)
     } else {
-      this.graphics.lineStyle(2, 0x00ffff)
+      this.graphics.lineStyle(2, 0x00ffff, 0.4)
     }
 
     if (this.getCurrState() !== States.DIE) {

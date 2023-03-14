@@ -121,7 +121,7 @@ export class ShootingState extends State {
           .line(0, 0, agent.sprite.x, agent.sprite.y, this.target.sprite.x, this.target.sprite.y)
           .setStrokeStyle(1, 0xfeff32)
           .setDisplayOrigin(0.5)
-          .setDepth(Constants.SORT_LAYERS.UI)
+          .setDepth(Constants.SORT_LAYERS.UI + 100)
 
         Game.instance.tweens.add({
           targets: [this.tracerLine, this.muzzleFlareSprite],

@@ -1,7 +1,6 @@
 import { Agent, Side } from '~/core/Agent'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
-import { UIValueBar } from '~/core/ui/UIValueBar'
 import { Constants, RoundState } from '~/utils/Constants'
 import Game from './Game'
 
@@ -9,6 +8,7 @@ export enum CommandState {
   MOVE = 'MOVE',
   HOLD = 'HOLD',
   STOP_HOLD = 'STOP_HOLD',
+  PEEK = 'PEEK',
   PLANT = 'PLANT',
   DEFUSE = 'DEFUSE',
 }
@@ -181,6 +181,7 @@ export default class UI extends Phaser.Scene {
       icon: Phaser.GameObjects.Image
       shortcutText: Phaser.GameObjects.Text
     }[] = []
+
     allCommands.push(
       this.createCommandIcon(
         'move-icon',
@@ -210,6 +211,16 @@ export default class UI extends Phaser.Scene {
       )
     )
 
+    allCommands.push(
+      this.createCommandIcon(
+        'peek-icon',
+        Constants.MAP_WIDTH / 2,
+        Constants.WINDOW_HEIGHT - 27,
+        CommandState.PEEK,
+        'F'
+      )
+    )
+
     // Render Plant icon or Defuse icon based on player side
     const dCommand =
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
@@ -219,13 +230,14 @@ export default class UI extends Phaser.Scene {
         Constants.MAP_WIDTH / 2,
         Constants.WINDOW_HEIGHT - 27,
         dCommand,
-        'F'
+        'G'
       )
     )
     const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
     let startX = Constants.MAP_WIDTH / 2 - totalWidth / 2
     allCommands.forEach((command) => {
       command.boundingBox.setX(startX)
+      console.log(command.icon.displayWidth)
       command.icon.setX(startX + 18)
       command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
       startX += 48

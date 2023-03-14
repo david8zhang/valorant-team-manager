@@ -6,4 +6,5 @@ export enum States {
   DIE = 'DIE',
   PLANT = 'PLANT',
   DEFUSE = 'DEFUSE',
+  PEEK = 'PEEK',
 }
