@@ -1,4 +1,4 @@
-import Phaser from 'phaser'
+import Phaser, { BlendModes } from 'phaser'
 import { Agent, Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Pathfinding } from '~/core/Pathfinding'
@@ -255,7 +255,9 @@ export default class Game extends Phaser.Scene {
   }
 
   createFOV() {
-    this.maskGraphics = this.add.graphics({ fillStyle: { color: 0xffffff, alpha: 0 } })
+    this.maskGraphics = this.add.graphics({
+      fillStyle: { color: 0xffffff, alpha: 0 },
+    })
     this.mask = new Phaser.Display.Masks.GeometryMask(this, this.maskGraphics)
     this.mask.setInvertAlpha()
     this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.2 } }).setDepth(100)

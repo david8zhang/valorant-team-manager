@@ -2,7 +2,6 @@ import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
 import { Constants } from '~/utils/Constants'
 import { Agent, Side } from './Agent'
-import { State } from './states/StateMachine'
 import { States } from './states/States'
 import { Team } from './Team'
 
@@ -81,52 +80,7 @@ export class Player implements Team {
           this.queueAgentDefuseCommand(e.worldX, e.worldY)
           break
         }
-        case CommandState.PEEK: {
-          this.queueAgentPeekCommand(e.worldX, e.worldY)
-          break
-        }
       }
-    }
-  }
-
-  queueAgentPeekCommand(worldX: number, worldY: number) {
-    if (!this.selectedAgent) {
-      return
-    }
-    const tile = this.game.getTileAt(worldX, worldY)
-    if (!this.selectedAgent.peekState[PeekCommandState.START]) {
-      this.selectedAgent.peekState[PeekCommandState.START] = this.game.add.circle(
-        tile.getCenterX(),
-        tile.getCenterY(),
-        4,
-        0xff0000
-      )
-      return
-    }
-    if (!this.selectedAgent.peekState[PeekCommandState.END]) {
-      this.selectedAgent.peekState[PeekCommandState.END] = this.game.add.circle(
-        tile.getCenterX(),
-        tile.getCenterY(),
-        4,
-        0x00ff00
-      )
-      return
-    }
-    if (!this.selectedAgent.peekState[PeekCommandState.PEEK_LOCATION]) {
-      this.selectedAgent.peekState[PeekCommandState.PEEK_LOCATION] = this.game.add.circle(
-        tile.getCenterX(),
-        tile.getCenterY(),
-        4,
-        0x0000ff
-      )
-      const startCircle = this.selectedAgent.peekState[PeekCommandState.START]
-      const endCircle = this.selectedAgent.peekState[PeekCommandState.END]
-      const peekLocation = this.selectedAgent.peekState[PeekCommandState.PEEK_LOCATION]
-      this.selectedAgent.setState(States.PEEK, {
-        start: { x: startCircle.x, y: startCircle.y },
-        end: { x: endCircle.x, y: endCircle.y },
-        peekLocation: { x: peekLocation.x, y: peekLocation.y },
-      })
     }
   }
 
@@ -319,8 +273,7 @@ export class Player implements Team {
   }
 
   setupCursor() {
-    const mousePointer = this.game.input.mousePointer
-    const tilePos = this.game.getTilePosForWorldPos(mousePointer.worldX, mousePointer.worldY)
+    const tilePos = this.game.getTilePosForWorldPos(0, 0)
     const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
     this.cursorRect = this.game.add.rectangle(tileCenter.x, tileCenter.y, 16, 16)
     this.cursorRect.setStrokeStyle(2, 0x00ff00).setDepth(100)

@@ -78,6 +78,7 @@ export class Agent {
     y: number
   } | null = null
 
+  // Store start/end/peek location if agent should peek an angle
   public peekState: {
     [key in PeekCommandState]: Phaser.GameObjects.Arc | null
   } = {
@@ -85,6 +86,8 @@ export class Agent {
     [PeekCommandState.END]: null,
     [PeekCommandState.PEEK_LOCATION]: null,
   }
+
+  public fireOnSight: boolean = false
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -266,6 +269,7 @@ export class Agent {
   // Reset after a round ends
   reset(resetConfig: { x: number; y: number; sightAngle: number; showOnMap: boolean }) {
     this.damageMapping = {}
+    this.fireOnSight = false
     this.killerId = null
     this.hasSpike = false
     this.setState(States.IDLE)
@@ -296,12 +300,18 @@ export class Agent {
 
   canShootEnemy() {
     return (
-      this.stateMachine.getState() !== States.SHOOT && this.stateMachine.getState() !== States.DIE
+      this.stateMachine.getState() !== States.SHOOT &&
+      this.stateMachine.getState() !== States.DIE &&
+      this.shouldShootOnSight()
     )
   }
 
+  shouldShootOnSight() {
+    return this.holdLocation !== null || this.fireOnSight
+  }
+
   updateVisionAndCrosshair() {
-    if (this.holdLocation) {
+    if (this.shouldShootOnSight()) {
       this.graphics.lineStyle(2, 0xff0000, 0.4)
     } else {
       this.graphics.lineStyle(2, 0x00ffff, 0.4)

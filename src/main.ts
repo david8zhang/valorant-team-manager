@@ -1,5 +1,6 @@
 import Phaser from 'phaser'
 import PhaserRaycaster from 'phaser-raycaster'
+import ToggleSwitchPlugin from 'phaser3-rex-plugins/plugins/toggleswitch-plugin'
 
 import Game from './scenes/Game'
 import Preload from './scenes/Preload'
@@ -26,6 +27,13 @@ const config: Phaser.Types.Core.GameConfig = {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   plugins: {
+    global: [
+      {
+        key: 'rexToggleSwitchPlugin',
+        plugin: ToggleSwitchPlugin,
+        start: true,
+      },
+    ],
     scene: [
       {
         key: 'PhaserRaycaster',

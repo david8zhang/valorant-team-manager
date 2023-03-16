@@ -42,6 +42,8 @@ export default class UI extends Phaser.Scene {
     [key: string]: AgentInfoBox
   } = {}
 
+  public fireOnSightToggleSwitch: any
+
   constructor() {
     super('ui')
     this.commandMapping = {}
@@ -123,6 +125,33 @@ export default class UI extends Phaser.Scene {
     this.setupKeyboardShortcutListener()
     this.createTopBar()
     this.createSideBar()
+    this.createFireOnSightToggle()
+  }
+
+  createFireOnSightToggle() {
+    const fireOnSightText = this.add
+      .text(20, Constants.WINDOW_HEIGHT - 30, 'Auto Fire', {
+        color: '#000000',
+        fontSize: '12px',
+      })
+      .setOrigin(0, 0.5)
+    this.fireOnSightToggleSwitch = this.add.rexToggleSwitch(
+      fireOnSightText.x + fireOnSightText.displayWidth + 25,
+      Constants.WINDOW_HEIGHT - 30,
+      36,
+      36,
+      0xff0000,
+      {
+        trackHeight: 0.5,
+        thumbHeight: 0.51,
+      }
+    )
+    this.fireOnSightToggleSwitch.on('valuechange', (value) => {
+      // Render fire on sight toggle
+      if (Game.instance.player && Game.instance.player.selectedAgent) {
+        Game.instance.player.selectedAgent.fireOnSight = value
+      }
+    })
   }
 
   createSideBar() {
@@ -211,16 +240,6 @@ export default class UI extends Phaser.Scene {
       )
     )
 
-    allCommands.push(
-      this.createCommandIcon(
-        'peek-icon',
-        Constants.MAP_WIDTH / 2,
-        Constants.WINDOW_HEIGHT - 27,
-        CommandState.PEEK,
-        'F'
-      )
-    )
-
     // Render Plant icon or Defuse icon based on player side
     const dCommand =
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
@@ -237,7 +256,6 @@ export default class UI extends Phaser.Scene {
     let startX = Constants.MAP_WIDTH / 2 - totalWidth / 2
     allCommands.forEach((command) => {
       command.boundingBox.setX(startX)
-      console.log(command.icon.displayWidth)
       command.icon.setX(startX + 18)
       command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
       startX += 48
@@ -409,6 +427,10 @@ export default class UI extends Phaser.Scene {
           this.selectNewCommand(commandState)
         }
       }
+      if (e.key === 'x') {
+        if (Game.instance.player && Game.instance.player.selectedAgent)
+          this.fireOnSightToggleSwitch.setValue(!Game.instance.player.selectedAgent.fireOnSight)
+      }
     })
   }
 
@@ -459,6 +481,11 @@ export default class UI extends Phaser.Scene {
       } else {
         this.updateAgentInfoBoxes(Game.instance.cpu.agents, Side.CPU)
       }
+    }
+
+    // Render fire on sight toggle
+    if (Game.instance.player && Game.instance.player.selectedAgent) {
+      this.fireOnSightToggleSwitch.setValue(Game.instance.player.selectedAgent.fireOnSight)
     }
   }
 
