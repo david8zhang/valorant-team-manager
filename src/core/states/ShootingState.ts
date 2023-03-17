@@ -15,19 +15,19 @@ export class ShootingState extends State {
     if (target) {
       this.target = target
     } else {
-      agent.sprite.setVelocity(0, 0)
       this.setTarget(agent)
-      if (!this.muzzleFlareSprite) {
-        this.muzzleFlareSprite = Game.instance.add
-          .sprite(agent.sprite.x, agent.sprite.y, 'muzzle-flare')
-          .setDepth(Constants.SORT_LAYERS.Player + 100)
-          .setVisible(false)
-      }
-      this.isWithinReactionDelay = true
-      Game.instance.time.delayedCall(250, () => {
-        this.isWithinReactionDelay = false
-      })
     }
+    agent.sprite.setVelocity(0, 0)
+    if (!this.muzzleFlareSprite) {
+      this.muzzleFlareSprite = Game.instance.add
+        .sprite(agent.sprite.x, agent.sprite.y, 'muzzle-flare')
+        .setDepth(Constants.SORT_LAYERS.Player + 100)
+        .setVisible(false)
+    }
+    this.isWithinReactionDelay = true
+    Game.instance.time.delayedCall(250, () => {
+      this.isWithinReactionDelay = false
+    })
   }
 
   setTarget(agent: Agent) {
@@ -117,35 +117,88 @@ export class ShootingState extends State {
 
         this.lastBulletFiredTimestamp = currTimestamp
 
-        this.tracerLine = Game.instance.add
-          .line(0, 0, agent.sprite.x, agent.sprite.y, this.target.sprite.x, this.target.sprite.y)
-          .setStrokeStyle(1, 0xfeff32)
-          .setDisplayOrigin(0.5)
-          .setDepth(Constants.SORT_LAYERS.UI + 100)
-
-        Game.instance.tweens.add({
-          targets: [this.tracerLine, this.muzzleFlareSprite],
-          alpha: {
-            from: 1,
-            to: 0,
-          },
-          duration: 75,
-          onComplete: () => {
-            this.handleRandomShot(agent, weaponConfig)
-            if (this.tracerLine) {
-              this.tracerLine.destroy()
-            }
-          },
-        })
+        const accuracyPct = agent.stats.accuracyPct
+        const randNum = Phaser.Math.Between(1, 100)
+        if (accuracyPct > randNum) {
+          this.handleHit(agent, weaponConfig)
+        } else {
+          this.handleMiss(agent, weaponConfig)
+        }
+        if (!this.target.isReactingToShot && this.target.getCurrState() !== States.SHOOT) {
+          this.target.reactToShot(agent)
+        }
       }
     }
   }
 
+  handleMiss(agent: Agent, weaponConfig: GunConfig) {
+    const angle = Phaser.Math.Angle.Between(
+      agent.sprite.x,
+      agent.sprite.y,
+      this.target!.sprite.x,
+      this.target!.sprite.y
+    )
+    const angleDiff =
+      Phaser.Math.Between(0, 1) === 0 ? Phaser.Math.Between(-2, -5) : Phaser.Math.Between(2, 5)
+    const missAngle = Phaser.Math.DegToRad(Phaser.Math.RadToDeg(angle) + angleDiff)
+    agent.shotRay.setAngle(missAngle)
+    const intersection = agent.shotRay.cast()
+
+    this.tracerLine = Game.instance.add
+      .line(0, 0, agent.sprite.x, agent.sprite.y, intersection.x, intersection.y)
+      .setStrokeStyle(1, 0xfeff32)
+      .setDisplayOrigin(0.5)
+      .setDepth(Constants.SORT_LAYERS.UI + 100)
+
+    Game.instance.tweens.add({
+      targets: [this.tracerLine, this.muzzleFlareSprite],
+      alpha: {
+        from: 1,
+        to: 0,
+      },
+      duration: 75,
+      onComplete: () => {
+        if (this.tracerLine) {
+          this.tracerLine.destroy()
+        }
+      },
+    })
+  }
+
+  handleHit(agent: Agent, weaponConfig: GunConfig) {
+    this.tracerLine = Game.instance.add
+      .line(0, 0, agent.sprite.x, agent.sprite.y, this.target!.sprite.x, this.target!.sprite.y)
+      .setStrokeStyle(1, 0xfeff32)
+      .setDisplayOrigin(0.5)
+      .setDepth(Constants.SORT_LAYERS.UI + 100)
+    Game.instance.tweens.add({
+      targets: [this.tracerLine, this.muzzleFlareSprite],
+      alpha: {
+        from: 1,
+        to: 0,
+      },
+      duration: 75,
+      onComplete: () => {
+        this.handleRandomShot(agent, weaponConfig)
+        if (this.tracerLine) {
+          this.tracerLine.destroy()
+        }
+      },
+    })
+  }
+
   handleRandomShot(agent: Agent, weaponConfig: GunConfig) {
-    const shotTypes = ['body', 'armsAndLegs', 'head']
-    const randomShotType = shotTypes[Phaser.Math.Between(0, shotTypes.length - 1)]
-    const damage = weaponConfig.damage[randomShotType]
     if (this.target) {
+      const headshotPct = agent.stats.headshotPct
+      const randNum = Phaser.Math.Between(1, 100)
+      let shotType = ''
+      if (headshotPct >= randNum) {
+        shotType = 'head'
+      } else {
+        const nonHeadShotTypes = ['body', 'armsAndLegs']
+        shotType = nonHeadShotTypes[Phaser.Math.Between(0, nonHeadShotTypes.length - 1)]
+      }
+      const damage = weaponConfig.damage[shotType]
       this.target.takeDamage(damage, agent)
     }
   }

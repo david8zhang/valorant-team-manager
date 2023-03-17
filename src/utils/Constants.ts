@@ -125,4 +125,64 @@ export class Constants {
       }
     }
   }
+
+  public static PLAYER_AGENT_CONFIGS = [
+    {
+      name: 'player-1',
+      texture: 'player-agent',
+      stats: {
+        accuracyPct: 90,
+        headshotPct: 22,
+        reactionTimeMs: 170,
+      },
+    },
+    {
+      name: 'player-2',
+      texture: 'player-agent',
+      stats: {
+        accuracyPct: 95,
+        headshotPct: 20,
+        reactionTimeMs: 190,
+      },
+    },
+    {
+      name: 'player3',
+      texture: 'player-agent',
+      stats: {
+        accuracyPct: 95,
+        headshotPct: 30,
+        reactionTimeMs: 210,
+      },
+    },
+  ]
+
+  public static CPU_AGENT_CONFIGS = [
+    {
+      name: 'cpu-1',
+      texture: 'cpu-agent',
+      stats: {
+        accuracyPct: 90,
+        headshotPct: 25,
+        reactionTimeMs: 170,
+      },
+    },
+    {
+      name: 'cpu-2',
+      texture: 'cpu-agent',
+      stats: {
+        accuracyPct: 97,
+        headshotPct: 22,
+        reactionTimeMs: 180,
+      },
+    },
+    {
+      name: 'cpu-3',
+      texture: 'cpu-agent',
+      stats: {
+        accuracyPct: 90,
+        headshotPct: 30,
+        reactionTimeMs: 210,
+      },
+    },
+  ]
 }

@@ -36,6 +36,11 @@ export interface AgentConfig {
   raycaster: any
   side: Side
   team: Team
+  stats: {
+    accuracyPct: number
+    headshotPct: number
+    reactionTimeMs: number
+  }
 }
 
 export class Agent {
@@ -43,6 +48,8 @@ export class Agent {
 
   public visionRay: any
   public crosshairRay: any
+  public shotRay: any
+
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
   public spikeIcon: Phaser.GameObjects.Image
@@ -73,6 +80,14 @@ export class Agent {
   } = {}
   private killerId: string | null = null
 
+  // Stats of the player controlling the agent
+  public stats: {
+    accuracyPct: number
+    headshotPct: number
+    reactionTimeMs: number // Affects how quickly agent will turn to return fire
+  }
+
+  // Location the agent is currently holding (will fire on sight)
   public holdLocation: {
     x: number
     y: number
@@ -87,11 +102,16 @@ export class Agent {
     [PeekCommandState.PEEK_LOCATION]: null,
   }
 
+  // Whether or not the agent fires as soon as they see an enemy
   public fireOnSight: boolean = false
+
+  // Set to true if the agent is in the process of reacting to a shot
+  public isReactingToShot: boolean = false
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
     this.team = config.team
+    this.stats = config.stats
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
@@ -189,6 +209,22 @@ export class Agent {
     }
   }
 
+  reactToShot(shooter: Agent) {
+    this.isReactingToShot = true
+    const angleToShooter = Phaser.Math.Angle.Between(
+      this.sprite.x,
+      this.sprite.y,
+      shooter.sprite.x,
+      shooter.sprite.y
+    )
+    this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
+      this.isReactingToShot = false
+      this.visionRay.setAngle(angleToShooter)
+      this.crosshairRay.setAngle(angleToShooter)
+      this.setState(States.SHOOT, shooter)
+    })
+  }
+
   setupVisionAndCrosshair(config: AgentConfig) {
     this.visionRay = config.raycaster.createRay({
       origin: config.position,
@@ -200,6 +236,11 @@ export class Agent {
       origin: config.position,
     })
     this.crosshairRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
+
+    this.shotRay = config.raycaster.createRay({
+      origin: config.position,
+    })
+    this.shotRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
   }
 
   didDetectEnemy() {
@@ -268,6 +309,7 @@ export class Agent {
 
   // Reset after a round ends
   reset(resetConfig: { x: number; y: number; sightAngle: number; showOnMap: boolean }) {
+    this.isReactingToShot = false
     this.damageMapping = {}
     this.fireOnSight = false
     this.killerId = null
@@ -312,14 +354,15 @@ export class Agent {
 
   updateVisionAndCrosshair() {
     if (this.shouldShootOnSight()) {
-      this.graphics.lineStyle(2, 0xff0000, 0.4)
+      this.graphics.lineStyle(1, 0xff0000, 0.7)
     } else {
-      this.graphics.lineStyle(2, 0x00ffff, 0.4)
+      this.graphics.lineStyle(1, 0x00ffff, 0.7)
     }
 
     if (this.getCurrState() !== States.DIE) {
       this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
       this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
+      this.shotRay.setOrigin(this.sprite.x, this.sprite.y)
       const visionIntersections = this.visionRay.castCone()
       visionIntersections.push(this.visionRay.origin)
       visionIntersections.forEach((n) => {

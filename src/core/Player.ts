@@ -208,18 +208,20 @@ export class Player implements Team {
   createAgents() {
     let startX = Player.AGENT_START_X
     let startY = Player.AGENT_START_Y
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 0; i < 3; i++) {
+      const config = Constants.PLAYER_AGENT_CONFIGS[i]
       const newAgent = new Agent({
         position: {
           x: startX,
           y: startY,
         },
-        name: `player-${i}`,
-        texture: 'player-agent',
+        name: config.name,
+        texture: config.texture,
         sightAngleDeg: 90,
         raycaster: this.game.playerRaycaster,
         side: Side.PLAYER,
         team: this,
+        stats: config.stats,
       })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20

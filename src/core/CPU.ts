@@ -1,4 +1,5 @@
 import Game from '~/scenes/Game'
+import { Constants } from '~/utils/Constants'
 import { Agent, Side } from './Agent'
 import { Idle } from './behavior-tree/behaviors/agent/Idle'
 import { MoveTowardSite } from './behavior-tree/behaviors/agent/MoveTowardSite'
@@ -90,19 +91,21 @@ export class CPU implements Team {
   createAgents() {
     let startX = 280
     let startY = 460
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 0; i < 3; i++) {
+      const config = Constants.CPU_AGENT_CONFIGS[i]
       const newAgent = new Agent({
         position: {
           x: startX,
           y: startY,
         },
-        name: `cpu-${i}`,
-        texture: 'cpu-agent',
+        name: config.name,
+        texture: config.texture,
         sightAngleDeg: 270,
         hideSightCones: !this.game.isDebug,
         raycaster: this.game.cpuRaycaster,
         side: Side.CPU,
         team: this,
+        stats: config.stats,
       })
       newAgent.sprite.setVisible(this.game.isDebug)
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)
