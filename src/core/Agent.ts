@@ -4,7 +4,6 @@ import { PeekCommandState } from './Player'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'
-import { JigglePeekState } from './states/JigglePeekState'
 import { MoveState } from './states/MoveState'
 import { PlantState } from './states/PlantState'
 import { ShootingState } from './states/ShootingState'
@@ -12,6 +11,10 @@ import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
 import { Team } from './Team'
 import { UIValueBar } from './ui/UIValueBar'
+import { Utility, UtilityConfig } from './utility/Utility'
+import { UtilityKey } from './utility/UtilityKey'
+import { UtilityMapping } from './utility/UtilityMapping'
+import { UtilityName } from './utility/UtilityNames'
 
 export enum Side {
   PLAYER = 'PLAYER',
@@ -40,6 +43,9 @@ export interface AgentConfig {
     accuracyPct: number
     headshotPct: number
     reactionTimeMs: number
+  }
+  utility: {
+    [key in UtilityKey]?: UtilityName
   }
 }
 
@@ -108,6 +114,10 @@ export class Agent {
   // Set to true if the agent is in the process of reacting to a shot
   public isReactingToShot: boolean = false
 
+  public utilityMapping: {
+    [key in UtilityKey]?: Utility
+  } = {}
+
   constructor(config: AgentConfig) {
     this.game = Game.instance
     this.team = config.team
@@ -138,7 +148,6 @@ export class Agent {
         [States.DIE]: new DeathState(),
         [States.PLANT]: new PlantState(),
         [States.DEFUSE]: new DefuseState(),
-        [States.PEEK]: new JigglePeekState(),
       },
       [this]
     )
@@ -164,6 +173,34 @@ export class Agent {
         }
       )
       .setDepth(Constants.SORT_LAYERS.UI)
+    this.setupUtility(config.utility)
+  }
+
+  setupUtility(agentUtility: {
+    [key in UtilityKey]?: UtilityName
+  }) {
+    Object.keys(agentUtility).forEach((key) => {
+      const utilityName = agentUtility[key]
+      const UtilityClass = UtilityMapping[utilityName]
+      const utilityConfig: UtilityConfig = {
+        key: key as UtilityKey,
+        texture: '',
+        name: utilityName as UtilityName,
+        agent: this,
+      }
+      this.utilityMapping[key] = new UtilityClass(this.game, utilityConfig)
+    })
+  }
+
+  triggerUtility(key: UtilityKey, ...args: any) {
+    const utility = this.utilityMapping[key]
+    if (utility) {
+      utility.use(...args)
+    }
+  }
+
+  getUtilityMapping(): { [key in UtilityKey]?: Utility } {
+    return this.utilityMapping
   }
 
   setupHealthBar() {

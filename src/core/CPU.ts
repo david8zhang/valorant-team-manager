@@ -18,6 +18,8 @@ import { SelectorNode } from './behavior-tree/SelectorNode'
 import { SequenceNode } from './behavior-tree/SequenceNode'
 import { States } from './states/States'
 import { Team } from './Team'
+import { UtilityKey } from './utility/UtilityKey'
+import { UtilityName } from './utility/UtilityNames'
 
 export class CPU implements Team {
   public game: Game
@@ -106,6 +108,9 @@ export class CPU implements Team {
         side: Side.CPU,
         team: this,
         stats: config.stats,
+        utility: {
+          [UtilityKey.Q]: UtilityName.SMOKE,
+        },
       })
       newAgent.sprite.setVisible(this.game.isDebug)
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)

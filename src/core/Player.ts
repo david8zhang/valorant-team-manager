@@ -4,6 +4,8 @@ import { Constants } from '~/utils/Constants'
 import { Agent, Side } from './Agent'
 import { States } from './states/States'
 import { Team } from './Team'
+import { UtilityKey } from './utility/UtilityKey'
+import { UtilityName } from './utility/UtilityNames'
 
 export enum PeekCommandState {
   START = 'START',
@@ -36,6 +38,7 @@ export class Player implements Team {
     this.game.input.on(Phaser.Input.Events.POINTER_MOVE, (e) => {
       this.updateCursor()
     })
+
     this.game.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       if (e.code.includes('Digit')) {
         this.handleDigit(e.key)
@@ -45,19 +48,13 @@ export class Player implements Team {
           this.queueAgentStopHold()
           break
         }
-        case 'Escape': {
-          this.handleEscape()
-          break
-        }
       }
     })
   }
 
-  handleEscape() {
-    if (UI.instance) {
-      if (UI.instance.currCommandState === CommandState.PEEK) {
-      }
-    }
+  handleUtilityPress(code: string) {
+    const codeKey = code as UtilityKey
+    this.selectedAgent.triggerUtility(codeKey)
   }
 
   handleClick(e: any) {
@@ -222,6 +219,9 @@ export class Player implements Team {
         side: Side.PLAYER,
         team: this,
         stats: config.stats,
+        utility: {
+          [UtilityKey.Q]: UtilityName.SMOKE,
+        },
       })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20

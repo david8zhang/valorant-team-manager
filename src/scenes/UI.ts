@@ -1,6 +1,7 @@
 import { Agent, Side } from '~/core/Agent'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
+import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
 import Game from './Game'
 
@@ -11,11 +12,16 @@ export enum CommandState {
   PEEK = 'PEEK',
   PLANT = 'PLANT',
   DEFUSE = 'DEFUSE',
+  Q_UTILITY = 'Q_UTILITY',
+  W_UTILITY = 'W_UTILITY',
+  E_UTILITY = 'E_UTILITY',
 }
 
 export default class UI extends Phaser.Scene {
-  public currCommandState: CommandState = CommandState.MOVE
   private static _instance: UI
+
+  // Commands
+  public currCommandState: CommandState = CommandState.MOVE
   private commandMapping: {
     [key in CommandState]?: {
       boundingBox: Phaser.GameObjects.Rectangle
@@ -24,9 +30,23 @@ export default class UI extends Phaser.Scene {
       triggerOnPress: boolean
     }
   }
-  private shortcutMapping: {
+  private commandShortcutMapping: {
     [key: string]: CommandState
   }
+
+  // Utility
+  public currUtilityKey: UtilityKey = UtilityKey.Q
+  private utilityKeyMapping: {
+    [key in UtilityKey]?: {
+      boundingBox: Phaser.GameObjects.Rectangle
+      icon: Phaser.GameObjects.Image
+      shortcutText: Phaser.GameObjects.Text
+    }
+  }
+  private utilityShortcutMapping: {
+    [key: string]: UtilityKey
+  }
+
   public timer!: Timer
   public playerScoreText!: Phaser.GameObjects.Text
   public playerTeamLabel!: Phaser.GameObjects.Text
@@ -47,7 +67,9 @@ export default class UI extends Phaser.Scene {
   constructor() {
     super('ui')
     this.commandMapping = {}
-    this.shortcutMapping = {}
+    this.commandShortcutMapping = {}
+    this.utilityKeyMapping = {}
+    this.utilityShortcutMapping = {}
     UI._instance = this
   }
 
@@ -84,7 +106,26 @@ export default class UI extends Phaser.Scene {
       triggerOnPress,
     }
     this.commandMapping[commandState] = command
-    this.shortcutMapping[shortcut] = commandState
+    this.commandShortcutMapping[shortcut] = commandState
+    return command
+  }
+
+  createUtilityIcon(texture: string, x: number, y: number, key: UtilityKey, shortcut: string) {
+    const boundingBox = this.add.rectangle(x, y, 36, 36, 0xffffff)
+    boundingBox.setOrigin(0, 0.5)
+    boundingBox.setStrokeStyle(1, 0x000000)
+    const icon = this.add.image(x, y, texture).setVisible(false)
+    const shortcutText = this.add
+      .text(boundingBox.x + 15, boundingBox.y - 30, shortcut)
+      .setFontSize(12)
+      .setColor('#000000')
+    const command = {
+      boundingBox: boundingBox,
+      icon: icon,
+      shortcutText,
+    }
+    this.utilityKeyMapping[key] = command
+    this.utilityShortcutMapping[shortcut] = key
     return command
   }
 
@@ -115,12 +156,30 @@ export default class UI extends Phaser.Scene {
     this.currCommandState = newCommandState
   }
 
+  selectNewUtility(utilityKey: UtilityKey) {
+    const prevUtilityBox = this.utilityKeyMapping[this.currUtilityKey]!.boundingBox
+    const newUtilityBox = this.utilityKeyMapping[utilityKey]!.boundingBox
+    if (prevUtilityBox && this.currUtilityKey !== utilityKey) {
+      prevUtilityBox.setStrokeStyle(1, 0x000000)
+      prevUtilityBox.setFillStyle(0xffffff)
+    }
+    if (newUtilityBox) {
+      newUtilityBox.setFillStyle(0xffff00)
+    }
+    if (Game.instance.player) {
+      Game.instance.player.handleUtilityPress(utilityKey)
+    }
+    this.currUtilityKey = utilityKey
+  }
+
   canPlantSpike() {
     return !Game.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
   }
 
   create() {
     this.createCommandBar()
+    this.createUtilityBar()
+    this.selectNewUtility(this.currUtilityKey)
     this.selectNewCommand(this.currCommandState)
     this.setupKeyboardShortcutListener()
     this.createTopBar()
@@ -195,6 +254,11 @@ export default class UI extends Phaser.Scene {
     })
   }
 
+  updateUtilityForSelectedPlayer() {
+    if (Game.instance.player && Game.instance.player.selectedAgent) {
+    }
+  }
+
   createCommandBar() {
     const backgroundRectangle = this.add
       .rectangle(
@@ -241,19 +305,19 @@ export default class UI extends Phaser.Scene {
     )
 
     // Render Plant icon or Defuse icon based on player side
-    const dCommand =
+    const fCommand =
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
     allCommands.push(
       this.createCommandIcon(
         'plant-icon',
         Constants.MAP_WIDTH / 2,
         Constants.WINDOW_HEIGHT - 27,
-        dCommand,
-        'G'
+        fCommand,
+        'F'
       )
     )
     const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
-    let startX = Constants.MAP_WIDTH / 2 - totalWidth / 2
+    let startX = Constants.MAP_WIDTH / 2.5 - totalWidth / 2
     allCommands.forEach((command) => {
       command.boundingBox.setX(startX)
       command.icon.setX(startX + 18)
@@ -261,6 +325,42 @@ export default class UI extends Phaser.Scene {
       startX += 48
     })
     backgroundRectangle.setFillStyle(0xdddddd)
+  }
+
+  createUtilityBar() {
+    const allCommands = Object.keys(this.commandMapping)
+    const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
+    const endOfCommandBarX = Constants.MAP_WIDTH / 2.5 + totalWidth / 2
+    this.add
+      .line(
+        0,
+        0,
+        endOfCommandBarX + 24,
+        Constants.MAP_HEIGHT + Constants.TOP_BAR_HEIGHT,
+        endOfCommandBarX + 24,
+        Constants.WINDOW_HEIGHT
+      )
+      .setStrokeStyle(1, 0xaaaaaa)
+      .setDepth(Constants.SORT_LAYERS.UI)
+      .setOrigin(0, 0)
+    let startX = endOfCommandBarX + 48
+    const utilityCommands: any[] = []
+    utilityCommands.push(
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.Q, 'Q')
+    )
+    utilityCommands.push(
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.W, 'W')
+    )
+    utilityCommands.push(
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.E, 'E')
+    )
+    for (let i = 0; i < utilityCommands.length; i++) {
+      const command = utilityCommands[i]
+      command.boundingBox.setX(startX)
+      command.icon.setX(startX + 18)
+      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
+      startX += 48
+    }
   }
 
   createTopBar() {
@@ -420,13 +520,22 @@ export default class UI extends Phaser.Scene {
   setupKeyboardShortcutListener() {
     this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       const keyPressed = e.key.toUpperCase()
-      const commandState = this.shortcutMapping[keyPressed]
+
+      // Handle commands
+      const commandState = this.commandShortcutMapping[keyPressed]
       if (commandState) {
         const commandObj = this.commandMapping[commandState]!
         if (!commandObj.triggerOnPress) {
           this.selectNewCommand(commandState)
         }
       }
+
+      // Handle utility
+      const utilityKey = this.utilityShortcutMapping[keyPressed]
+      if (utilityKey) {
+        this.selectNewUtility(utilityKey)
+      }
+
       if (e.key === 'x') {
         if (Game.instance.player && Game.instance.player.selectedAgent)
           this.fireOnSightToggleSwitch.setValue(!Game.instance.player.selectedAgent.fireOnSight)
