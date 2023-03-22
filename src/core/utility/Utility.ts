@@ -16,6 +16,8 @@ export abstract class Utility {
   public texture: string
   public game: Game
   public agent: Agent
+  public preventOtherCommands: boolean = false
+  public isDepleted: boolean = false
 
   constructor(game: Game, config: UtilityConfig) {
     this.game = game

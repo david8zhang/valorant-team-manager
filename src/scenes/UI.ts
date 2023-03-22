@@ -35,7 +35,6 @@ export default class UI extends Phaser.Scene {
   }
 
   // Utility
-  public currUtilityKey: UtilityKey = UtilityKey.Q
   private utilityKeyMapping: {
     [key in UtilityKey]?: {
       boundingBox: Phaser.GameObjects.Rectangle
@@ -157,19 +156,22 @@ export default class UI extends Phaser.Scene {
   }
 
   selectNewUtility(utilityKey: UtilityKey) {
-    const prevUtilityBox = this.utilityKeyMapping[this.currUtilityKey]!.boundingBox
-    const newUtilityBox = this.utilityKeyMapping[utilityKey]!.boundingBox
-    if (prevUtilityBox && this.currUtilityKey !== utilityKey) {
-      prevUtilityBox.setStrokeStyle(1, 0x000000)
-      prevUtilityBox.setFillStyle(0xffffff)
-    }
-    if (newUtilityBox) {
-      newUtilityBox.setFillStyle(0xffff00)
-    }
     if (Game.instance.player) {
+      const currUtilityKey = Game.instance.player.currUtilityKey
+      if (currUtilityKey) {
+        const prevUtilityBox = this.utilityKeyMapping[currUtilityKey]!.boundingBox
+        if (prevUtilityBox && currUtilityKey !== utilityKey) {
+          prevUtilityBox.setStrokeStyle(1, 0x000000)
+          prevUtilityBox.setFillStyle(0xffffff)
+        }
+      }
+      const newUtilityBox = this.utilityKeyMapping[utilityKey]!.boundingBox
+      if (newUtilityBox) {
+        newUtilityBox.setFillStyle(0xffff00)
+      }
+
       Game.instance.player.handleUtilityPress(utilityKey)
     }
-    this.currUtilityKey = utilityKey
   }
 
   canPlantSpike() {
@@ -179,7 +181,6 @@ export default class UI extends Phaser.Scene {
   create() {
     this.createCommandBar()
     this.createUtilityBar()
-    this.selectNewUtility(this.currUtilityKey)
     this.selectNewCommand(this.currCommandState)
     this.setupKeyboardShortcutListener()
     this.createTopBar()

@@ -19,6 +19,7 @@ export class Player implements Team {
   public agents: Agent[] = []
   public selectedAgentIndex: number = 0
   public onAgentDeathHandlers: Function[] = []
+  public currUtilityKey: UtilityKey | null = null
 
   public static AGENT_START_X = 320
   public static AGENT_START_Y = 20
@@ -57,8 +58,18 @@ export class Player implements Team {
     this.selectedAgent.triggerUtility(codeKey)
   }
 
+  canProcessClickCommand() {
+    if (this.currUtilityKey) {
+      const currUtility = this.selectedAgent.utilityMapping[this.currUtilityKey]
+      if (currUtility) {
+        return !currUtility.preventOtherCommands
+      }
+    }
+    return true
+  }
+
   handleClick(e: any) {
-    if (UI.instance && !this.areAllAgentsDead()) {
+    if (UI.instance && !this.areAllAgentsDead() && this.canProcessClickCommand()) {
       const uiInstance = UI.instance
       switch (uiInstance.currCommandState) {
         case CommandState.HOLD: {
