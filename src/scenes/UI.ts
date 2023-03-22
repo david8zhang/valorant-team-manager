@@ -1,6 +1,7 @@
 import { Agent, Side } from '~/core/Agent'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
+import { Utility } from '~/core/utility/Utility'
 import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
 import Game from './Game'
@@ -573,6 +574,19 @@ export default class UI extends Phaser.Scene {
         commandBtn.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
         commandIcon.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
       }
+    }
+
+    // Render Player utility depletion status
+    if (Game.instance.player && Game.instance.player.selectedAgent) {
+      const utilityMapping = Game.instance.player.selectedAgent.utilityMapping
+      Object.keys(utilityMapping).forEach((key) => {
+        const utilityClass = utilityMapping[key] as Utility
+        const utilityObj = this.utilityKeyMapping[key]
+        utilityObj.boundingBox
+          .setAlpha(utilityClass.isDepleted ? 0.25 : 1)
+          .setStrokeStyle(1, 0x000000)
+          .setFillStyle(0xffffff)
+      })
     }
 
     // Render agent info boxes

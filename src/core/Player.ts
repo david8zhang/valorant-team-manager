@@ -55,6 +55,7 @@ export class Player implements Team {
 
   handleUtilityPress(code: string) {
     const codeKey = code as UtilityKey
+    this.currUtilityKey = codeKey
     this.selectedAgent.triggerUtility(codeKey)
   }
 
@@ -121,6 +122,7 @@ export class Player implements Team {
   }
 
   selectAgent(newAgentIndex: number) {
+    this.currUtilityKey = null
     const selectedAgent = this.agents[newAgentIndex]
     if (selectedAgent.getCurrState() !== States.DIE) {
       UI.instance.selectNewCommand(CommandState.MOVE)
