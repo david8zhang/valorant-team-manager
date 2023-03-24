@@ -17,6 +17,7 @@ export class MoveTowardSite extends BehaviorTreeNode {
   public process(): BehaviorStatus {
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
     const cpu = this.blackboard.getData(BlackboardKeys.CPU) as CPU
+    currAgent.fireOnSight = true
 
     if (!this.isMoving) {
       const currDest = cpu.getCurrAgentMoveTarget(currAgent)

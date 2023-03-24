@@ -44,6 +44,7 @@ export default class Game extends Phaser.Scene {
     [Side.CPU]: 0,
   }
   public spike!: Spike
+  public onPauseCallbacks: Function[] = []
 
   constructor() {
     super('game')
@@ -334,6 +335,9 @@ export default class Game extends Phaser.Scene {
       .setText('Paused')
       .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.pause()
+    this.onPauseCallbacks.forEach((cb) => {
+      cb(true)
+    })
   }
 
   unPause() {
@@ -342,6 +346,9 @@ export default class Game extends Phaser.Scene {
       .setText('Playing')
       .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.unpause()
+    this.onPauseCallbacks.forEach((cb) => {
+      cb(false)
+    })
   }
 
   getAgentByName(name: string) {

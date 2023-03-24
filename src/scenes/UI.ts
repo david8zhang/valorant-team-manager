@@ -20,7 +20,6 @@ export enum CommandState {
 
 export default class UI extends Phaser.Scene {
   private static _instance: UI
-
   // Commands
   public currCommandState: CommandState = CommandState.MOVE
   private commandMapping: {
@@ -34,19 +33,18 @@ export default class UI extends Phaser.Scene {
   private commandShortcutMapping: {
     [key: string]: CommandState
   }
-
   // Utility
   private utilityKeyMapping: {
     [key in UtilityKey]?: {
       boundingBox: Phaser.GameObjects.Rectangle
       icon: Phaser.GameObjects.Image
       shortcutText: Phaser.GameObjects.Text
+      charges: Phaser.GameObjects.Arc[]
     }
   }
   private utilityShortcutMapping: {
     [key: string]: UtilityKey
   }
-
   public timer!: Timer
   public playerScoreText!: Phaser.GameObjects.Text
   public playerTeamLabel!: Phaser.GameObjects.Text
@@ -61,8 +59,8 @@ export default class UI extends Phaser.Scene {
   public agentInfoBoxMapping: {
     [key: string]: AgentInfoBox
   } = {}
-
   public fireOnSightToggleSwitch: any
+  private didInitialSetup: boolean = false
 
   constructor() {
     super('ui')
@@ -111,7 +109,7 @@ export default class UI extends Phaser.Scene {
   }
 
   createUtilityIcon(texture: string, x: number, y: number, key: UtilityKey, shortcut: string) {
-    const boundingBox = this.add.rectangle(x, y, 36, 36, 0xffffff)
+    const boundingBox = this.add.rectangle(x, y, 32, 32, 0xffffff)
     boundingBox.setOrigin(0, 0.5)
     boundingBox.setStrokeStyle(1, 0x000000)
     const icon = this.add.image(x, y, texture).setVisible(false)
@@ -123,6 +121,7 @@ export default class UI extends Phaser.Scene {
       boundingBox: boundingBox,
       icon: icon,
       shortcutText,
+      charges: [],
     }
     this.utilityKeyMapping[key] = command
     this.utilityShortcutMapping[shortcut] = key
@@ -208,7 +207,6 @@ export default class UI extends Phaser.Scene {
       }
     )
     this.fireOnSightToggleSwitch.on('valuechange', (value) => {
-      // Render fire on sight toggle
       if (Game.instance.player && Game.instance.player.selectedAgent) {
         Game.instance.player.selectedAgent.fireOnSight = value
       }
@@ -256,11 +254,6 @@ export default class UI extends Phaser.Scene {
     })
   }
 
-  updateUtilityForSelectedPlayer() {
-    if (Game.instance.player && Game.instance.player.selectedAgent) {
-    }
-  }
-
   createCommandBar() {
     const backgroundRectangle = this.add
       .rectangle(
@@ -305,8 +298,6 @@ export default class UI extends Phaser.Scene {
         true
       )
     )
-
-    // Render Plant icon or Defuse icon based on player side
     const fCommand =
       Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
     allCommands.push(
@@ -348,19 +339,19 @@ export default class UI extends Phaser.Scene {
     let startX = endOfCommandBarX + 48
     const utilityCommands: any[] = []
     utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.Q, 'Q')
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.Q, 'Q')
     )
     utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.W, 'W')
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.W, 'W')
     )
     utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 27, UtilityKey.E, 'E')
+      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.E, 'E')
     )
     for (let i = 0; i < utilityCommands.length; i++) {
       const command = utilityCommands[i]
       command.boundingBox.setX(startX)
       command.icon.setX(startX + 18)
-      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
+      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 28)
       startX += 48
     }
   }
@@ -450,6 +441,29 @@ export default class UI extends Phaser.Scene {
         }
       }
     })
+  }
+
+  initialPlayerSetup() {
+    if (!this.didInitialSetup) {
+      if (
+        Game.instance.player &&
+        Game.instance.cpu &&
+        Game.instance.cpu.agents &&
+        Game.instance.player.selectedAgent
+      ) {
+        this.renderAgentsInfoBoxes(Game.instance.player.agents, 30)
+        this.renderAgentsInfoBoxes(Game.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
+
+        this.didInitialSetup = true
+        const agent = Game.instance.player.selectedAgent
+        const utilityMapping = agent.utilityMapping
+        Object.keys(utilityMapping).forEach((key) => {
+          const utilityClass = utilityMapping[key] as Utility
+          const utilityObj = this.utilityKeyMapping[key]
+          this.createCharges(utilityClass, utilityObj)
+        })
+      }
+    }
   }
 
   updateScores() {
@@ -546,6 +560,31 @@ export default class UI extends Phaser.Scene {
   }
 
   update() {
+    this.initialPlayerSetup()
+    this.updateSelectedAgentCommandState()
+    this.updateSelectedAgentUtility()
+    this.updateAllAgentInfoBoxes()
+    this.updateSelectedAgentFireOnSightToggleSwitch()
+  }
+
+  updateSelectedAgentFireOnSightToggleSwitch() {
+    // Render fire on sight toggle
+    if (Game.instance.player && Game.instance.player.selectedAgent) {
+      this.fireOnSightToggleSwitch.setValue(Game.instance.player.selectedAgent.fireOnSight)
+    }
+  }
+
+  updateAllAgentInfoBoxes() {
+    // Render agent info boxes
+    if (Game.instance.player && Game.instance.player.agents) {
+      this.updateAgentInfoBoxes(Game.instance.player.agents, Side.PLAYER)
+    }
+    if (Game.instance.cpu && Game.instance.cpu.agents) {
+      this.updateAgentInfoBoxes(Game.instance.cpu.agents, Side.CPU)
+    }
+  }
+
+  updateSelectedAgentCommandState() {
     if (Game.instance.attackSide === Side.PLAYER) {
       const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
       const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
@@ -575,8 +614,9 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
       }
     }
+  }
 
-    // Render Player utility depletion status
+  updateSelectedAgentUtility() {
     if (Game.instance.player && Game.instance.player.selectedAgent) {
       const utilityMapping = Game.instance.player.selectedAgent.utilityMapping
       Object.keys(utilityMapping).forEach((key) => {
@@ -586,31 +626,45 @@ export default class UI extends Phaser.Scene {
           .setAlpha(utilityClass.isDepleted ? 0.25 : 1)
           .setStrokeStyle(1, 0x000000)
           .setFillStyle(0xffffff)
+
+        utilityObj.charges.forEach((charge: Phaser.GameObjects.Arc, index: number) => {
+          if (index + 1 > utilityClass.numCharges) {
+            charge.setAlpha(0.2)
+          } else {
+            charge.setAlpha(1)
+          }
+        })
       })
     }
+  }
 
-    // Render agent info boxes
-    if (Game.instance.player && Game.instance.player.agents) {
-      if (!this.didRenderPlayerAgentInfoBoxes) {
-        this.didRenderPlayerAgentInfoBoxes = true
-        this.renderAgentsInfoBoxes(Game.instance.player.agents, 30)
-      } else {
-        this.updateAgentInfoBoxes(Game.instance.player.agents, Side.PLAYER)
+  updateCharges(
+    utility: Utility,
+    utilityObj: { boundingBox: Phaser.GameObjects.Rectangle; charges: Phaser.GameObjects.Arc[] }
+  ) {
+    utilityObj.charges.forEach((charge: any, index: number) => {
+      if (index + 1 < utility.numCharges) {
       }
-    }
-    if (Game.instance.cpu && Game.instance.cpu.agents) {
-      if (!this.didRenderCPUAgentInfoBoxes) {
-        this.didRenderCPUAgentInfoBoxes = true
-        this.renderAgentsInfoBoxes(Game.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
-      } else {
-        this.updateAgentInfoBoxes(Game.instance.cpu.agents, Side.CPU)
-      }
-    }
+    })
+  }
 
-    // Render fire on sight toggle
-    if (Game.instance.player && Game.instance.player.selectedAgent) {
-      this.fireOnSightToggleSwitch.setValue(Game.instance.player.selectedAgent.fireOnSight)
+  createCharges(
+    utility: Utility,
+    utilityObj: { boundingBox: Phaser.GameObjects.Rectangle; charges: Phaser.GameObjects.Arc[] }
+  ) {
+    utilityObj.charges.forEach((c) => c.destroy())
+    const circleWidth = 6
+    const padding = 5
+    const totalWidth = utility.totalCharges * circleWidth + (utility.totalCharges - 1) * padding
+    let xPos =
+      utilityObj.boundingBox.x + (utilityObj.boundingBox.displayWidth / 2 + 2) - totalWidth / 2
+    const charges: Phaser.GameObjects.Arc[] = []
+    for (let i = 0; i < utility.totalCharges; i++) {
+      const circle = this.add.circle(xPos, utilityObj.boundingBox.y + 23, circleWidth / 2, 0x222222)
+      charges.push(circle)
+      xPos += circleWidth + padding
     }
+    utilityObj.charges = charges
   }
 
   updateAgentInfoBoxes(agents: Agent[], side: Side) {

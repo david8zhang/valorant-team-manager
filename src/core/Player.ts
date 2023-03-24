@@ -122,7 +122,14 @@ export class Player implements Team {
   }
 
   selectAgent(newAgentIndex: number) {
-    this.currUtilityKey = null
+    if (this.currUtilityKey) {
+      const utility = this.selectedAgent.utilityMapping[this.currUtilityKey]
+      if (utility) {
+        utility.deselect()
+      }
+      this.currUtilityKey = null
+    }
+
     const selectedAgent = this.agents[newAgentIndex]
     if (selectedAgent.getCurrState() !== States.DIE) {
       UI.instance.selectNewCommand(CommandState.MOVE)

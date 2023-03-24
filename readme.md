@@ -4,10 +4,12 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- Make shooting an explicit command / automatic only if agent is holding an angle
+- Agent roles (Initiator, Duelist, Controller)
+
+- Better CPU AI
+
+  - Refactor Team / Agent AI
+  - Add behaviors based on agent roles
+
 - Spam a specific location command (Same command as shooting)
 - Strafe automatically if shooting an explicit target
-- Add return fire when being shot at
-- Add shot misses
-
-- Better CPU AI (with full behavior tree)

@@ -19,6 +19,9 @@ export abstract class Utility {
   public preventOtherCommands: boolean = false
   public isDepleted: boolean = false
 
+  public totalCharges: number = 0
+  public numCharges: number = 0
+
   constructor(game: Game, config: UtilityConfig) {
     this.game = game
     this.key = config.key

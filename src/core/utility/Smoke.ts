@@ -3,10 +3,10 @@ import { Constants } from '~/utils/Constants'
 import { Utility, UtilityConfig } from './Utility'
 
 export class Smoke extends Utility {
-  public static TOTAL_SMOKES = 2
-  public static SMOKE_TIME_SECONDS = 5
-  public static SMOKE_RADIUS = 32
+  private static SMOKE_TIME_SECONDS = 5
+  private static SMOKE_RADIUS = 32
 
+  private smokeFadeEvent!: Phaser.Time.TimerEvent
   private smokeToPlaceIndex: number = 0
   private smokes: Phaser.GameObjects.Arc[] = []
   private smokesCursor!: Phaser.GameObjects.Arc
@@ -18,6 +18,8 @@ export class Smoke extends Utility {
     super(game, config)
     this.setupMouseListener()
     this.setupSmokesSprites()
+    this.totalCharges = 2
+    this.numCharges = this.totalCharges
   }
 
   setupSmokesSprites() {
@@ -25,7 +27,7 @@ export class Smoke extends Utility {
       .circle(0, 0, 0, 0x00ffff, 0.25)
       .setStrokeStyle(1, 0x00ffff, 1)
       .setDepth(Constants.SORT_LAYERS.Player)
-      .setRadius(32)
+      .setRadius(Smoke.SMOKE_RADIUS)
       .setVisible(false)
     for (let i = 1; i <= 2; i++) {
       const smoke = this.game.add
@@ -60,17 +62,28 @@ export class Smoke extends Utility {
   }
 
   placeSmoke(x: number, y: number) {
-    if (this.smokeToPlaceIndex < Smoke.TOTAL_SMOKES) {
+    if (this.smokeToPlaceIndex < this.totalCharges) {
       const smoke = this.smokes[this.smokeToPlaceIndex]
-      smoke.setRadius(32).setVisible(true).setPosition(x, y)
+      smoke.setRadius(Smoke.SMOKE_RADIUS).setVisible(true).setPosition(x, y)
       this.smokeToPlaceIndex++
-      if (this.smokeToPlaceIndex === Smoke.TOTAL_SMOKES) {
+      this.numCharges--
+      if (this.smokeToPlaceIndex === this.totalCharges) {
+        this.isPlacingSmokes = false
         this.didPlaceSmokes = true
       }
     }
   }
 
   deselect() {
+    if (!this.isDepleted) {
+      this.smokes.forEach((smoke) => {
+        smoke.setVisible(false)
+        smoke.setRadius(0)
+      })
+      this.smokeToPlaceIndex = 0
+      this.numCharges = this.totalCharges
+      this.didPlaceSmokes = false
+    }
     this.isPlacingSmokes = false
     this.smokesCursor.setVisible(false)
     this.preventOtherCommands = false
@@ -103,16 +116,22 @@ export class Smoke extends Utility {
   }
 
   confirmSmokes() {
-    this.deselect()
     this.isDepleted = true
+    this.deselect()
     this.smokes.forEach((smoke) => {
       this.game.playerRaycaster.mapGameObjects(smoke, true)
       this.game.cpuRaycaster.mapGameObjects(smoke, true)
       smoke.setFillStyle(0x444444, 0.9)
       smoke.setStrokeStyle(1, 0x222222)
     })
-    this.game.time.delayedCall(Smoke.SMOKE_TIME_SECONDS * 1000, () => {
+    this.smokeFadeEvent = this.game.time.delayedCall(Smoke.SMOKE_TIME_SECONDS * 1000, () => {
       this.fadeSmokes()
+    })
+    if (this.game.isPaused) {
+      this.smokeFadeEvent.paused = true
+    }
+    this.game.onPauseCallbacks.push((isPaused: boolean) => {
+      this.smokeFadeEvent.paused = isPaused
     })
   }
 
