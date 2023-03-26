@@ -7,6 +7,7 @@ import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
 import { States } from '~/core/states/States'
 import { Constants, RoundState } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 import UI, { CommandState } from './UI'
 
 export default class Game extends Phaser.Scene {
@@ -135,7 +136,7 @@ export default class Game extends Phaser.Scene {
 
   setupSpike() {
     this.spike = new Spike({
-      position: Constants.INITIAL_SPIKE_POSITION_CPU_SIDE,
+      position: MapConstants.INITIAL_SPIKE_POSITION,
       // position: Constants.INITIAL_SPIKE_POSITION_PLAYER_SIDE,
     })
   }

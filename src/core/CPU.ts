@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
 import { Idle } from './behavior-tree/behaviors/agent/Idle'
 import { MoveTowardSite } from './behavior-tree/behaviors/agent/MoveTowardSite'
@@ -92,8 +93,7 @@ export class CPU implements Team {
   }
 
   createAgents() {
-    let startX = 280
-    let startY = 470
+    let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
       const config = Constants.CPU_AGENT_CONFIGS[i]
       const newAgent = new Agent({
@@ -144,9 +144,19 @@ export class CPU implements Team {
     return rootNode
   }
 
+  getStartPosition() {
+    const isAttacking = this.game.attackSide === Side.CPU
+    let startX = isAttacking
+      ? MapConstants.ATTACKER_POSITION_START.x
+      : MapConstants.DEFENDER_POSITION_START.x
+    let startY = isAttacking
+      ? MapConstants.ATTACKER_POSITION_START.y
+      : MapConstants.DEFENDER_POSITION_START.y
+    return { startX, startY }
+  }
+
   resetAgents() {
-    let startX = CPU.AGENT_START_X
-    let startY = CPU.AGENT_START_Y
+    let { startX, startY } = this.getStartPosition()
     this.agents.forEach((agent) => {
       agent.reset({
         x: startX,

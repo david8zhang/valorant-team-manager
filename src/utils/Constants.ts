@@ -27,16 +27,6 @@ export interface GunConfig {
 }
 
 export class Constants {
-  public static INITIAL_SPIKE_POSITION_CPU_SIDE = {
-    x: 308,
-    y: 440,
-  }
-
-  public static INITIAL_SPIKE_POSITION_PLAYER_SIDE = {
-    x: 344,
-    y: 56,
-  }
-
   public static PREROUND_TIME_SEC = 5
   public static PREPLANT_ROUND_TIME_SEC = 100
   public static POSTPLANT_ROUND_TIME_SEC = 45
@@ -60,6 +50,7 @@ export class Constants {
     BottomLayer: 0,
   }
 
+  // TODO: Add accuracy modifiers based on distance to target
   public static GUN_CONFIGS: {
     [key in GunTypes]: GunConfig
   } = {
@@ -89,43 +80,7 @@ export class Constants {
     },
   }
 
-  public static A_SITE_CENTER_POS: { x: number; y: number } = {
-    x: 584,
-    y: 136,
-  }
-
-  public static B_SITE_CENTER_POS: { x: number; y: number } = {
-    x: 48,
-    y: 96,
-  }
-
-  public static A_SITE_POSITIONS: any[] = []
-  public static B_SITE_POSITIONS: any[] = []
-  public static A_SITE_START: { x: number; y: number } = { x: 8, y: 8 }
-  public static A_SITE_END: { x: number; y: number } = { x: 88, y: 120 }
-  public static B_SITE_START: { x: number; y: number } = { x: 568, y: 216 }
-  public static B_SITE_END: { x: number; y: number } = { x: 632, y: 312 }
-
-  public static CALC_A_SITE_POSITIONS() {
-    const start = Constants.A_SITE_START
-    const end = Constants.A_SITE_END
-    for (let x = start.x; x <= end.x; x += 16) {
-      for (let y = start.y; y <= end.y; y += 16) {
-        Constants.A_SITE_POSITIONS.push({ x, y })
-      }
-    }
-  }
-
-  public static CALC_B_SITE_POSITIONS() {
-    const start = Constants.B_SITE_START
-    const end = Constants.B_SITE_END
-    for (let x = start.x; x <= end.x; x += 16) {
-      for (let y = start.y; y <= end.y; y += 16) {
-        Constants.B_SITE_POSITIONS.push({ x, y })
-      }
-    }
-  }
-
+  //TODO: Move map stuff to another file
   public static PLAYER_AGENT_CONFIGS = [
     {
       name: 'player-1',

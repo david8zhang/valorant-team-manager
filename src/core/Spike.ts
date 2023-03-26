@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { Constants, RoundState } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 import { Agent } from './Agent'
 import { States } from './states/States'
 
@@ -117,7 +118,7 @@ export class Spike {
     this.isDefused = false
     this.isDetonated = false
 
-    const initialSpikePosition = Constants.INITIAL_SPIKE_POSITION_CPU_SIDE
+    const initialSpikePosition = MapConstants.INITIAL_SPIKE_POSITION
     this.sprite.setAlpha(1)
     this.sprite.setTexture('spike')
     this.sprite.body.enable = true

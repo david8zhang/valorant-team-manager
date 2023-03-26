@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 
 export class Map {
   private game: Game
@@ -22,6 +23,20 @@ export class Map {
     this.setupTilemap()
     this.setupWalls()
     this.generateRegions()
+    this.renderMapCallouts()
+  }
+
+  renderMapCallouts() {
+    MapConstants.MAP_CALLOUT_LOCATIONS.forEach((obj) => {
+      const { center, name } = obj
+      const text = this.game.add
+        .text(center.x, center.y, name, {
+          fontSize: '8px',
+          color: 'white',
+        })
+        .setDepth(Constants.SORT_LAYERS.UI)
+      text.setPosition(center.x - text.displayWidth / 2, center.y - text.displayHeight / 2)
+    })
   }
 
   generateRegions() {
@@ -122,11 +137,11 @@ export class Map {
     this.createWall({ x: 472, y: 344 }, { x: 504, y: 344 })
 
     // Show site names
-    const aSitePos = Constants.A_SITE_CENTER_POS
+    const aSitePos = MapConstants.A_SITE_CENTER_POS
     const aSiteText = this.game.add
       .text(aSitePos.x, aSitePos.y, 'A', { fontSize: '20px' })
       .setOrigin(0.5)
-    const bSitePos = Constants.B_SITE_CENTER_POS
+    const bSitePos = MapConstants.B_SITE_CENTER_POS
     const bSiteText = this.game.add
       .text(bSitePos.x, bSitePos.y, 'B', { fontSize: '20px' })
       .setOrigin(0.5)

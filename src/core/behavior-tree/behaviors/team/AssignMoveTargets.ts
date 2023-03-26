@@ -1,5 +1,5 @@
 import { Agent } from '~/core/Agent'
-import { Constants } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 import { BehaviorStatus } from '../../BehaviorStatus'
 import { BehaviorTreeNode } from '../../BehaviorTreeNode'
 import { Blackboard } from '../../Blackboard'
@@ -16,8 +16,8 @@ export class AssignMoveTargets extends BehaviorTreeNode {
       const newMoveTargets = {}
       const shouldAttackASite = Phaser.Math.Between(0, 1) == 0
       let positions = shouldAttackASite
-        ? [...Constants.A_SITE_POSITIONS]
-        : [...Constants.B_SITE_POSITIONS]
+        ? [...MapConstants.A_SITE_POSITIONS]
+        : [...MapConstants.B_SITE_POSITIONS]
       this.shuffle(positions)
       const agents = this.blackboard.getData(TeamBlackboardKeys.AGENTS) as Agent[]
       agents.forEach((agent, index) => {

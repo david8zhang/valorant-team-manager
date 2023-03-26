@@ -1,4 +1,5 @@
 import { Constants } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 
 export default class Preload extends Phaser.Scene {
   constructor() {
@@ -31,8 +32,8 @@ export default class Preload extends Phaser.Scene {
     this.load.image('spectre-icon', 'weapons/spectre-icon.png')
     this.load.image('vandal-icon', 'weapons/vandal-icon.png')
 
-    Constants.CALC_A_SITE_POSITIONS()
-    Constants.CALC_B_SITE_POSITIONS()
+    MapConstants.CALC_A_SITE_POSITIONS()
+    MapConstants.CALC_B_SITE_POSITIONS()
   }
 
   create() {

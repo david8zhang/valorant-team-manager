@@ -1,6 +1,7 @@
 import Game from '~/scenes/Game'
 import UI, { CommandState } from '~/scenes/UI'
 import { Constants } from '~/utils/Constants'
+import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
 import { States } from './states/States'
 import { Team } from './Team'
@@ -20,9 +21,6 @@ export class Player implements Team {
   public selectedAgentIndex: number = 0
   public onAgentDeathHandlers: Function[] = []
   public currUtilityKey: UtilityKey | null = null
-
-  public static AGENT_START_X = 320
-  public static AGENT_START_Y = 20
 
   constructor() {
     this.game = Game.instance
@@ -229,14 +227,24 @@ export class Player implements Team {
 
   isWithinSite(worldX: number, worldY: number) {
     return (
-      this.isWithinSitePositions(Constants.A_SITE_POSITIONS, worldX, worldY) ||
-      this.isWithinSitePositions(Constants.B_SITE_POSITIONS, worldX, worldY)
+      this.isWithinSitePositions(MapConstants.A_SITE_POSITIONS, worldX, worldY) ||
+      this.isWithinSitePositions(MapConstants.B_SITE_POSITIONS, worldX, worldY)
     )
   }
 
+  getStartPosition() {
+    const isAttacking = this.game.attackSide === Side.PLAYER
+    let startX = isAttacking
+      ? MapConstants.ATTACKER_POSITION_START.x
+      : MapConstants.DEFENDER_POSITION_START.x
+    let startY = isAttacking
+      ? MapConstants.ATTACKER_POSITION_START.y
+      : MapConstants.DEFENDER_POSITION_START.y
+    return { startX, startY }
+  }
+
   createAgents() {
-    let startX = Player.AGENT_START_X
-    let startY = Player.AGENT_START_Y
+    let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
       const config = Constants.PLAYER_AGENT_CONFIGS[i]
       const newAgent = new Agent({
@@ -289,8 +297,7 @@ export class Player implements Team {
   }
 
   resetAgents() {
-    let startX = Player.AGENT_START_X
-    let startY = Player.AGENT_START_Y
+    let { startX, startY } = this.getStartPosition()
     this.agents.forEach((agent) => {
       agent.reset({
         x: startX,
