@@ -81,11 +81,15 @@ export class ShootingState extends State {
 
   execute(agent: Agent) {
     if (!this.target || !this.isTargetVisible(agent)) {
-      agent.setState(States.IDLE)
+      if (agent.health > 0) {
+        agent.setState(States.IDLE)
+      }
     } else {
       if (!this.isWithinReactionDelay) {
         if (this.target.getCurrState() === States.DIE) {
-          agent.setState(States.IDLE)
+          if (agent.health > 0) {
+            agent.setState(States.IDLE)
+          }
         } else {
           agent.graphics.lineStyle(0, 0xffffff)
           // Rotate agent to face the enemy target
@@ -124,7 +128,7 @@ export class ShootingState extends State {
         } else {
           this.handleMiss(agent, weaponConfig)
         }
-        if (!this.target.isReactingToShot && this.target.getCurrState() !== States.SHOOT) {
+        if (!this.target.isBeingShotAt && this.target.getCurrState() !== States.SHOOT) {
           this.target.reactToShot(agent)
         }
       }

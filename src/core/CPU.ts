@@ -9,13 +9,12 @@ import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpike'
 import { ShouldMoveTowardSite } from './behavior-tree/behaviors/agent/ShouldMoveTowardSite'
 import { ShouldPlantSpike } from './behavior-tree/behaviors/agent/ShouldPlantSpike'
 import { ShouldRetrieveSpike } from './behavior-tree/behaviors/agent/ShouldRetrieveSpike'
-import { AssignMoveTargets } from './behavior-tree/behaviors/team/AssignMoveTargets'
-import { SelectNewSpikeCarrier } from './behavior-tree/behaviors/team/SelectNewSpikeCarrier'
 import { TeamBlackboardKeys } from './behavior-tree/behaviors/team/TeamBlackboardKeys'
 import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
 import { SelectorNode } from './behavior-tree/SelectorNode'
 import { SequenceNode } from './behavior-tree/SequenceNode'
+import { Intel } from './Intel'
 import { States } from './states/States'
 import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
@@ -29,15 +28,20 @@ export class CPU implements Team {
   public static AGENT_START_X = 280
   public static AGENT_START_Y = 460
 
-  private agentBehaviorTrees: BehaviorTreeNode[] = []
+  private agentBehaviorTrees: {
+    agent: Agent
+    tree: BehaviorTreeNode
+  }[] = []
   private cpuBehaviorTree!: BehaviorTreeNode
   public teamBlackboard!: Blackboard
+  public intel: Intel
 
   constructor() {
     this.game = Game.instance
     this.createAgents()
     this.setupDebugListener()
     this.setupCPUBehaviorTree()
+    this.intel = new Intel()
   }
 
   setupCPUBehaviorTree() {
@@ -45,10 +49,7 @@ export class CPU implements Team {
     this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, null)
     this.teamBlackboard.setData(TeamBlackboardKeys.SPIKE_CARRIER_NAME, '')
     this.teamBlackboard.setData(TeamBlackboardKeys.AGENTS, this.agents)
-    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [
-      new SelectNewSpikeCarrier(this.teamBlackboard),
-      new AssignMoveTargets(this.teamBlackboard),
-    ])
+    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [])
   }
 
   setupDebugListener() {
@@ -92,7 +93,7 @@ export class CPU implements Team {
 
   createAgents() {
     let startX = 280
-    let startY = 460
+    let startY = 470
     for (let i = 0; i < 3; i++) {
       const config = Constants.CPU_AGENT_CONFIGS[i]
       const newAgent = new Agent({
@@ -111,44 +112,34 @@ export class CPU implements Team {
         utility: {
           [UtilityKey.Q]: UtilityName.SMOKE,
         },
+        // fireOnSight: true,
       })
       newAgent.sprite.setVisible(this.game.isDebug)
+      newAgent.onDetectedEnemyHandlers.push((detectedEnemies: Agent[]) => {
+        this.updateTeamIntel(detectedEnemies)
+      })
+      newAgent.onKillEnemyHandlers.push((killedEnemy: Agent) => {
+        console.log('Went here!')
+        this.updateTeamIntel([killedEnemy])
+      })
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)
-      this.agentBehaviorTrees.push(newBehaviorTree)
+      this.agentBehaviorTrees.push({
+        agent: newAgent,
+        tree: newBehaviorTree,
+      })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20
     }
+  }
+
+  updateTeamIntel(detectedEnemies: Agent[]) {
+    this.intel.updateIntel(detectedEnemies)
   }
 
   setupBehaviorTreeForAgent(agent: Agent) {
     const blackboard = new Blackboard()
     const rootNode = new SequenceNode('Root', blackboard, [
       new PopulateBlackboard(blackboard, agent, this),
-      new SelectorNode(
-        'RetrieveSpikeSelector',
-        blackboard,
-        new SequenceNode('RetrieveSpikeSequence', blackboard, [
-          new ShouldRetrieveSpike(blackboard),
-          new RetrieveSpike(blackboard),
-        ]),
-        new SelectorNode(
-          'PlantSpikeSelector',
-          blackboard,
-          new SequenceNode('PlantSpikeSeq', blackboard, [
-            new ShouldPlantSpike(blackboard),
-            new PlantSpike(blackboard),
-          ]),
-          new SelectorNode(
-            'MoveTowardSiteOrIdle',
-            blackboard,
-            new SequenceNode('MoveTowardSiteSeq', blackboard, [
-              new ShouldMoveTowardSite(blackboard),
-              new MoveTowardSite(blackboard),
-            ]),
-            new Idle(blackboard)
-          )
-        )
-      ),
     ])
     return rootNode
   }
@@ -169,8 +160,11 @@ export class CPU implements Team {
 
   update() {
     this.cpuBehaviorTree.process()
-    this.agentBehaviorTrees.forEach((tree) => {
-      tree.process()
+    this.agentBehaviorTrees.forEach((obj) => {
+      const { tree, agent } = obj
+      if (agent.getCurrState() !== States.DIE) {
+        tree.process()
+      }
     })
     this.agents.forEach((agent) => {
       if (!this.game.isDebug) {

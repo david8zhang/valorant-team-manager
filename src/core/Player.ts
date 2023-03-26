@@ -70,6 +70,12 @@ export class Player implements Team {
   }
 
   handleClick(e: any) {
+    if (this.game.isDebug) {
+      const tile = this.game.getTileAt(e.worldX, e.worldY)
+      if (tile) {
+        console.info('[Cursor]: ', tile.getCenterX(), tile.getCenterY())
+      }
+    }
     if (UI.instance && !this.areAllAgentsDead() && this.canProcessClickCommand()) {
       const uiInstance = UI.instance
       switch (uiInstance.currCommandState) {
@@ -153,12 +159,14 @@ export class Player implements Team {
   }
 
   isValidMoveDestination(worldX: number, worldY: number) {
+    const tile = this.game.getTileAt(worldX, worldY)
     return (
       worldX >= 0 &&
       worldX <= Constants.MAP_WIDTH &&
       worldY >= 0 &&
       Constants.MAP_HEIGHT &&
-      this.game.getTileAt(worldX, worldY).index !== 1
+      tile &&
+      tile.index !== 1
     )
   }
 
@@ -205,14 +213,18 @@ export class Player implements Team {
       x: lastSitePos.x + 8,
       y: lastSitePos.y + 8,
     }
-    const tileX = tile.getCenterX()
-    const tileY = tile.getCenterY()
-    return (
-      firstSitePos.x <= tileX &&
-      tileX <= adjustedLastSitePos.x &&
-      firstSitePos.y <= tileY &&
-      tileY <= adjustedLastSitePos.y
-    )
+
+    if (tile) {
+      const tileX = tile.getCenterX()
+      const tileY = tile.getCenterY()
+      return (
+        firstSitePos.x <= tileX &&
+        tileX <= adjustedLastSitePos.x &&
+        firstSitePos.y <= tileY &&
+        tileY <= adjustedLastSitePos.y
+      )
+    }
+    return false
   }
 
   isWithinSite(worldX: number, worldY: number) {
@@ -251,7 +263,7 @@ export class Player implements Team {
   updateCursor() {
     const mousePointer = this.game.input.mousePointer
     const tilePos = this.game.getTilePosForWorldPos(mousePointer.worldX, mousePointer.worldY)
-    const layer = this.game.tilemap.getLayer('Base')
+    const layer = this.game.map.tilemap.getLayer('Base')
     if (
       tilePos.row >= 0 &&
       tilePos.row < layer.data.length &&
@@ -260,12 +272,8 @@ export class Player implements Team {
     ) {
       const tileCenter = this.game.getWorldPosForTilePos(tilePos.row, tilePos.col)
       const tile = this.game.getTileAt(mousePointer.worldX, mousePointer.worldY)
-      if (this.game.isDebug) {
-        console.info('[Cursor]: ', tileCenter.x, tileCenter.y)
-      }
-
       this.cursorRect.setPosition(tileCenter.x, tileCenter.y)
-      if (tile.index === 1) {
+      if (tile && tile.index === 1) {
         this.cursorRect.setStrokeStyle(2, 0xff0000)
       } else {
         if (

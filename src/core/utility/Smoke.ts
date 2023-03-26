@@ -4,7 +4,7 @@ import { Utility, UtilityConfig } from './Utility'
 
 export class Smoke extends Utility {
   private static SMOKE_TIME_SECONDS = 5
-  private static SMOKE_RADIUS = 32
+  private static SMOKE_RADIUS = 24
 
   private smokeFadeEvent!: Phaser.Time.TimerEvent
   private smokeToPlaceIndex: number = 0

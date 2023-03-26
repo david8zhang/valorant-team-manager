@@ -4,7 +4,14 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- Agent roles (Initiator, Duelist, Controller)
+- Agent roles (Initiator, Duelist)
+
+- Utility:
+
+  - Flash
+  - Dart
+  - Dog
+  - Stun
 
 - Better CPU AI
 
@@ -13,3 +20,6 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 - Spam a specific location command (Same command as shooting)
 - Strafe automatically if shooting an explicit target
+
+- Better art for players/enemies
+- Credits after each round and buy menu

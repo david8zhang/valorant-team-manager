@@ -1,6 +1,5 @@
 import Game from '~/scenes/Game'
 import { Constants, GunTypes } from '~/utils/Constants'
-import { PeekCommandState } from './Player'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'
@@ -27,6 +26,12 @@ export enum WeaponTypes {
   MELEE = 'MELEE',
 }
 
+export enum Role {
+  INITIATOR = 'INITIATOR',
+  CONTROLLER = 'CONTROLLER',
+  DUELIST = 'DUELIST',
+}
+
 export interface AgentConfig {
   position: {
     x: number
@@ -35,7 +40,6 @@ export interface AgentConfig {
   name: string
   texture: string
   sightAngleDeg: number
-  hideSightCones?: boolean
   raycaster: any
   side: Side
   team: Team
@@ -47,6 +51,9 @@ export interface AgentConfig {
   utility: {
     [key in UtilityKey]?: UtilityName
   }
+  hideSightCones?: boolean
+  fireOnSight?: boolean
+  onDetectedEnemyHandler?: Function
 }
 
 export class Agent {
@@ -81,6 +88,7 @@ export class Agent {
   public assists: number = 0
   public credits: number = 0
 
+  // The damage that this agent has received from enemies (used for determining kills/assists)
   private damageMapping: {
     [key: string]: number
   } = {}
@@ -99,24 +107,20 @@ export class Agent {
     y: number
   } | null = null
 
-  // Store start/end/peek location if agent should peek an angle
-  public peekState: {
-    [key in PeekCommandState]: Phaser.GameObjects.Arc | null
-  } = {
-    [PeekCommandState.START]: null,
-    [PeekCommandState.END]: null,
-    [PeekCommandState.PEEK_LOCATION]: null,
-  }
-
   // Whether or not the agent fires as soon as they see an enemy
   public fireOnSight: boolean = false
 
   // Set to true if the agent is in the process of reacting to a shot
-  public isReactingToShot: boolean = false
+  public isBeingShotAt: boolean = false
 
+  // Utility that the agent has, mapped to keyboard keys
   public utilityMapping: {
     [key in UtilityKey]?: Utility
   } = {}
+
+  // Custom handler for when the agent sees an enemy
+  public onDetectedEnemyHandlers: Function[] = []
+  public onKillEnemyHandlers: Function[] = []
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -157,6 +161,9 @@ export class Agent {
     })
     this.side = config.side
     this.setupHealthBar()
+
+    // This is so that the agent can carry multiple weapons at once.
+    // TODO: Maybe consider just simplifying this so that the agent can only have 1 weapon?
     this.weapons = {
       [WeaponTypes.PRIMARY]: GunTypes.SMG,
       [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
@@ -174,6 +181,12 @@ export class Agent {
       )
       .setDepth(Constants.SORT_LAYERS.UI)
     this.setupUtility(config.utility)
+    if (config.onDetectedEnemyHandler) {
+      this.onDetectedEnemyHandlers.push(config.onDetectedEnemyHandler)
+    }
+    if (config.fireOnSight) {
+      this.fireOnSight = config.fireOnSight
+    }
   }
 
   setupUtility(agentUtility: {
@@ -220,6 +233,16 @@ export class Agent {
     return this.stateMachine.getState()
   }
 
+  onKillEnemy(enemyAgent: Agent) {
+    this.onKillEnemyHandlers.forEach((handler) => {
+      handler(enemyAgent)
+    })
+  }
+
+  get health() {
+    return this.healthBar.currValue
+  }
+
   takeDamage(damage: number, attacker: Agent) {
     const newValue = Math.max(0, this.healthBar.currValue - damage)
     this.healthBar.setCurrValue(newValue)
@@ -231,9 +254,10 @@ export class Agent {
       this.deaths++
       this.stateMachine.transition(States.DIE)
       if (!this.killerId) {
-        console.log(this.name + ' killed by: ' + attacker.name)
+        console.info(this.name + ' killed by: ' + attacker.name)
         this.killerId = attacker.name
         attacker.kills++
+        attacker.onKillEnemy(this)
         Object.keys(this.damageMapping).forEach((name) => {
           if (name !== this.killerId) {
             const agent = this.game.getAgentByName(name)
@@ -247,18 +271,26 @@ export class Agent {
   }
 
   reactToShot(shooter: Agent) {
-    this.isReactingToShot = true
+    this.isBeingShotAt = true
     const angleToShooter = Phaser.Math.Angle.Between(
       this.sprite.x,
       this.sprite.y,
       shooter.sprite.x,
       shooter.sprite.y
     )
+
+    // Default behavior when being shot at is to return fire. This might not always
+    // be the best reaction.
+    // TODO: Potentially get rid of this behavior, or modify it so that it only runs
+    // if the agent has "fireOnSight" toggled
     this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
-      this.isReactingToShot = false
+      this.isBeingShotAt = false
       this.visionRay.setAngle(angleToShooter)
       this.crosshairRay.setAngle(angleToShooter)
-      this.setState(States.SHOOT, shooter)
+
+      if (this.getCurrState() !== States.DIE) {
+        this.setState(States.SHOOT, shooter)
+      }
     })
   }
 
@@ -280,34 +312,24 @@ export class Agent {
     this.shotRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
   }
 
-  didDetectEnemy() {
+  getDetectedEnemies(): Agent[] {
+    // Currently, this will only account for enemies detected by the agent's own vision
+    // TODO: Once recon utility is added, we can modify this logic to include enemies detected by recon as well
     const intersections = this.visionRay.castCone()
-    return (
-      intersections.find((n) => {
-        if (!n.object || n.object.name !== 'agent') {
-          return false
-        }
-        const agent = n.object.getData('ref') as Agent
-        return agent.side !== this.side && agent.getCurrState() !== States.DIE
-      }) !== undefined
-    )
+    const intersectedObjects = intersections.filter((n) => {
+      if (!n.object || n.object.name !== 'agent') {
+        return false
+      }
+      const agent = n.object.getData('ref') as Agent
+      return agent.side !== this.side && agent.getCurrState() !== States.DIE
+    })
+    return intersectedObjects.map((obj) => {
+      return obj.object.getData('ref') as Agent
+    })
   }
 
   get currWeapon(): GunTypes | null {
     return this.weapons[this.currEquippedWeapon]
-  }
-
-  clearPeekMarkers() {
-    Object.keys(this.peekState).forEach((key) => {
-      if (this.peekState[key]) {
-        this.peekState[key].destroy()
-      }
-    })
-    this.peekState = {
-      [PeekCommandState.START]: null,
-      [PeekCommandState.END]: null,
-      [PeekCommandState.PEEK_LOCATION]: null,
-    }
   }
 
   setHoldLocation(worldX: number, worldY: number) {
@@ -320,13 +342,23 @@ export class Agent {
     this.crosshairRay.setAngle(angle)
   }
 
+  handleDidDetectEnemy() {
+    const detectedEnemies = this.getDetectedEnemies()
+    if (detectedEnemies.length > 0) {
+      this.onDetectedEnemyHandlers.forEach((handler) => {
+        handler(detectedEnemies)
+      })
+      if (this.canShootEnemy()) {
+        this.stateMachine.transition(States.SHOOT)
+      }
+    }
+  }
+
   update() {
     this.graphics.clear()
     this.stateMachine.step()
     this.updateVisionAndCrosshair()
-    if (this.didDetectEnemy() && this.canShootEnemy()) {
-      this.stateMachine.transition(States.SHOOT)
-    }
+    this.handleDidDetectEnemy()
     this.healthBar.x = this.sprite.x - this.healthBar.width / 2
     this.healthBar.y = this.sprite.y - this.sprite.displayHeight - 5
     this.healthBar.draw()
@@ -346,7 +378,7 @@ export class Agent {
 
   // Reset after a round ends
   reset(resetConfig: { x: number; y: number; sightAngle: number; showOnMap: boolean }) {
-    this.isReactingToShot = false
+    this.isBeingShotAt = false
     this.damageMapping = {}
     this.fireOnSight = false
     this.killerId = null

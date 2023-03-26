@@ -1,6 +1,7 @@
 import Phaser, { BlendModes } from 'phaser'
 import { Agent, Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
+import { Map } from '~/core/Map'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
@@ -10,7 +11,6 @@ import UI, { CommandState } from './UI'
 
 export default class Game extends Phaser.Scene {
   private static _instance: Game
-  public tilemap!: Phaser.Tilemaps.Tilemap
 
   public maskGraphics!: Phaser.GameObjects.Graphics
   public graphics!: Phaser.GameObjects.Graphics
@@ -29,11 +29,8 @@ export default class Game extends Phaser.Scene {
   public isPaused: boolean = false
   public pausedStateText!: Phaser.GameObjects.Text
 
-  public layers: any = {}
-  public walls!: Phaser.GameObjects.Group
   public isDebug: boolean = true
   public debugHandlers: Function[] = []
-  public colliders: Phaser.Physics.Arcade.Collider[] = []
 
   public roundState: RoundState = RoundState.PREROUND
   public attackSide: Side = Side.CPU
@@ -45,6 +42,8 @@ export default class Game extends Phaser.Scene {
   }
   public spike!: Spike
   public onPauseCallbacks: Function[] = []
+
+  public map!: Map
 
   constructor() {
     super('game')
@@ -58,19 +57,11 @@ export default class Game extends Phaser.Scene {
   }
 
   getTileAt(worldX: number, worldY: number) {
-    const layer = this.tilemap.getLayer('Base')
-    const x = Math.floor(worldX / 16)
-    const y = Math.floor(worldY / 16)
-    return layer.data[y][x]
+    return this.map.getTileAt(worldX, worldY)
   }
 
   getWorldPosForTilePos(row: number, col: number) {
-    const layer = this.tilemap.getLayer('Base')
-    const tile = layer.data[row][col]
-    return {
-      x: tile.pixelX + tile.width / 2,
-      y: tile.pixelY + tile.height / 2,
-    }
+    return this.map.getWorldPosForTilePos(row, col)
   }
 
   getTilePosForWorldPos(worldX: number, worldY: number) {
@@ -92,6 +83,8 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    this.playerAgentsGroup = this.add.group()
+    this.cpuAgentsGroup = this.add.group()
     this.setupDebugKeyListener()
     this.cameras.main.setScroll(0, -Constants.TOP_BAR_HEIGHT)
     this.pausedStateText = this.add
@@ -106,25 +99,17 @@ export default class Game extends Phaser.Scene {
     this.initRaycaster()
     this.createFOV()
     this.fow.setDepth(Constants.SORT_LAYERS.BottomLayer + 1)
-    this.layers.top.setDepth(Constants.SORT_LAYERS.TopLayer)
+    this.map.layers.top.setDepth(Constants.SORT_LAYERS.TopLayer)
     this.pathfinding = new Pathfinding({
-      tilemap: this.tilemap,
+      tilemap: this.map.tilemap,
       unwalkableTiles: [1],
     })
     this.initPlayerAndCPU()
-    this.initColliders()
     this.setupSpike()
   }
 
-  initColliders() {
-    const playerWallCollider = this.physics.add.collider(this.playerAgentsGroup, this.walls)
-    const agentWallCollider = this.physics.add.collider(this.cpuAgentsGroup, this.walls)
-    this.colliders.push(playerWallCollider)
-    this.colliders.push(agentWallCollider)
-  }
-
   initRaycaster() {
-    const baseLayer = this.layers.base
+    const baseLayer = this.map.layers.base
     this.playerRaycaster = this.raycasterPlugin.createRaycaster()
     this.playerRaycaster.mapGameObjects(baseLayer, false, {
       collisionTiles: [1],
@@ -138,9 +123,6 @@ export default class Game extends Phaser.Scene {
   initPlayerAndCPU() {
     this.player = new Player()
     this.cpu = new CPU()
-    this.playerAgentsGroup = this.add.group()
-    this.cpuAgentsGroup = this.add.group()
-
     this.cpu.agents.forEach((agent) => {
       this.playerAgentsGroup.add(agent.sprite)
       this.playerRaycaster.mapGameObjects(agent.sprite, true)
@@ -159,52 +141,11 @@ export default class Game extends Phaser.Scene {
   }
 
   initMap() {
-    // Initialize tilemap
-    this.tilemap = this.make.tilemap({
-      key: 'map',
-    })
-    const tileset = this.tilemap.addTilesetImage('map-tiles', 'map-tiles')
-    const baseLayer = this.createLayer('Base', tileset)
-    const topLayer = this.createLayer('Top', tileset)
-    this.layers.base = baseLayer
-    this.layers.top = topLayer
-    this.walls = this.add.group()
-
-    // Player side walls
-    this.createWall({ x: 8, y: 168 }, { x: 104, y: 168 })
-    this.createWall({ x: 200, y: 152 }, { x: 248, y: 152 })
-    this.createWall({ x: 520, y: 152 }, { x: 568, y: 152 })
-
-    // CPU side walls
-    this.createWall({ x: 152, y: 392 }, { x: 152, y: 440 }, true)
-    this.createWall({ x: 296, y: 296 }, { x: 344, y: 296 })
-    this.createWall({ x: 440, y: 376 }, { x: 440, y: 456 }, true)
-
-    // Show site names
-    const aSitePos = Constants.A_SITE_CENTER_POS
-    const aSiteText = this.add
-      .text(aSitePos.x, aSitePos.y, 'A', { fontSize: '20px' })
-      .setOrigin(0.5)
-    const bSitePos = Constants.B_SITE_CENTER_POS
-    const bSiteText = this.add
-      .text(bSitePos.x, bSitePos.y, 'B', { fontSize: '20px' })
-      .setOrigin(0.5)
+    this.map = new Map(this)
   }
 
   dropBarriers() {
-    this.tweens.add({
-      targets: this.walls.children.entries,
-      alpha: {
-        from: 1,
-        to: 0,
-      },
-      duration: 250,
-      onComplete: () => {
-        this.colliders.forEach((collider) => {
-          collider.active = false
-        })
-      },
-    })
+    this.map.dropBarriers()
   }
 
   restartRound() {
@@ -219,40 +160,7 @@ export default class Game extends Phaser.Scene {
   }
 
   raiseBarriers() {
-    this.walls.children.entries.forEach((child: Phaser.GameObjects.GameObject) => {
-      const sprite = child as Phaser.Physics.Arcade.Sprite
-      sprite.setAlpha(1)
-    })
-    this.colliders.forEach((collider) => {
-      collider.active = true
-    })
-  }
-
-  createWall(
-    start: { x: number; y: number },
-    end: { x: number; y: number },
-    isVertical: boolean = false
-  ) {
-    const startXPos = isVertical ? start.x : start.x - 8
-    const startYPos = isVertical ? start.y - 8 : start.y
-    const wallSprite = this.physics.add
-      .sprite(startXPos, startYPos, isVertical ? 'wall-vertical' : 'wall-horizontal')
-      .setDepth(Constants.SORT_LAYERS.UI)
-    if (isVertical) {
-      wallSprite.setOrigin(0.5, 0)
-    } else {
-      wallSprite.setOrigin(0, 0.5)
-    }
-    wallSprite.setImmovable(true)
-    let scaledWidth = isVertical ? wallSprite.displayWidth : end.x - start.x
-    let scaledHeight = isVertical ? end.y - start.y : wallSprite.displayHeight
-    wallSprite.setDisplaySize(scaledWidth, scaledHeight)
-    this.walls.add(wallSprite)
-    return wallSprite
-  }
-
-  createLayer(layerName: string, tileset: Phaser.Tilemaps.Tileset) {
-    return this.tilemap.createLayer(layerName, tileset)
+    this.map.raiseBarriers()
   }
 
   createFOV() {

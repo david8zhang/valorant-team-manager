@@ -28,8 +28,8 @@ export interface GunConfig {
 
 export class Constants {
   public static INITIAL_SPIKE_POSITION_CPU_SIDE = {
-    x: 312,
-    y: 408,
+    x: 308,
+    y: 440,
   }
 
   public static INITIAL_SPIKE_POSITION_PLAYER_SIDE = {
@@ -90,13 +90,13 @@ export class Constants {
   }
 
   public static A_SITE_CENTER_POS: { x: number; y: number } = {
-    x: 48,
-    y: 64,
+    x: 584,
+    y: 136,
   }
 
   public static B_SITE_CENTER_POS: { x: number; y: number } = {
-    x: 600,
-    y: 264,
+    x: 48,
+    y: 96,
   }
 
   public static A_SITE_POSITIONS: any[] = []
@@ -146,7 +146,7 @@ export class Constants {
       },
     },
     {
-      name: 'player3',
+      name: 'player-3',
       texture: 'player-agent',
       stats: {
         accuracyPct: 95,
