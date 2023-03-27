@@ -136,6 +136,7 @@ export class Agent {
       .setDepth(Constants.SORT_LAYERS.Player)
       .setName('agent')
       .setData('ref', this)
+      .setPushable(false)
 
     this.spikeIcon = this.game.add
       .image(config.position.x + 4, config.position.y + 4, 'spike-icon')

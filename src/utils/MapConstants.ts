@@ -1,3 +1,4 @@
+// TODO: These constants should be different across multiple different maps
 export class MapConstants {
   public static DEFAULT_PLANT_LOCATIONS = {
     A: {
@@ -17,10 +18,26 @@ export class MapConstants {
         x: 24,
         y: 104,
       },
+      topLeft: {
+        x: 24,
+        y: 104,
+      },
+      bottomRight: {
+        x: 24,
+        y: 104,
+      },
     },
     {
       name: 'A-Plant',
       center: {
+        x: 584,
+        y: 152,
+      },
+      topLeft: {
+        x: 584,
+        y: 152,
+      },
+      bottomRight: {
         x: 584,
         y: 152,
       },
@@ -31,11 +48,27 @@ export class MapConstants {
         x: 472,
         y: 168,
       },
+      topLeft: {
+        x: 456,
+        y: 152,
+      },
+      bottomRight: {
+        x: 488,
+        y: 216,
+      },
     },
     {
       name: 'Heaven',
       center: {
         x: 600,
+        y: 88,
+      },
+      topLeft: {
+        x: 584,
+        y: 88,
+      },
+      bottomRight: {
+        x: 616,
         y: 88,
       },
     },
@@ -45,12 +78,28 @@ export class MapConstants {
         x: 568,
         y: 304,
       },
+      topLeft: {
+        x: 472,
+        y: 296,
+      },
+      bottomRight: {
+        x: 632,
+        y: 312,
+      },
     },
     {
       name: 'Wine',
       center: {
         x: 624,
         y: 328,
+      },
+      topLeft: {
+        x: 616,
+        y: 328,
+      },
+      bottomRight: {
+        x: 632,
+        y: 344,
       },
     },
     {
@@ -59,12 +108,28 @@ export class MapConstants {
         x: 472,
         y: 408,
       },
+      topLeft: {
+        x: 424,
+        y: 360,
+      },
+      bottomRight: {
+        x: 520,
+        y: 472,
+      },
     },
     {
       name: 'Bottom-Mid',
       center: {
         x: 360,
         y: 376,
+      },
+      topLeft: {
+        x: 312,
+        y: 360,
+      },
+      bottomRight: {
+        x: 408,
+        y: 392,
       },
     },
     {
@@ -73,6 +138,14 @@ export class MapConstants {
         x: 360,
         y: 296,
       },
+      topLeft: {
+        x: 328,
+        y: 248,
+      },
+      bottomRight: {
+        x: 392,
+        y: 344,
+      },
     },
     {
       name: 'Mid-L',
@@ -80,11 +153,27 @@ export class MapConstants {
         x: 264,
         y: 296,
       },
+      topLeft: {
+        x: 248,
+        y: 248,
+      },
+      bottomRight: {
+        x: 280,
+        y: 344,
+      },
     },
     {
       name: 'Arch',
       center: {
         x: 336,
+        y: 232,
+      },
+      topLeft: {
+        x: 328,
+        y: 232,
+      },
+      bottomRight: {
+        x: 344,
         y: 232,
       },
     },
@@ -94,12 +183,28 @@ export class MapConstants {
         x: 520,
         y: 208,
       },
+      topLeft: {
+        x: 504,
+        y: 200,
+      },
+      bottomRight: {
+        x: 520,
+        y: 216,
+      },
     },
     {
       name: 'Top-Mid',
       center: {
         x: 336,
         y: 184,
+      },
+      topLeft: {
+        x: 296,
+        y: 152,
+      },
+      bottomRight: {
+        x: 376,
+        y: 216,
       },
     },
     {
@@ -108,12 +213,28 @@ export class MapConstants {
         x: 328,
         y: 96,
       },
+      topLeft: {
+        x: 296,
+        y: 88,
+      },
+      bottomRight: {
+        x: 376,
+        y: 104,
+      },
     },
     {
       name: 'Market',
       center: {
         x: 240,
         y: 144,
+      },
+      topLeft: {
+        x: 216,
+        y: 104,
+      },
+      bottomRight: {
+        x: 264,
+        y: 184,
       },
     },
     {
@@ -122,12 +243,28 @@ export class MapConstants {
         x: 192,
         y: 144,
       },
+      topLeft: {
+        x: 184,
+        y: 136,
+      },
+      bottomRight: {
+        x: 200,
+        y: 152,
+      },
     },
     {
       name: 'B-Crates',
       center: {
         x: 144,
         y: 104,
+      },
+      topLeft: {
+        x: 120,
+        y: 56,
+      },
+      bottomRight: {
+        x: 168,
+        y: 184,
       },
     },
     {
@@ -136,12 +273,28 @@ export class MapConstants {
         x: 56,
         y: 176,
       },
+      topLeft: {
+        x: 8,
+        y: 168,
+      },
+      bottomRight: {
+        x: 104,
+        y: 184,
+      },
     },
     {
       name: 'B-Main',
       center: {
         x: 72,
         y: 240,
+      },
+      topLeft: {
+        x: 8,
+        y: 232,
+      },
+      bottomRight: {
+        x: 136,
+        y: 248,
       },
     },
     {
@@ -150,6 +303,14 @@ export class MapConstants {
         x: 64,
         y: 320,
       },
+      topLeft: {
+        x: 8,
+        y: 280,
+      },
+      bottomRight: {
+        x: 136,
+        y: 360,
+      },
     },
     {
       name: 'Mid-Cubby',
@@ -157,12 +318,28 @@ export class MapConstants {
         x: 424,
         y: 256,
       },
+      topLeft: {
+        x: 472,
+        y: 264,
+      },
+      bottomRight: {
+        x: 472,
+        y: 264,
+      },
     },
     {
       name: 'Mid-Link',
       center: {
         x: 200,
         y: 288,
+      },
+      topLeft: {
+        x: 184,
+        y: 264,
+      },
+      bottomRight: {
+        x: 216,
+        y: 328,
       },
     },
   ]
@@ -175,89 +352,6 @@ export class MapConstants {
   public static DEFENDER_POSITION_START = {
     x: 320,
     y: 20,
-  }
-
-  public static POST_PLANT_POSITIONS = {
-    A: [
-      {
-        position: {
-          x: 568,
-          y: 312,
-        },
-        name: 'A_Main',
-        holdPosition: {
-          x: 586,
-          y: 152,
-        },
-        control: ['A-Plant', 'Heaven'],
-        vulnerable: ['A-Main'],
-      },
-      {
-        position: {
-          x: 632,
-          y: 104,
-        },
-        name: 'A_Site_TopRight',
-        holdPosition: {
-          x: 520,
-          y: 200,
-        },
-        control: ['A-Door', 'A-Plant'],
-        vulnerable: ['A-Main', 'Heaven'],
-      },
-      {
-        position: {
-          x: 616,
-          y: 232,
-        },
-        name: 'A_Site_BottomRight_Corner',
-        holdPosition: {
-          x: 600,
-          y: 88,
-        },
-        control: ['Heaven', 'A-Plant'],
-        vulnerable: ['A-Main'],
-      },
-      {
-        position: {
-          x: 536,
-          y: 104,
-        },
-        name: 'A_Site_TopLeft',
-        holdPosition: {
-          x: 584,
-          y: 248,
-        },
-        control: ['A-Plant'],
-        vulnerable: ['Heaven'],
-      },
-      {
-        position: {
-          x: 536,
-          y: 232,
-        },
-        name: 'A_Site_BottomLeft_Corner',
-        holdPosition: {
-          x: 600,
-          y: 88,
-        },
-        control: ['Heaven', 'A-Plant'],
-        vulnerable: ['A-Main'],
-      },
-      {
-        position: {
-          x: 632,
-          y: 312,
-        },
-        name: 'A_Site_Wine',
-        holdPosition: {
-          x: 472,
-          y: 296,
-        },
-        control: ['A-Main'],
-        vulnerable: ['A-Plant'],
-      },
-    ],
   }
 
   public static INITIAL_SPIKE_POSITION = {
