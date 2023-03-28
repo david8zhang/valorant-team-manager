@@ -132,8 +132,6 @@ export default class Game extends Phaser.Scene {
       this.cpuAgentsGroup.add(agent.sprite)
       this.cpuRaycaster.mapGameObjects(agent.sprite, true)
     })
-    this.physics.add.collider(this.playerAgentsGroup, this.playerAgentsGroup)
-    this.physics.add.collider(this.cpuAgentsGroup, this.cpuAgentsGroup)
   }
 
   setupSpike() {

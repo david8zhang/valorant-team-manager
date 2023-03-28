@@ -1,3 +1,10 @@
+export enum Role {
+  INITIATOR = 'INITIATOR',
+  CONTROLLER = 'CONTROLLER',
+  DUELIST = 'DUELIST',
+  ANY = 'ANY',
+}
+
 export enum Sites {
   A = 'A',
   B = 'B',
@@ -85,6 +92,7 @@ export class Constants {
     {
       name: 'player-1',
       texture: 'player-agent',
+      role: Role.CONTROLLER,
       stats: {
         accuracyPct: 90,
         headshotPct: 22,
@@ -94,6 +102,7 @@ export class Constants {
     {
       name: 'player-2',
       texture: 'player-agent',
+      role: Role.DUELIST,
       stats: {
         accuracyPct: 95,
         headshotPct: 20,
@@ -103,6 +112,7 @@ export class Constants {
     {
       name: 'player-3',
       texture: 'player-agent',
+      role: Role.INITIATOR,
       stats: {
         accuracyPct: 95,
         headshotPct: 30,
@@ -115,6 +125,7 @@ export class Constants {
     {
       name: 'cpu-1',
       texture: 'cpu-agent',
+      role: Role.CONTROLLER,
       stats: {
         accuracyPct: 90,
         headshotPct: 25,
@@ -124,6 +135,7 @@ export class Constants {
     {
       name: 'cpu-2',
       texture: 'cpu-agent',
+      role: Role.DUELIST,
       stats: {
         accuracyPct: 97,
         headshotPct: 22,
@@ -133,6 +145,7 @@ export class Constants {
     {
       name: 'cpu-3',
       texture: 'cpu-agent',
+      role: Role.INITIATOR,
       stats: {
         accuracyPct: 90,
         headshotPct: 30,

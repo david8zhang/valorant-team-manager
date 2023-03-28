@@ -252,6 +252,7 @@ export class Player implements Team {
           x: startX,
           y: startY,
         },
+        role: config.role,
         name: config.name,
         texture: config.texture,
         sightAngleDeg: 90,

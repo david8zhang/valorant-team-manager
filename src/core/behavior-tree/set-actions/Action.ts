@@ -1,4 +1,5 @@
 export enum ActionStatus {
+  NOT_STARTED = 'NOT_STARTED',
   RUNNING = 'RUNNING',
   COMPLETE = 'COMPLETE',
 }

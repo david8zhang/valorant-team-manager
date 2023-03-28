@@ -1,5 +1,5 @@
-import { ActionExecutorRoles } from '~/core/behavior-tree/set-actions/ActionExecutorRoles'
 import { ActionType } from '~/core/behavior-tree/set-actions/ActionType'
+import { Role } from './Constants'
 
 export const POST_PLANT_POSITIONS = {
   A: [
@@ -91,14 +91,74 @@ export const POST_PLANT_POSITIONS = {
  */
 export const A_SITE_STACKED_PUSH = [
   {
-    executorRole: ActionExecutorRoles.ANY,
+    executorRole: Role.ANY,
     actionSeq: [
       {
         actionType: ActionType.MoveToRegion,
         args: {
-          destRegion: 'A-Main',
+          regionName: 'A-Lobby',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Main',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Door',
+        },
+      },
+    ],
+  },
+  {
+    executorRole: Role.ANY,
+    actionSeq: [
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Lobby',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Main',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'Heaven',
+        },
+      },
+    ],
+  },
+  {
+    executorRole: Role.ANY,
+    actionSeq: [
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Lobby',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Main',
+        },
+      },
+      {
+        actionType: ActionType.MoveToRegion,
+        args: {
+          regionName: 'A-Plant',
         },
       },
     ],
   },
 ]
+
+export const SET_PLAYS_ATTACK = [A_SITE_STACKED_PUSH]

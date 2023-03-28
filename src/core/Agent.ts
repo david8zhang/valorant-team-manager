@@ -1,5 +1,5 @@
 import Game from '~/scenes/Game'
-import { Constants, GunTypes } from '~/utils/Constants'
+import { Constants, GunTypes, Role } from '~/utils/Constants'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'
@@ -26,12 +26,6 @@ export enum WeaponTypes {
   MELEE = 'MELEE',
 }
 
-export enum Role {
-  INITIATOR = 'INITIATOR',
-  CONTROLLER = 'CONTROLLER',
-  DUELIST = 'DUELIST',
-}
-
 export interface AgentConfig {
   position: {
     x: number
@@ -42,6 +36,7 @@ export interface AgentConfig {
   sightAngleDeg: number
   raycaster: any
   side: Side
+  role: Role
   team: Team
   stats: {
     accuracyPct: number
@@ -62,6 +57,7 @@ export class Agent {
   public visionRay: any
   public crosshairRay: any
   public shotRay: any
+  public role: Role
 
   public game: Game
   public sprite: Phaser.Physics.Arcade.Sprite
@@ -130,6 +126,7 @@ export class Agent {
       this.hideSightCones = config.hideSightCones
     }
     this.name = config.name
+    this.role = config.role
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)

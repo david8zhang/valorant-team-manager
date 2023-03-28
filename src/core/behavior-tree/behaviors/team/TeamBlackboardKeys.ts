@@ -1,7 +1,6 @@
 export enum TeamBlackboardKeys {
-  AGENT_MOVE_TARGETS = 'agentMoveTargets',
+  AGENT_ACTION_SEQUENCE_MAPPING = 'agentActionSequenceMapping',
   SPIKE_CARRIER_NAME = 'spikeCarrierName',
   AGENTS = 'agents',
-  PLANT_LOCATION = 'plantLocation',
   SITE_TO_PUSH = 'siteToPush',
 }

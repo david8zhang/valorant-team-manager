@@ -2,14 +2,13 @@ import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
+import { ExecuteActions } from './behavior-tree/behaviors/agent/ExecuteActions'
 import { Idle } from './behavior-tree/behaviors/agent/Idle'
-import { MoveTowardSite } from './behavior-tree/behaviors/agent/MoveTowardSite'
-import { PlantSpike } from './behavior-tree/behaviors/agent/PlantSpike'
 import { PopulateBlackboard } from './behavior-tree/behaviors/agent/PopulateBlackboard'
 import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpike'
-import { ShouldMoveTowardSite } from './behavior-tree/behaviors/agent/ShouldMoveTowardSite'
 import { ShouldPlantSpike } from './behavior-tree/behaviors/agent/ShouldPlantSpike'
 import { ShouldRetrieveSpike } from './behavior-tree/behaviors/agent/ShouldRetrieveSpike'
+import { AssignActions } from './behavior-tree/behaviors/team/AssignActions'
 import { TeamBlackboardKeys } from './behavior-tree/behaviors/team/TeamBlackboardKeys'
 import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
@@ -47,10 +46,11 @@ export class CPU implements Team {
 
   setupCPUBehaviorTree() {
     this.teamBlackboard = new Blackboard()
-    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, null)
     this.teamBlackboard.setData(TeamBlackboardKeys.SPIKE_CARRIER_NAME, '')
     this.teamBlackboard.setData(TeamBlackboardKeys.AGENTS, this.agents)
-    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [])
+    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [
+      new AssignActions(this.teamBlackboard),
+    ])
   }
 
   setupDebugListener() {
@@ -75,23 +75,6 @@ export class CPU implements Team {
     })
   }
 
-  setAgentMoveTarget(agent: Agent, moveTarget: { x: number; y: number } | null) {
-    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
-    agentMoveTargets[agent.name] = moveTarget
-    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
-  }
-
-  clearAgentMoveTarget(agent: Agent) {
-    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
-    agentMoveTargets[agent.name] = null
-    this.teamBlackboard.setData(TeamBlackboardKeys.AGENT_MOVE_TARGETS, agentMoveTargets)
-  }
-
-  getCurrAgentMoveTarget(agent: Agent) {
-    const agentMoveTargets = this.teamBlackboard.getData(TeamBlackboardKeys.AGENT_MOVE_TARGETS)
-    return agentMoveTargets[agent.name]
-  }
-
   createAgents() {
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
@@ -101,6 +84,7 @@ export class CPU implements Team {
           x: startX,
           y: startY,
         },
+        role: config.role,
         name: config.name,
         texture: config.texture,
         sightAngleDeg: 270,
@@ -140,6 +124,7 @@ export class CPU implements Team {
     const blackboard = new Blackboard()
     const rootNode = new SequenceNode('Root', blackboard, [
       new PopulateBlackboard(blackboard, agent, this),
+      new ExecuteActions(blackboard),
     ])
     return rootNode
   }
