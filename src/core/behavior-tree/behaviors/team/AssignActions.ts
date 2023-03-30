@@ -8,6 +8,8 @@ import { Blackboard } from '../../Blackboard'
 import { ActionConfig } from '../../set-actions/ActionConfig'
 import { ActionType } from '../../set-actions/ActionType'
 import { MoveToRegionAction } from '../../set-actions/MoveToRegionAction'
+import { PlantAction } from '../../set-actions/PlantAction'
+import { PostPlantAction } from '../../set-actions/PostPlantAction'
 import { TeamBlackboardKeys } from './TeamBlackboardKeys'
 
 export class AssignActions extends BehaviorTreeNode {
@@ -30,8 +32,6 @@ export class AssignActions extends BehaviorTreeNode {
         })
         const randomSequence =
           compatibleActionSeqs[Phaser.Math.Between(0, compatibleActionSeqs.length - 1)]
-        console.log(randomSequence)
-
         const actionSeqObjects = randomSequence.actionSeq.map((action) => {
           return this.convertToClass(agent, action)
         })
@@ -48,8 +48,13 @@ export class AssignActions extends BehaviorTreeNode {
   convertToClass(agent: Agent, action: ActionConfig) {
     switch (action.actionType) {
       case ActionType.MoveToRegion: {
-        console.log(action.args.regionName)
         return new MoveToRegionAction(agent, action.args.regionName)
+      }
+      case ActionType.Plant: {
+        return new PlantAction(agent, action.args.plantLocation)
+      }
+      case ActionType.PostPlant: {
+        return new PostPlantAction(agent, action.args.postPlantPositionName)
       }
     }
   }

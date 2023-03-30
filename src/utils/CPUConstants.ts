@@ -161,4 +161,5 @@ export const A_SITE_STACKED_PUSH = [
   },
 ]
 
+export const ALL_POST_PLANT_POSITIONS = [...POST_PLANT_POSITIONS.A]
 export const SET_PLAYS_ATTACK = [A_SITE_STACKED_PUSH]
