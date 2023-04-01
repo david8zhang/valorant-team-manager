@@ -10,6 +10,7 @@ import { ActionType } from '../../set-actions/ActionType'
 import { MoveToRegionAction } from '../../set-actions/MoveToRegionAction'
 import { PlantAction } from '../../set-actions/PlantAction'
 import { PostPlantAction } from '../../set-actions/PostPlantAction'
+import { WaitAction } from '../../set-actions/WaitAction'
 import { TeamBlackboardKeys } from './TeamBlackboardKeys'
 
 export class AssignActions extends BehaviorTreeNode {
@@ -26,12 +27,17 @@ export class AssignActions extends BehaviorTreeNode {
       const randomPlay = playbook[Phaser.Math.Between(0, playbook.length - 1)]
       const agents = this.blackboard.getData(TeamBlackboardKeys.AGENTS) as Agent[]
       const agentToActionsMapping = {}
+      const assignedActionIds = new Set<string>()
       agents.forEach((agent) => {
         const compatibleActionSeqs = randomPlay.filter((actionSeq) => {
-          return actionSeq.executorRole === agent.role || actionSeq.executorRole === Role.ANY
+          return (
+            (actionSeq.executorRole === agent.role || actionSeq.executorRole === Role.ANY) &&
+            !assignedActionIds.has(actionSeq.sequenceId)
+          )
         })
         const randomSequence =
           compatibleActionSeqs[Phaser.Math.Between(0, compatibleActionSeqs.length - 1)]
+        assignedActionIds.add(randomSequence.sequenceId)
         const actionSeqObjects = randomSequence.actionSeq.map((action) => {
           return this.convertToClass(agent, action)
         })
@@ -55,6 +61,9 @@ export class AssignActions extends BehaviorTreeNode {
       }
       case ActionType.PostPlant: {
         return new PostPlantAction(agent, action.args.postPlantPositionName)
+      }
+      case ActionType.Wait: {
+        return new WaitAction(agent, action.args.waitTimeSeconds)
       }
     }
   }

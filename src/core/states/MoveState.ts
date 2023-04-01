@@ -143,6 +143,7 @@ export class MoveState extends State {
         this.onReachedDestinationInvoked = true
         this.onReachedDestination()
       }
+      console.log('Went here!')
       this.moveTarget = null
       agent.setState(States.IDLE)
       return

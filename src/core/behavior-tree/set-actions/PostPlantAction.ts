@@ -47,15 +47,12 @@ export class PostPlantAction implements Action {
 
   execute(): void {
     if (Game.instance.spike.isPlanted) {
-      this.isMovingToPostPlantPosition = true
-      if (!MoveState.isAtMoveTarget(this.agent, this.postPlantPosition.position)) {
-        if (this.agent.getCurrState() !== States.MOVE) {
-          this.agent.setState(States.MOVE, this.postPlantPosition.position)
-        }
-      } else {
-        this.agent.setState(States.IDLE)
-        const holdPosition = this.postPlantPosition.holdPosition
-        this.agent.setHoldLocation(holdPosition.x, holdPosition.y)
+      if (!this.isMovingToPostPlantPosition) {
+        this.isMovingToPostPlantPosition = true
+        this.agent.setState(States.MOVE, this.postPlantPosition.position, () => {
+          const holdPosition = this.postPlantPosition.holdPosition
+          this.agent.setHoldLocation(holdPosition.x, holdPosition.y)
+        })
       }
     }
   }

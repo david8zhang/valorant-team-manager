@@ -1,5 +1,6 @@
 import { ActionType } from '~/core/behavior-tree/set-actions/ActionType'
 import { Role } from './Constants'
+import { MapConstants } from './MapConstants'
 
 export const POST_PLANT_POSITIONS = {
   A: [
@@ -92,7 +93,14 @@ export const POST_PLANT_POSITIONS = {
 export const A_SITE_STACKED_PUSH = [
   {
     executorRole: Role.ANY,
+    sequenceId: 'seq-1',
     actionSeq: [
+      {
+        actionType: ActionType.Wait,
+        args: {
+          waitTimeSeconds: 3,
+        },
+      },
       {
         actionType: ActionType.MoveToRegion,
         args: {
@@ -111,10 +119,17 @@ export const A_SITE_STACKED_PUSH = [
           regionName: 'A-Door',
         },
       },
+      {
+        actionType: ActionType.PostPlant,
+        args: {
+          postPlantPositionName: 'A_Main',
+        },
+      },
     ],
   },
   {
     executorRole: Role.ANY,
+    sequenceId: 'seq-2',
     actionSeq: [
       {
         actionType: ActionType.MoveToRegion,
@@ -134,10 +149,17 @@ export const A_SITE_STACKED_PUSH = [
           regionName: 'Heaven',
         },
       },
+      {
+        actionType: ActionType.PostPlant,
+        args: {
+          postPlantPositionName: 'A_Site_TopLeft',
+        },
+      },
     ],
   },
   {
     executorRole: Role.ANY,
+    sequenceId: 'seq-3',
     actionSeq: [
       {
         actionType: ActionType.MoveToRegion,
@@ -152,9 +174,15 @@ export const A_SITE_STACKED_PUSH = [
         },
       },
       {
-        actionType: ActionType.MoveToRegion,
+        actionType: ActionType.Plant,
         args: {
-          regionName: 'A-Plant',
+          plantLocation: MapConstants.DEFAULT_PLANT_LOCATIONS.A,
+        },
+      },
+      {
+        actionType: ActionType.PostPlant,
+        args: {
+          postPlantPositionName: 'A_Site_TopRight',
         },
       },
     ],

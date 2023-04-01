@@ -3,7 +3,6 @@ import { States } from '~/core/states/States'
 import { BehaviorStatus } from '../../BehaviorStatus'
 import { BehaviorTreeNode } from '../../BehaviorTreeNode'
 import { Blackboard } from '../../Blackboard'
-import { BlackboardKeys } from '../agent/BlackboardKeys'
 import { TeamBlackboardKeys } from './TeamBlackboardKeys'
 
 export class SelectNewSpikeCarrier extends BehaviorTreeNode {
