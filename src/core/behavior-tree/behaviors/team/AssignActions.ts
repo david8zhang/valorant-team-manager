@@ -10,6 +10,7 @@ import { ActionType } from '../../set-actions/ActionType'
 import { MoveToRegionAction } from '../../set-actions/MoveToRegionAction'
 import { PlantAction } from '../../set-actions/PlantAction'
 import { PostPlantAction } from '../../set-actions/PostPlantAction'
+import { RetrieveSpikeAction } from '../../set-actions/RetrieveSpikeAction'
 import { WaitAction } from '../../set-actions/WaitAction'
 import { TeamBlackboardKeys } from './TeamBlackboardKeys'
 
@@ -64,6 +65,9 @@ export class AssignActions extends BehaviorTreeNode {
       }
       case ActionType.Wait: {
         return new WaitAction(agent, action.args.waitTimeSeconds)
+      }
+      case ActionType.RetrieveSpike: {
+        return new RetrieveSpikeAction(agent)
       }
     }
   }

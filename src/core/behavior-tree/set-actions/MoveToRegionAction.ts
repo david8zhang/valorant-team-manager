@@ -1,18 +1,18 @@
 import { Agent } from '~/core/Agent'
 import { MoveState } from '~/core/states/MoveState'
-import { State } from '~/core/states/StateMachine'
 import { States } from '~/core/states/States'
 import Game from '~/scenes/Game'
 import { MapConstants } from '~/utils/MapConstants'
 import { Action, ActionStatus } from './Action'
 
-export class MoveToRegionAction implements Action {
+export class MoveToRegionAction extends Action {
   public agent: Agent
   public moveLocation!: { x: number; y: number }
   public regionName: string
   public isMovingToTarget: boolean = false
 
   constructor(agent: Agent, regionName: string) {
+    super()
     this.agent = agent
     this.regionName = regionName
   }
@@ -44,6 +44,7 @@ export class MoveToRegionAction implements Action {
   enter() {
     this.isMovingToTarget = true
     this.assignMoveLocation(this.regionName)
+    this.agent.fireOnSight = true
     this.agent.setState(States.MOVE, this.moveLocation)
   }
 

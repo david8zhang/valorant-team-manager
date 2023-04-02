@@ -3,12 +3,13 @@ import { States } from '~/core/states/States'
 import Game from '~/scenes/Game'
 import { Action, ActionStatus } from './Action'
 
-export class PlantAction implements Action {
+export class PlantAction extends Action {
   private agent: Agent
   public isPlanting: boolean = false
   public plantLocation: { x: number; y: number }
 
   constructor(agent: Agent, plantLocation: { x: number; y: number }) {
+    super()
     this.agent = agent
     this.plantLocation = plantLocation
   }
@@ -28,6 +29,4 @@ export class PlantAction implements Action {
   exit() {
     this.isPlanting = false
   }
-
-  execute() {}
 }

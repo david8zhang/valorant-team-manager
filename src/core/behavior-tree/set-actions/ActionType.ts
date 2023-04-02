@@ -5,4 +5,5 @@ export enum ActionType {
   Plant = 'Plant',
   PostPlant = 'PostPlant',
   Hold = 'Hold',
+  RetrieveSpike = 'RetrieveSpike',
 }

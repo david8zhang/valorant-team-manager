@@ -132,6 +132,12 @@ export const A_SITE_STACKED_PUSH = [
     sequenceId: 'seq-2',
     actionSeq: [
       {
+        actionType: ActionType.Wait,
+        args: {
+          waitTimeSeconds: 3,
+        },
+      },
+      {
         actionType: ActionType.MoveToRegion,
         args: {
           regionName: 'A-Lobby',
@@ -161,6 +167,15 @@ export const A_SITE_STACKED_PUSH = [
     executorRole: Role.ANY,
     sequenceId: 'seq-3',
     actionSeq: [
+      {
+        actionType: ActionType.RetrieveSpike,
+      },
+      {
+        actionType: ActionType.Wait,
+        args: {
+          waitTimeSeconds: 3,
+        },
+      },
       {
         actionType: ActionType.MoveToRegion,
         args: {

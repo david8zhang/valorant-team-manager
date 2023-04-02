@@ -5,7 +5,7 @@ import Game from '~/scenes/Game'
 import { ALL_POST_PLANT_POSITIONS } from '~/utils/CPUConstants'
 import { Action, ActionStatus } from './Action'
 
-export class PostPlantAction implements Action {
+export class PostPlantAction extends Action {
   public agent: Agent
   public postPlantPosition: {
     holdPosition: { x: number; y: number }
@@ -14,6 +14,7 @@ export class PostPlantAction implements Action {
   public isMovingToPostPlantPosition: boolean = false
 
   constructor(agent: Agent, postPlantPositionName: string) {
+    super()
     this.agent = agent
     this.postPlantPosition = this.getPostPlantPositionFromName(postPlantPositionName)
   }
@@ -42,8 +43,6 @@ export class PostPlantAction implements Action {
     }
     return locA.x === locB.x && locA.y === locB.y
   }
-
-  enter() {}
 
   execute(): void {
     if (Game.instance.spike.isPlanted) {

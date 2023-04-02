@@ -2,18 +2,14 @@ import Game from '~/scenes/Game'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
+import { AndSequenceNode } from './behavior-tree/AndSequenceNode'
 import { ExecuteActions } from './behavior-tree/behaviors/agent/ExecuteActions'
-import { Idle } from './behavior-tree/behaviors/agent/Idle'
 import { PopulateBlackboard } from './behavior-tree/behaviors/agent/PopulateBlackboard'
-import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpike'
-import { ShouldPlantSpike } from './behavior-tree/behaviors/agent/ShouldPlantSpike'
-import { ShouldRetrieveSpike } from './behavior-tree/behaviors/agent/ShouldRetrieveSpike'
+import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/RetrieveSpike'
 import { AssignActions } from './behavior-tree/behaviors/team/AssignActions'
 import { TeamBlackboardKeys } from './behavior-tree/behaviors/team/TeamBlackboardKeys'
 import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
-import { SelectorNode } from './behavior-tree/SelectorNode'
-import { SequenceNode } from './behavior-tree/SequenceNode'
 import { Intel } from './Intel'
 import { States } from './states/States'
 import { Team } from './Team'
@@ -48,7 +44,7 @@ export class CPU implements Team {
     this.teamBlackboard = new Blackboard()
     this.teamBlackboard.setData(TeamBlackboardKeys.SPIKE_CARRIER_NAME, '')
     this.teamBlackboard.setData(TeamBlackboardKeys.AGENTS, this.agents)
-    this.cpuBehaviorTree = new SequenceNode('TeamStrategyRoot', this.teamBlackboard, [
+    this.cpuBehaviorTree = new AndSequenceNode('TeamStrategyRoot', this.teamBlackboard, [
       new AssignActions(this.teamBlackboard),
     ])
   }
@@ -103,7 +99,6 @@ export class CPU implements Team {
         this.updateTeamIntel(detectedEnemies)
       })
       newAgent.onKillEnemyHandlers.push((killedEnemy: Agent) => {
-        console.log('Went here!')
         this.updateTeamIntel([killedEnemy])
       })
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)
@@ -122,7 +117,7 @@ export class CPU implements Team {
 
   setupBehaviorTreeForAgent(agent: Agent) {
     const blackboard = new Blackboard()
-    const rootNode = new SequenceNode('Root', blackboard, [
+    const rootNode = new AndSequenceNode('Root', blackboard, [
       new PopulateBlackboard(blackboard, agent, this),
       new ExecuteActions(blackboard),
     ])

@@ -2,7 +2,7 @@ import { BehaviorStatus } from './BehaviorStatus'
 import { BehaviorTreeNode } from './BehaviorTreeNode'
 import { Blackboard } from './Blackboard'
 
-export class SequenceNode extends BehaviorTreeNode {
+export class AndSequenceNode extends BehaviorTreeNode {
   public nodes: BehaviorTreeNode[]
   constructor(name: string, blackboard: Blackboard, nodes: BehaviorTreeNode[]) {
     super(name, blackboard)

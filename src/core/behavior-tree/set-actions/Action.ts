@@ -4,9 +4,9 @@ export enum ActionStatus {
   COMPLETE = 'COMPLETE',
 }
 
-export interface Action {
-  getStatus(): ActionStatus
-  execute(...args: any): void
-  enter(): void
-  exit(): void
+export abstract class Action {
+  public abstract getStatus(): ActionStatus
+  public execute(...args: any): void {}
+  public enter(): void {}
+  public exit(): void {}
 }
