@@ -34,6 +34,7 @@ export class WaitAction extends Action {
     if (this.countdownTimer) {
       this.countdownTimer.paused = Game.instance.isPaused
     }
+    this.agent.setState(States.IDLE)
   }
 
   getStatus(): ActionStatus {

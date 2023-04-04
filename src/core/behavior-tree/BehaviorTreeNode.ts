@@ -1,3 +1,5 @@
+import { Agent } from '../Agent'
+import { BlackboardKeys } from './behaviors/agent/BlackboardKeys'
 import { BehaviorStatus } from './BehaviorStatus'
 import { Blackboard } from './Blackboard'
 

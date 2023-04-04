@@ -54,7 +54,9 @@ export interface AgentConfig {
 export class Agent {
   public static FULL_HEALTH: number = 100
 
+  // All the raycasters
   public visionRay: any
+  public visionPolygon!: Phaser.Geom.Polygon
   public crosshairRay: any
   public shotRay: any
   public role: Role
@@ -338,6 +340,7 @@ export class Agent {
     const angle = Phaser.Math.Angle.Between(this.sprite.x, this.sprite.y, worldX, worldY)
     this.visionRay.setAngle(angle)
     this.crosshairRay.setAngle(angle)
+    this.shotRay.setAngle(angle)
   }
 
   handleDidDetectEnemy() {
@@ -419,6 +422,12 @@ export class Agent {
     return this.holdLocation !== null || this.fireOnSight
   }
 
+  isPointWithinVision(x: number, y: number) {
+    if (this.visionPolygon) {
+      return this.visionPolygon.contains(x, y)
+    }
+  }
+
   updateVisionAndCrosshair() {
     if (this.shouldShootOnSight()) {
       this.graphics.lineStyle(1, 0xff0000, 0.7)
@@ -430,7 +439,10 @@ export class Agent {
       this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
       this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
       this.shotRay.setOrigin(this.sprite.x, this.sprite.y)
+
       const visionIntersections = this.visionRay.castCone()
+      this.updateVisionPolygonObj(visionIntersections)
+
       visionIntersections.push(this.visionRay.origin)
       visionIntersections.forEach((n) => {
         if (n.object && n.object.name === 'agent') {
@@ -447,6 +459,20 @@ export class Agent {
         this.game.draw(visionIntersections)
         this.drawCrosshair(crosshairIntersection)
       }
+    }
+  }
+
+  updateVisionPolygonObj(visionIntersections: Phaser.Geom.Point[]) {
+    if (this.visionPolygon) {
+      this.visionPolygon.setTo([
+        ...visionIntersections,
+        new Phaser.Geom.Point(this.sprite.x, this.sprite.y),
+      ])
+    } else {
+      this.visionPolygon = new Phaser.Geom.Polygon([
+        ...visionIntersections,
+        new Phaser.Geom.Point(this.sprite.x, this.sprite.y),
+      ])
     }
   }
 

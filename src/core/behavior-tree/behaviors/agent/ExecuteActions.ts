@@ -1,5 +1,6 @@
 import { Agent } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
+import { States } from '~/core/states/States'
 import { BehaviorStatus } from '../../BehaviorStatus'
 import { BehaviorTreeNode } from '../../BehaviorTreeNode'
 import { Blackboard } from '../../Blackboard'

@@ -53,6 +53,8 @@ export class PostPlantAction extends Action {
           this.agent.setHoldLocation(holdPosition.x, holdPosition.y)
         })
       }
+    } else {
+      this.agent.setState(States.IDLE)
     }
   }
 

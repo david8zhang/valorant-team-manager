@@ -14,6 +14,7 @@ export class RetrieveSpike extends BehaviorTreeNode {
   public process(): BehaviorStatus {
     const spike = this.blackboard.getData(BlackboardKeys.SPIKE) as Spike
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent
+    console.log('Went here!', currAgent.name)
     currAgent.setState(States.MOVE, {
       x: spike.sprite.x,
       y: spike.sprite.y,

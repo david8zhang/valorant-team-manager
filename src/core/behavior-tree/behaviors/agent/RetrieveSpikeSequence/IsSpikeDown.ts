@@ -1,4 +1,5 @@
 import { Agent } from '~/core/Agent'
+import { States } from '~/core/states/States'
 import Game from '~/scenes/Game'
 import { BehaviorStatus } from '../../../BehaviorStatus'
 import { BehaviorTreeNode } from '../../../BehaviorTreeNode'
@@ -16,7 +17,7 @@ export class IsSpikeDown extends BehaviorTreeNode {
       const agents = this.blackboard.getData(BlackboardKeys.CPU_AGENTS) as Agent[]
       for (let i = 0; i < agents.length; i++) {
         const agent = agents[i]
-        if (agent.hasSpike) {
+        if (agent.hasSpike && agent.getCurrState() !== States.DIE) {
           return BehaviorStatus.FAILURE
         }
       }

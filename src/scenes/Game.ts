@@ -105,8 +105,8 @@ export default class Game extends Phaser.Scene {
       tilemap: this.map.tilemap,
       unwalkableTiles: [1],
     })
-    this.initPlayerAndCPU()
     this.setupSpike()
+    this.initPlayerAndCPU()
   }
 
   initRaycaster() {
@@ -269,6 +269,6 @@ export default class Game extends Phaser.Scene {
   }
 
   public draw(intersections: any[]) {
-    this.maskGraphics.fillPoints(intersections)
+    this.maskGraphics.fillPoints(intersections, true)
   }
 }

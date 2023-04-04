@@ -5,11 +5,17 @@ import { Agent, Side } from './Agent'
 import { AndSequenceNode } from './behavior-tree/AndSequenceNode'
 import { ExecuteActions } from './behavior-tree/behaviors/agent/ExecuteActions'
 import { PopulateBlackboard } from './behavior-tree/behaviors/agent/PopulateBlackboard'
+import { IsClosestToSpike } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsClosestToSpike'
+import { IsNotPreRound } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsNotPreRound'
+import { IsOnAttack } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsOnAttack'
+import { IsSpikeDown } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsSpikeDown'
+import { IsSpikeUnguarded } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsSpikeUnguarded'
 import { RetrieveSpike } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/RetrieveSpike'
 import { AssignActions } from './behavior-tree/behaviors/team/AssignActions'
 import { TeamBlackboardKeys } from './behavior-tree/behaviors/team/TeamBlackboardKeys'
 import { BehaviorTreeNode } from './behavior-tree/BehaviorTreeNode'
 import { Blackboard } from './behavior-tree/Blackboard'
+import { SelectorNode } from './behavior-tree/SelectorNode'
 import { Intel } from './Intel'
 import { States } from './states/States'
 import { Team } from './Team'
@@ -119,7 +125,19 @@ export class CPU implements Team {
     const blackboard = new Blackboard()
     const rootNode = new AndSequenceNode('Root', blackboard, [
       new PopulateBlackboard(blackboard, agent, this),
-      new ExecuteActions(blackboard),
+      new SelectorNode(
+        'ActionSelector',
+        blackboard,
+        new AndSequenceNode('RetrieveSpikeSequence', blackboard, [
+          new IsNotPreRound(blackboard),
+          new IsClosestToSpike(blackboard),
+          new IsOnAttack(blackboard),
+          new IsSpikeDown(blackboard),
+          new IsSpikeUnguarded(blackboard),
+          new RetrieveSpike(blackboard),
+        ]),
+        new ExecuteActions(blackboard)
+      ),
     ])
     return rootNode
   }
@@ -154,6 +172,7 @@ export class CPU implements Team {
       const { tree, agent } = obj
       if (agent.getCurrState() !== States.DIE) {
         tree.process()
+        // console.log('')
       }
     })
     this.agents.forEach((agent) => {

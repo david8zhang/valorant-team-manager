@@ -2,6 +2,7 @@ import { Agent } from '~/core/Agent'
 import { BehaviorStatus } from '~/core/behavior-tree/BehaviorStatus'
 import { BehaviorTreeNode } from '~/core/behavior-tree/BehaviorTreeNode'
 import { Blackboard } from '~/core/behavior-tree/Blackboard'
+import { States } from '~/core/states/States'
 import Game from '~/scenes/Game'
 import { BlackboardKeys } from '../BlackboardKeys'
 
@@ -18,15 +19,17 @@ export class IsClosestToSpike extends BehaviorTreeNode {
 
     for (let i = 0; i < agents.length; i++) {
       const agent = agents[i]
-      const distToSpike = Phaser.Math.Distance.Between(
-        agent.sprite.x,
-        agent.sprite.y,
-        Game.instance.spike.sprite.x,
-        Game.instance.spike.sprite.y
-      )
-      if (distToSpike <= minDistance) {
-        minDistance = distToSpike
-        closestAgent = agent
+      if (agent.getCurrState() !== States.DIE) {
+        const distToSpike = Phaser.Math.Distance.Between(
+          agent.sprite.x,
+          agent.sprite.y,
+          Game.instance.spike.sprite.x,
+          Game.instance.spike.sprite.y
+        )
+        if (distToSpike <= minDistance) {
+          minDistance = distToSpike
+          closestAgent = agent
+        }
       }
     }
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent

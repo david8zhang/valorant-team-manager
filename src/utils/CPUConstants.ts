@@ -98,7 +98,7 @@ export const A_SITE_STACKED_PUSH = [
       {
         actionType: ActionType.Wait,
         args: {
-          waitTimeSeconds: 3,
+          waitTimeSeconds: 15,
         },
       },
       {
@@ -134,7 +134,7 @@ export const A_SITE_STACKED_PUSH = [
       {
         actionType: ActionType.Wait,
         args: {
-          waitTimeSeconds: 3,
+          waitTimeSeconds: 15,
         },
       },
       {
@@ -179,19 +179,19 @@ export const A_SITE_STACKED_PUSH = [
       {
         actionType: ActionType.MoveToRegion,
         args: {
-          regionName: 'A-Lobby',
+          regionName: 'B-Lobby',
         },
       },
       {
         actionType: ActionType.MoveToRegion,
         args: {
-          regionName: 'A-Main',
+          regionName: 'B-Main',
         },
       },
       {
         actionType: ActionType.Plant,
         args: {
-          plantLocation: MapConstants.DEFAULT_PLANT_LOCATIONS.A,
+          plantLocation: MapConstants.DEFAULT_PLANT_LOCATIONS.B,
         },
       },
       {
