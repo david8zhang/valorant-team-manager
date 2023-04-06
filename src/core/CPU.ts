@@ -172,7 +172,6 @@ export class CPU implements Team {
       const { tree, agent } = obj
       if (agent.getCurrState() !== States.DIE) {
         tree.process()
-        // console.log('')
       }
     })
     this.agents.forEach((agent) => {

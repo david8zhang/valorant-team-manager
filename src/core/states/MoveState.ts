@@ -56,6 +56,8 @@ export class MoveState extends State {
       pathLine.destroy()
     })
     this.pathLines = []
+    this.onReachedDestination = null
+    this.arrivedAtDestination = false
   }
 
   private tracePath(agent: Agent) {

@@ -17,6 +17,9 @@ import { TeamBlackboardKeys } from './TeamBlackboardKeys'
 export class AssignActions extends BehaviorTreeNode {
   constructor(blackboard: Blackboard) {
     super('AssignActions', blackboard)
+    Game.instance.onResetRoundHandlers.push(() => {
+      this.blackboard.setData(TeamBlackboardKeys.AGENT_ACTION_SEQUENCE_MAPPING, null)
+    })
   }
 
   public process(): BehaviorStatus {

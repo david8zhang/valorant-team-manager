@@ -1,6 +1,7 @@
 import { Agent } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { States } from '~/core/states/States'
+import Game from '~/scenes/Game'
 import { BehaviorStatus } from '../../BehaviorStatus'
 import { BehaviorTreeNode } from '../../BehaviorTreeNode'
 import { Blackboard } from '../../Blackboard'
@@ -13,6 +14,9 @@ export class ExecuteActions extends BehaviorTreeNode {
 
   constructor(blackboard: Blackboard) {
     super('ExecuteActions', blackboard)
+    Game.instance.onResetRoundHandlers.push(() => {
+      this.actionSequence = null
+    })
   }
 
   public process(): BehaviorStatus {

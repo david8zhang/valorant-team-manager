@@ -33,6 +33,8 @@ export default class Game extends Phaser.Scene {
   public isDebug: boolean = true
   public debugHandlers: Function[] = []
 
+  public onResetRoundHandlers: Function[] = []
+
   public roundState: RoundState = RoundState.PREROUND
   public attackSide: Side = Side.CPU
   public roundScoreMapping: {
@@ -150,6 +152,9 @@ export default class Game extends Phaser.Scene {
 
   restartRound() {
     this.resetAgentPositions()
+    this.onResetRoundHandlers.forEach((handler) => {
+      handler()
+    })
     this.spike.reset()
     this.raiseBarriers()
   }
