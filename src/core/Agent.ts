@@ -391,6 +391,11 @@ export class Agent {
     this.visionRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
     this.crosshairRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
 
+    Object.keys(this.utilityMapping).forEach((key) => {
+      const utility = this.utilityMapping[key] as Utility
+      utility.reset()
+    })
+
     if (resetConfig.showOnMap) {
       this.sprite.setVisible(true)
       this.healthBar.setVisible(true)

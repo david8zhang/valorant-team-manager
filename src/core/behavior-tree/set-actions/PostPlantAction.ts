@@ -54,7 +54,9 @@ export class PostPlantAction extends Action {
         })
       }
     } else {
-      this.agent.setState(States.IDLE)
+      if (this.agent.getCurrState() !== States.SHOOT) {
+        this.agent.setState(States.IDLE)
+      }
     }
   }
 

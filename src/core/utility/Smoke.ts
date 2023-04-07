@@ -65,6 +65,8 @@ export class Smoke extends Utility {
     if (this.smokeToPlaceIndex < this.totalCharges) {
       const smoke = this.smokes[this.smokeToPlaceIndex]
       smoke.setRadius(Smoke.SMOKE_RADIUS).setVisible(true).setPosition(x, y)
+
+      console.log('Smoke to place', smoke)
       this.smokeToPlaceIndex++
       this.numCharges--
       if (this.smokeToPlaceIndex === this.totalCharges) {
@@ -77,6 +79,7 @@ export class Smoke extends Utility {
   deselect() {
     if (!this.isDepleted) {
       this.smokes.forEach((smoke) => {
+        console.log('Deselected smokes')
         smoke.setVisible(false)
         smoke.setRadius(0)
       })
@@ -90,10 +93,20 @@ export class Smoke extends Utility {
   }
 
   reset() {
+    this.smokeToPlaceIndex = 0
+    this.numCharges = this.totalCharges
+    this.isDepleted = false
     this.didPlaceSmokes = false
     this.isPlacingSmokes = false
+    this.preventOtherCommands = false
+
+    if (this.smokeFadeEvent) {
+      this.smokeFadeEvent.paused = true
+      this.smokeFadeEvent.destroy()
+    }
+
     this.smokes.forEach((smoke) => {
-      smoke.destroy()
+      smoke.setRadius(0).setStrokeStyle(1, 0x00ffff, 1).setFillStyle(0x00ffff, 0.25).setAlpha(1)
     })
   }
 
@@ -108,6 +121,7 @@ export class Smoke extends Utility {
           },
           duration: 150,
           onComplete: () => {
+            console.log('Smokes faded!')
             smoke.setRadius(0)
           },
         })
@@ -119,8 +133,6 @@ export class Smoke extends Utility {
     this.isDepleted = true
     this.deselect()
     this.smokes.forEach((smoke) => {
-      this.game.playerRaycaster.mapGameObjects(smoke, true)
-      this.game.cpuRaycaster.mapGameObjects(smoke, true)
       smoke.setFillStyle(0x444444, 0.9)
       smoke.setStrokeStyle(1, 0x222222)
     })
