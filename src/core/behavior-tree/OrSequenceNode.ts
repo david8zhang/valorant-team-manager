@@ -9,10 +9,13 @@ export class OrSequenceNode extends BehaviorTreeNode {
     this.children = children
   }
 
-  public process(): BehaviorStatus {
+  public process(trace: boolean = false): BehaviorStatus {
     for (let i = 0; i < this.children.length; i++) {
       const currNode = this.children[i]
-      const status = currNode.process()
+      const status = currNode.process(trace)
+      if (trace) {
+        console.log(currNode.name, status)
+      }
       if (status !== BehaviorStatus.FAILURE) {
         return status
       }

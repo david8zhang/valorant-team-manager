@@ -47,8 +47,18 @@ export class Player implements Team {
           this.queueAgentStopHold()
           break
         }
+        case 'Escape': {
+          this.handleEscapeKey()
+          break
+        }
       }
     })
+  }
+
+  handleEscapeKey() {
+    if (this.selectedAgent) {
+      this.deselectUtility()
+    }
   }
 
   handleUtilityPress(code: string) {
@@ -125,7 +135,7 @@ export class Player implements Team {
     })
   }
 
-  selectAgent(newAgentIndex: number) {
+  deselectUtility() {
     if (this.currUtilityKey) {
       const utility = this.selectedAgent.utilityMapping[this.currUtilityKey]
       if (utility) {
@@ -133,7 +143,10 @@ export class Player implements Team {
       }
       this.currUtilityKey = null
     }
+  }
 
+  selectAgent(newAgentIndex: number) {
+    this.deselectUtility()
     const selectedAgent = this.agents[newAgentIndex]
     if (selectedAgent.getCurrState() !== States.DIE) {
       UI.instance.selectNewCommand(CommandState.MOVE)

@@ -1,6 +1,8 @@
 import { Agent, Side } from '~/core/Agent'
+import { States } from '~/core/states/States'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
+import { Button } from '~/core/ui/Button'
 import { Utility } from '~/core/utility/Utility'
 import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
@@ -186,6 +188,7 @@ export default class UI extends Phaser.Scene {
     this.createTopBar()
     this.createSideBar()
     this.createFireOnSightToggle()
+    this.createDebugConsole()
   }
 
   createFireOnSightToggle() {
@@ -665,6 +668,41 @@ export default class UI extends Phaser.Scene {
       xPos += circleWidth + padding
     }
     utilityObj.charges = charges
+  }
+
+  createDebugConsole() {
+    const printCPUIntelBoard = new Button({
+      scene: this,
+      x: 75,
+      y: 25,
+      width: 100,
+      height: 30,
+      text: 'Print CPU Intel',
+      onClick: () => {
+        console.log('[CPU Intel]:', Game.instance.cpu.intel)
+      },
+    })
+    printCPUIntelBoard.setVisible(false)
+
+    const printCPUBehaviorTrace = new Button({
+      scene: this,
+      x: 75,
+      y: 25,
+      width: 125,
+      height: 30,
+      text: 'Print CPU Behavior ',
+      onClick: () => {
+        const cpuBehaviorTrees = Game.instance.cpu.agentBehaviorTrees
+        cpuBehaviorTrees.forEach((obj) => {
+          if (obj.agent.getCurrState() !== States.DIE) {
+            console.log(obj.agent.name)
+            const { tree } = obj
+            tree.process(true)
+            console.log('')
+          }
+        })
+      },
+    })
   }
 
   updateAgentInfoBoxes(agents: Agent[], side: Side) {

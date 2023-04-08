@@ -26,6 +26,13 @@ export class PlantAction extends Action {
     this.agent.setState(States.PLANT, this.plantLocation)
   }
 
+  execute(): void {
+    const currState = this.agent.getCurrState()
+    if (currState !== States.SHOOT && currState !== States.PLANT) {
+      this.agent.setState(States.PLANT, this.plantLocation)
+    }
+  }
+
   exit() {
     this.isPlanting = false
   }

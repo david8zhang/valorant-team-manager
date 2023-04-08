@@ -11,21 +11,5 @@ export abstract class BehaviorTreeNode {
     this.name = name
     this.blackboard = blackboard
   }
-
-  public preprocess() {
-    // console.log('Processing node: ' + this.name)
-  }
-
-  public tick(): BehaviorStatus {
-    this.preprocess()
-    const status = this.process()
-    return this.emitStatus(status)
-  }
-
-  public abstract process(): BehaviorStatus
-
-  public emitStatus(status: BehaviorStatus): BehaviorStatus {
-    // console.log('Returned status: ' + status)
-    return status
-  }
+  public abstract process(trace?: boolean): BehaviorStatus
 }

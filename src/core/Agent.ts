@@ -120,6 +120,7 @@ export class Agent {
   // Custom handler for when the agent sees an enemy
   public onDetectedEnemyHandlers: Function[] = []
   public onKillEnemyHandlers: Function[] = []
+  public onWasKilledByEnemyHandlers: Function[] = []
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -237,6 +238,9 @@ export class Agent {
   onKillEnemy(enemyAgent: Agent) {
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
+    })
+    enemyAgent.onWasKilledByEnemyHandlers.forEach((handler) => {
+      handler(this)
     })
   }
 

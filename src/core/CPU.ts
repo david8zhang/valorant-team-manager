@@ -34,7 +34,7 @@ export class CPU implements Team {
   public static AGENT_START_X = 280
   public static AGENT_START_Y = 460
 
-  private agentBehaviorTrees: {
+  public agentBehaviorTrees: {
     agent: Agent
     tree: BehaviorTreeNode
   }[] = []
@@ -110,6 +110,9 @@ export class CPU implements Team {
       })
       newAgent.onKillEnemyHandlers.push((killedEnemy: Agent) => {
         this.updateTeamIntel([killedEnemy])
+      })
+      newAgent.onWasKilledByEnemyHandlers.push((killer: Agent) => {
+        this.updateTeamIntel([killer])
       })
       const newBehaviorTree = this.setupBehaviorTreeForAgent(newAgent)
       this.agentBehaviorTrees.push({

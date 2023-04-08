@@ -65,8 +65,6 @@ export class Smoke extends Utility {
     if (this.smokeToPlaceIndex < this.totalCharges) {
       const smoke = this.smokes[this.smokeToPlaceIndex]
       smoke.setRadius(Smoke.SMOKE_RADIUS).setVisible(true).setPosition(x, y)
-
-      console.log('Smoke to place', smoke)
       this.smokeToPlaceIndex++
       this.numCharges--
       if (this.smokeToPlaceIndex === this.totalCharges) {
@@ -79,7 +77,6 @@ export class Smoke extends Utility {
   deselect() {
     if (!this.isDepleted) {
       this.smokes.forEach((smoke) => {
-        console.log('Deselected smokes')
         smoke.setVisible(false)
         smoke.setRadius(0)
       })

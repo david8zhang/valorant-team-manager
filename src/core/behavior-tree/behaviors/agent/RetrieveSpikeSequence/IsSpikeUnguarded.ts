@@ -24,7 +24,7 @@ export class IsSpikeUnguarded extends BehaviorTreeNode {
 
     enemyAgents.forEach((agent: Agent) => {
       const intelForAgent = intelBoard.retrieveIntelForAgentName(agent.name)
-      if (intelForAgent && intelForAgent.lastKnownPosition) {
+      if (intelForAgent && intelForAgent.lastKnownPosition && !intelForAgent.isDead) {
         const estimatedPosition = intelForAgent.lastKnownPosition
         const distToSpike = Phaser.Math.Distance.Between(
           estimatedPosition.x,

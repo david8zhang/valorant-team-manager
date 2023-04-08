@@ -2,6 +2,7 @@ import { GunTypes } from '~/utils/GunConstants'
 import { Agent } from './Agent'
 import { States } from './states/States'
 
+// TODO: Should include some intel about what angle is being held by each enemy
 export interface IntelMapping {
   [agentId: string]: {
     lastKnownHealth?: number

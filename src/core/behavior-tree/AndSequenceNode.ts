@@ -9,10 +9,13 @@ export class AndSequenceNode extends BehaviorTreeNode {
     this.nodes = nodes
   }
 
-  public process(): BehaviorStatus {
+  public process(trace: boolean = false): BehaviorStatus {
     for (let i = 0; i < this.nodes.length; i++) {
       const node = this.nodes[i]
-      const status = node.tick()
+      const status = node.process(trace)
+      if (trace) {
+        console.log(node.name, status)
+      }
       if (status !== BehaviorStatus.SUCCESS) {
         return status
       }
