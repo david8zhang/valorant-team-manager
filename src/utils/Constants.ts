@@ -18,21 +18,6 @@ export enum RoundState {
   POSTROUND = 'POSTROUND',
 }
 
-export enum GunTypes {
-  PISTOL = 'PISTOL',
-  SMG = 'SMG',
-  RIFLE = 'RIFLE',
-}
-
-export interface GunConfig {
-  damage: {
-    body: number
-    head: number
-    armsAndLegs: number
-  }
-  fireDelay: number
-}
-
 export class Constants {
   public static PREROUND_TIME_SEC = 5
   public static PREPLANT_ROUND_TIME_SEC = 100
@@ -55,36 +40,6 @@ export class Constants {
     Player: 20,
     TopLayer: 10,
     BottomLayer: 0,
-  }
-
-  // TODO: Add accuracy modifiers based on distance to target
-  public static GUN_CONFIGS: {
-    [key in GunTypes]: GunConfig
-  } = {
-    [GunTypes.PISTOL]: {
-      damage: {
-        body: 25,
-        head: 75,
-        armsAndLegs: 20,
-      },
-      fireDelay: 500,
-    },
-    [GunTypes.SMG]: {
-      damage: {
-        body: 25,
-        head: 75,
-        armsAndLegs: 20,
-      },
-      fireDelay: 100,
-    },
-    [GunTypes.RIFLE]: {
-      damage: {
-        head: 150,
-        body: 40,
-        armsAndLegs: 35,
-      },
-      fireDelay: 200,
-    },
   }
 
   //TODO: Move map stuff to another file

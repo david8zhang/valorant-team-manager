@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
-import { Constants, GunTypes, Role } from '~/utils/Constants'
+import { Constants, Role } from '~/utils/Constants'
+import { GunTypes } from '~/utils/GunConstants'
 import { DeathState } from './states/DeathState'
 import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'

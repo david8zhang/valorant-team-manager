@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
-import { Constants, GunTypes } from '~/utils/Constants'
-import { Agent, WeaponTypes } from '../Agent'
+import { Constants } from '~/utils/Constants'
+import { GunTypes } from '~/utils/GunConstants'
+import { Agent } from '../Agent'
 import { UIValueBar } from './UIValueBar'
 
 export interface AgentInfoConfig {

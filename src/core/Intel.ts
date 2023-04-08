@@ -1,4 +1,4 @@
-import { GunTypes } from '~/utils/Constants'
+import { GunTypes } from '~/utils/GunConstants'
 import { Agent } from './Agent'
 import { States } from './states/States'
 

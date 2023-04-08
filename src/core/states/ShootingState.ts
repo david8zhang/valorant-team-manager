@@ -1,5 +1,6 @@
 import Game from '~/scenes/Game'
-import { Constants, GunConfig } from '~/utils/Constants'
+import { Constants } from '~/utils/Constants'
+import { getRangeForPoints, GUN_CONFIGS, GunConfig, Range } from '~/utils/GunConstants'
 import { Agent } from '../Agent'
 import { State } from './StateMachine'
 import { States } from './States'
@@ -110,7 +111,7 @@ export class ShootingState extends State {
   fireBullet(agent: Agent, angle: number) {
     if (this.target && agent.currWeapon && !Game.instance.isPaused) {
       const currTimestamp = Date.now()
-      const weaponConfig = Constants.GUN_CONFIGS[agent.currWeapon] as GunConfig
+      const weaponConfig = GUN_CONFIGS[agent.currWeapon] as GunConfig
 
       if (currTimestamp - this.lastBulletFiredTimestamp > weaponConfig.fireDelay) {
         this.muzzleFlareSprite.setPosition(agent.sprite.x, agent.sprite.y)
@@ -121,8 +122,11 @@ export class ShootingState extends State {
 
         this.lastBulletFiredTimestamp = currTimestamp
 
-        const accuracyPct = agent.stats.accuracyPct
+        const rangeOfFight = getRangeForPoints(agent.sprite, this.target.sprite) as Range
+        const accuracyModifier = weaponConfig.rangeAccModifiers[rangeOfFight]
+        const accuracyPct = agent.stats.accuracyPct * accuracyModifier
         const randNum = Phaser.Math.Between(1, 100)
+
         if (accuracyPct > randNum) {
           this.handleHit(agent, weaponConfig)
         } else {
