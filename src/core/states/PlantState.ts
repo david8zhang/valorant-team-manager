@@ -71,12 +71,10 @@ export class PlantState extends State {
   }
 
   execute(agent: Agent) {
-    if (this.spikePlantProgressTimerEvent) {
-    }
-
     if (this.arrivedAtDestination) {
       if (!this.hasStartedPlantingSpike) {
         this.hasStartedPlantingSpike = true
+        console.log('Planting spike!')
         this.startPlantingSpike(agent)
       } else {
         if (this.spikePlantProgressTimerEvent) {

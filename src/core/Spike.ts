@@ -95,9 +95,12 @@ export class Spike {
     this.defuseCircleUI.setVisible(false)
   }
 
-  drop(x: number, y: number) {
+  drop(x: number, y: number, prevSpikeCarrier: Agent) {
     this.sprite.setPosition(x, y).setVisible(true)
     this.sprite.body.enable = true
+    this.game.onSpikeDropHandlers.forEach((handler) => {
+      handler(prevSpikeCarrier)
+    })
   }
 
   handleSpikePickup(agentSprite: Phaser.GameObjects.GameObject) {

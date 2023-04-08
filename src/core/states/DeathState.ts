@@ -6,7 +6,7 @@ export class DeathState extends State {
   enter(agent: Agent) {
     agent.sprite.setVelocity(0, 0)
     if (agent.hasSpike) {
-      Game.instance.spike.drop(agent.sprite.x, agent.sprite.y)
+      Game.instance.spike.drop(agent.sprite.x, agent.sprite.y, agent)
     }
     agent.hasSpike = false
     agent.team.onAgentDeathHandlers.forEach((handler) => {

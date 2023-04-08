@@ -34,6 +34,7 @@ export default class Game extends Phaser.Scene {
   public debugHandlers: Function[] = []
 
   public onResetRoundHandlers: Function[] = []
+  public onSpikeDropHandlers: Function[] = []
 
   public roundState: RoundState = RoundState.PREROUND
   public attackSide: Side = Side.CPU

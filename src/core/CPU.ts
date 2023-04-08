@@ -4,6 +4,9 @@ import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
 import { AndSequenceNode } from './behavior-tree/AndSequenceNode'
 import { ExecuteActions } from './behavior-tree/behaviors/agent/ExecuteActions'
+import { HasSpike } from './behavior-tree/behaviors/agent/PlantSpikeSequence/HasSpike'
+import { SetSiteToPlantOn } from './behavior-tree/behaviors/agent/PlantSpikeSequence/SetSiteToPlantOn'
+import { PlantSpike } from './behavior-tree/behaviors/agent/PlantSpikeSequence/PlantSpike'
 import { PopulateBlackboard } from './behavior-tree/behaviors/agent/PopulateBlackboard'
 import { IsClosestToSpike } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsClosestToSpike'
 import { IsNotPreRound } from './behavior-tree/behaviors/agent/RetrieveSpikeSequence/IsNotPreRound'
@@ -21,6 +24,7 @@ import { States } from './states/States'
 import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
+import { DidOriginalSpikeCarrierDie } from './behavior-tree/behaviors/agent/PlantSpikeSequence/DidOriginalSpikeCarrierDie'
 
 export class CPU implements Team {
   public game: Game
@@ -128,14 +132,24 @@ export class CPU implements Team {
       new SelectorNode(
         'ActionSelector',
         blackboard,
-        new AndSequenceNode('RetrieveSpikeSequence', blackboard, [
-          new IsNotPreRound(blackboard),
-          new IsClosestToSpike(blackboard),
-          new IsOnAttack(blackboard),
-          new IsSpikeDown(blackboard),
-          new IsSpikeUnguarded(blackboard),
-          new RetrieveSpike(blackboard),
-        ]),
+        new SelectorNode(
+          'RetrieveSpikeSelector',
+          blackboard,
+          new AndSequenceNode('RetrieveSpikeSequence', blackboard, [
+            new IsNotPreRound(blackboard),
+            new IsClosestToSpike(blackboard),
+            new IsOnAttack(blackboard),
+            new IsSpikeDown(blackboard),
+            new IsSpikeUnguarded(blackboard),
+            new RetrieveSpike(blackboard),
+          ]),
+          new AndSequenceNode('PlantSpikeSequence', blackboard, [
+            new HasSpike(blackboard),
+            new DidOriginalSpikeCarrierDie(blackboard),
+            new SetSiteToPlantOn(blackboard),
+            new PlantSpike(blackboard),
+          ])
+        ),
         new ExecuteActions(blackboard)
       ),
     ])

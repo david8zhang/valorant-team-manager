@@ -4,4 +4,5 @@ export enum BlackboardKeys {
   CURR_AGENT = 'currAgent',
   CPU = 'cpu',
   SPIKE = 'spike',
+  SITE_TO_PLANT_ON = 'siteToPlantOn',
 }
