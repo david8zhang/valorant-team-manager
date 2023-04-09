@@ -81,7 +81,9 @@ export class Player implements Team {
     if (this.game.isDebug) {
       const tile = this.game.getTileAt(e.worldX, e.worldY)
       if (tile) {
+        console.info('[Cursor Row/Col]: ', tile.y, tile.x)
         console.info('[Cursor]: ', tile.getCenterX(), tile.getCenterY())
+        console.info('------------------------')
       }
     }
     if (UI.instance && !this.areAllAgentsDead() && this.canProcessClickCommand()) {

@@ -132,9 +132,7 @@ export class ShootingState extends State {
         } else {
           this.handleMiss(agent, weaponConfig)
         }
-        if (!this.target.isBeingShotAt && this.target.getCurrState() !== States.SHOOT) {
-          this.target.reactToShot(agent)
-        }
+        this.target.reactToShot(agent)
       }
     }
   }

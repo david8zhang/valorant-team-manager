@@ -25,6 +25,12 @@ import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { DidOriginalSpikeCarrierDie } from './behavior-tree/behaviors/agent/PlantSpikeSequence/DidOriginalSpikeCarrierDie'
+import { OrSequenceNode } from './behavior-tree/OrSequenceNode'
+import { IsLowHealth } from './behavior-tree/behaviors/agent/RetreatSequence/IsLowHealth'
+import { IsBeingShotAt } from './behavior-tree/behaviors/agent/RetreatSequence/IsBeingShotAt'
+import { IsOutnumbered } from './behavior-tree/behaviors/agent/RetreatSequence/IsOutnumbered'
+import { TakeCover } from './behavior-tree/behaviors/agent/RetreatSequence/TakeCover'
+import { SetSpotToRetreatTo } from './behavior-tree/behaviors/agent/RetreatSequence/SetSpotToRetreatTo'
 
 export class CPU implements Team {
   public game: Game
@@ -153,7 +159,23 @@ export class CPU implements Team {
             new PlantSpike(blackboard),
           ])
         ),
-        new ExecuteActions(blackboard)
+        new SelectorNode(
+          'RetreatOrAttackSelector',
+          blackboard,
+          new AndSequenceNode('RetreatSequence', blackboard, [
+            new IsBeingShotAt(blackboard),
+            // new OrSequenceNode('RetreatConditions', blackboard, [
+            //   new AndSequenceNode('AndSeq', blackboard, [
+            //     new IsLowHealth(blackboard),
+            //     new IsBeingShotAt(blackboard),
+            //   ]),
+            //   new IsOutnumbered(blackboard),
+            // ]),
+            new SetSpotToRetreatTo(blackboard),
+            new TakeCover(blackboard),
+          ]),
+          new ExecuteActions(blackboard)
+        )
       ),
     ])
     return rootNode

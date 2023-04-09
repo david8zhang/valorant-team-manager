@@ -112,6 +112,10 @@ export class Agent {
   // Set to true if the agent is in the process of reacting to a shot
   public isBeingShotAt: boolean = false
 
+  // Determines if the agent should return fire when being shot at (can be overridden so that
+  // agent does something else instead, like retreat)
+  public shouldFireBack: boolean = true
+
   // Utility that the agent has, mapped to keyboard keys
   public utilityMapping: {
     [key in UtilityKey]?: Utility
@@ -277,26 +281,29 @@ export class Agent {
 
   reactToShot(shooter: Agent) {
     this.isBeingShotAt = true
-    const angleToShooter = Phaser.Math.Angle.Between(
-      this.sprite.x,
-      this.sprite.y,
-      shooter.sprite.x,
-      shooter.sprite.y
-    )
 
     // Default behavior when being shot at is to return fire. This might not always
     // be the best reaction.
     // TODO: Potentially get rid of this behavior, or modify it so that it only runs
-    // if the agent has "fireOnSight" toggled
-    this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
-      this.isBeingShotAt = false
-      this.visionRay.setAngle(angleToShooter)
-      this.crosshairRay.setAngle(angleToShooter)
 
-      if (this.getCurrState() !== States.DIE) {
-        this.setState(States.SHOOT, shooter)
-      }
-    })
+    // const angleToShooter = Phaser.Math.Angle.Between(
+    //   this.sprite.x,
+    //   this.sprite.y,
+    //   shooter.sprite.x,
+    //   shooter.sprite.y
+    // )
+
+    // if the agent has "fireOnSight" toggled
+    // if (this.shouldFireBack) {
+    //   this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
+    //     this.visionRay.setAngle(angleToShooter)
+    //     this.crosshairRay.setAngle(angleToShooter)
+
+    //     if (this.getCurrState() !== States.DIE) {
+    //       this.setState(States.SHOOT, shooter)
+    //     }
+    //   })
+    // }
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {

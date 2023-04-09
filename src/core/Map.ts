@@ -78,6 +78,11 @@ export class Map {
     this.walls = this.game.add.group()
   }
 
+  getTileAtRowCol(row: number, col: number) {
+    const layer = this.tilemap.getLayer('Base')
+    return layer.data[row][col]
+  }
+
   getTileAt(worldX: number, worldY: number) {
     const layer = this.tilemap.getLayer('Base')
     const x = Math.floor(worldX / 16)
@@ -153,6 +158,35 @@ export class Map {
     const agentWallCollider = this.game.physics.add.collider(this.game.cpuAgentsGroup, this.walls)
     this.wallColliders.push(playerWallCollider)
     this.wallColliders.push(agentWallCollider)
+  }
+
+  getDimensionsInTiles() {
+    const layer = this.tilemap.getLayer('Base')
+    return {
+      numRows: layer.data.length,
+      numCols: layer.data[0].length,
+    }
+  }
+
+  isTileCoordWithinBounds(tileRow: number, tileCol: number) {
+    const dimensionsInTiles = this.getDimensionsInTiles()
+    return (
+      tileRow >= 0 &&
+      tileRow < dimensionsInTiles.numRows &&
+      tileCol >= 0 &&
+      tileCol < dimensionsInTiles.numCols
+    )
+  }
+
+  isTileWalkable(tileRow: number, tileCol: number) {
+    if (!this.isTileCoordWithinBounds(tileRow, tileCol)) {
+      console.error('Tile row/col not within bounds: ', tileRow, tileCol)
+      return false
+    } else {
+      const layer = this.tilemap.getLayer('Base')
+      const tileData = layer.data[tileRow][tileCol]
+      return tileData.index !== 1
+    }
   }
 
   dropBarriers() {

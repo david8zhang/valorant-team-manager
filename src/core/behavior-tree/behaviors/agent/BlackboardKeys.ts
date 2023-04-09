@@ -5,4 +5,5 @@ export enum BlackboardKeys {
   CPU = 'cpu',
   SPIKE = 'spike',
   SITE_TO_PLANT_ON = 'siteToPlantOn',
+  SPOT_TO_RETREAT_TO = 'spotToRetreatTo',
 }
