@@ -38,7 +38,7 @@ export default class Game extends Phaser.Scene {
 
   public roundState: RoundState = RoundState.PREROUND
   public attackSide: Side = Side.CPU
-  public roundScoreMapping: {
+  public scoreMapping: {
     [key in Side]: number
   } = {
     [Side.PLAYER]: 0,
@@ -75,6 +75,11 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  addScore(side: Side) {
+    this.scoreMapping[side]++
+    UI.instance.updateScores()
+  }
+
   setupDebugKeyListener() {
     this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       if (e.code === 'Backquote') {
@@ -108,7 +113,6 @@ export default class Game extends Phaser.Scene {
       tilemap: this.map.tilemap,
       unwalkableTiles: [1],
     })
-    this.setupSpike()
     this.initPlayerAndCPU()
   }
 
@@ -137,12 +141,6 @@ export default class Game extends Phaser.Scene {
     })
   }
 
-  setupSpike() {
-    this.spike = new Spike({
-      position: MapConstants.INITIAL_SPIKE_POSITION,
-    })
-  }
-
   initMap() {
     this.map = new Map(this)
   }
@@ -151,12 +149,18 @@ export default class Game extends Phaser.Scene {
     this.map.dropBarriers()
   }
 
+  resetScores() {
+    this.scoreMapping[Side.PLAYER] = 0
+    this.scoreMapping[Side.CPU] = 0
+    UI.instance.updateScores()
+  }
+
   restartRound() {
+    this.resetScores()
     this.resetAgentPositions()
     this.onResetRoundHandlers.forEach((handler) => {
       handler()
     })
-    this.spike.reset()
     this.raiseBarriers()
   }
 
@@ -184,63 +188,6 @@ export default class Game extends Phaser.Scene {
     this.maskGraphics.clear()
     this.cpu.update()
     this.player.update()
-    this.checkRoundOver()
-  }
-
-  checkRoundOver() {
-    if (this.roundState !== RoundState.POSTROUND) {
-      const defenderAgents = this.attackSide === Side.CPU ? this.player.agents : this.cpu.agents
-      const attackerAgents = this.attackSide === Side.CPU ? this.cpu.agents : this.player.agents
-
-      const areAllDefDead =
-        defenderAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
-      const areAllAtkDead =
-        attackerAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
-      if (areAllDefDead) {
-        this.roundScoreMapping[this.attackSide]++
-        UI.instance.updateScores()
-        UI.instance.endRoundPrematurely()
-        this.roundState = RoundState.POSTROUND
-      } else if (areAllAtkDead && !this.spike.isPlanted) {
-        const defSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
-        this.roundScoreMapping[defSide]++
-        UI.instance.updateScores()
-        UI.instance.endRoundPrematurely()
-        this.roundState = RoundState.POSTROUND
-      }
-    }
-  }
-
-  plantSpike(agent: Agent, x: number, y: number) {
-    this.spike.plant(x, y)
-    if (this.roundState === RoundState.PRE_PLANT_ROUND) {
-      UI.instance.plantSpike()
-      Game.instance.roundState = RoundState.POST_PLANT_ROUND
-    }
-    UI.instance.selectNewCommand(CommandState.MOVE)
-    agent.hasSpike = false
-  }
-
-  defuseSpike() {
-    this.spike.defuse()
-    const defenseSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
-    this.roundScoreMapping[defenseSide]++
-    UI.instance.updateScores()
-    UI.instance.endRoundPrematurely()
-    Game.instance.roundState = RoundState.POSTROUND
-    UI.instance.selectNewCommand(CommandState.MOVE)
-  }
-
-  plantTimeExpire() {
-    const defenseSide = this.attackSide === Side.PLAYER ? Side.CPU : Side.PLAYER
-    this.roundScoreMapping[defenseSide]++
-    UI.instance.updateScores()
-  }
-
-  detonateSpike() {
-    this.roundScoreMapping[this.attackSide]++
-    this.spike.detonate()
-    UI.instance.updateScores()
   }
 
   pause() {

@@ -101,7 +101,6 @@ export class ShootingState extends State {
             this.target.sprite.y
           )
           agent.visionRay.setAngle(angle)
-          agent.crosshairRay.setAngle(angle)
           this.fireBullet(agent, angle)
         }
       }

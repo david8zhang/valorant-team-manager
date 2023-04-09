@@ -2,10 +2,9 @@ import Game from '~/scenes/Game'
 import { Constants, Role } from '~/utils/Constants'
 import { GunTypes } from '~/utils/GunConstants'
 import { DeathState } from './states/DeathState'
-import { DefuseState } from './states/DefuseState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
-import { PlantState } from './states/PlantState'
+import { RespawnState } from './states/RespawnState'
 import { ShootingState } from './states/ShootingState'
 import { StateMachine } from './states/StateMachine'
 import { States } from './states/States'
@@ -58,7 +57,6 @@ export class Agent {
   // All the raycasters
   public visionRay: any
   public visionPolygon!: Phaser.Geom.Polygon
-  public crosshairRay: any
   public shotRay: any
   public role: Role
 
@@ -85,7 +83,7 @@ export class Agent {
   public kills: number = 0
   public deaths: number = 0
   public assists: number = 0
-  public credits: number = 0
+  public killStreak: number = 0
 
   // The damage that this agent has received from enemies (used for determining kills/assists)
   private damageMapping: {
@@ -156,8 +154,7 @@ export class Agent {
         [States.MOVE]: new MoveState(),
         [States.SHOOT]: new ShootingState(),
         [States.DIE]: new DeathState(),
-        [States.PLANT]: new PlantState(),
-        [States.DEFUSE]: new DefuseState(),
+        [States.RESPAWN]: new RespawnState(),
       },
       [this]
     )
@@ -171,7 +168,7 @@ export class Agent {
     // This is so that the agent can carry multiple weapons at once.
     // TODO: Maybe consider just simplifying this so that the agent can only have 1 weapon?
     this.weapons = {
-      [WeaponTypes.PRIMARY]: GunTypes.SMG,
+      [WeaponTypes.PRIMARY]: GunTypes.RIFLE,
       [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
       [WeaponTypes.MELEE]: null,
     }
@@ -240,6 +237,7 @@ export class Agent {
   }
 
   onKillEnemy(enemyAgent: Agent) {
+    this.game.addScore(this.side)
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
     })
@@ -281,29 +279,21 @@ export class Agent {
 
   reactToShot(shooter: Agent) {
     this.isBeingShotAt = true
-
-    // Default behavior when being shot at is to return fire. This might not always
-    // be the best reaction.
-    // TODO: Potentially get rid of this behavior, or modify it so that it only runs
-
-    // const angleToShooter = Phaser.Math.Angle.Between(
-    //   this.sprite.x,
-    //   this.sprite.y,
-    //   shooter.sprite.x,
-    //   shooter.sprite.y
-    // )
+    const angleToShooter = Phaser.Math.Angle.Between(
+      this.sprite.x,
+      this.sprite.y,
+      shooter.sprite.x,
+      shooter.sprite.y
+    )
 
     // if the agent has "fireOnSight" toggled
-    // if (this.shouldFireBack) {
-    //   this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
-    //     this.visionRay.setAngle(angleToShooter)
-    //     this.crosshairRay.setAngle(angleToShooter)
+    this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
+      this.visionRay.setAngle(angleToShooter)
 
-    //     if (this.getCurrState() !== States.DIE) {
-    //       this.setState(States.SHOOT, shooter)
-    //     }
-    //   })
-    // }
+      if (this.getCurrState() !== States.DIE) {
+        this.setState(States.SHOOT, shooter)
+      }
+    })
   }
 
   setupVisionAndCrosshair(config: AgentConfig) {
@@ -312,11 +302,6 @@ export class Agent {
     })
     this.visionRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
     this.visionRay.setConeDeg(60)
-
-    this.crosshairRay = config.raycaster.createRay({
-      origin: config.position,
-    })
-    this.crosshairRay.setAngle(Phaser.Math.DegToRad(config.sightAngleDeg))
 
     this.shotRay = config.raycaster.createRay({
       origin: config.position,
@@ -351,7 +336,6 @@ export class Agent {
     }
     const angle = Phaser.Math.Angle.Between(this.sprite.x, this.sprite.y, worldX, worldY)
     this.visionRay.setAngle(angle)
-    this.crosshairRay.setAngle(angle)
     this.shotRay.setAngle(angle)
   }
 
@@ -383,10 +367,6 @@ export class Agent {
         this.sprite.y - 20
       )
     }
-    this.spikeIcon.setPosition(this.sprite.x + 4, this.sprite.y + 4).setVisible(this.hasSpike)
-    if (this.isWithinSpikeExplosion() && this.game.spike.isDetonated) {
-      this.setState(States.DIE)
-    }
   }
 
   // Reset after a round ends
@@ -401,7 +381,6 @@ export class Agent {
     this.setHealth(Agent.FULL_HEALTH)
     this.holdLocation = null
     this.visionRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
-    this.crosshairRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))
 
     Object.keys(this.utilityMapping).forEach((key) => {
       const utility = this.utilityMapping[key] as Utility
@@ -446,15 +425,8 @@ export class Agent {
   }
 
   updateVisionAndCrosshair() {
-    if (this.shouldShootOnSight()) {
-      this.graphics.lineStyle(1, 0xff0000, 0.7)
-    } else {
-      this.graphics.lineStyle(1, 0x00ffff, 0.7)
-    }
-
     if (this.getCurrState() !== States.DIE) {
       this.visionRay.setOrigin(this.sprite.x, this.sprite.y)
-      this.crosshairRay.setOrigin(this.sprite.x, this.sprite.y)
       this.shotRay.setOrigin(this.sprite.x, this.sprite.y)
 
       const visionIntersections = this.visionRay.castCone()
@@ -470,11 +442,9 @@ export class Agent {
           }
         }
       })
-      const crosshairIntersection = this.crosshairRay.cast()
       if (!this.hideSightCones) {
         // hide sight cones (for CPU agents)
         this.game.draw(visionIntersections)
-        this.drawCrosshair(crosshairIntersection)
       }
     }
   }
@@ -491,16 +461,6 @@ export class Agent {
         new Phaser.Geom.Point(this.sprite.x, this.sprite.y),
       ])
     }
-  }
-
-  drawCrosshair(intersection: { x: number; y: number }) {
-    const line = new Phaser.Geom.Line(
-      this.crosshairRay.origin.x,
-      this.crosshairRay.origin.y,
-      intersection.x,
-      intersection.y
-    )
-    this.graphics.strokeLineShape(line)
   }
 
   setState(state: States, ...enterArgs: any) {
