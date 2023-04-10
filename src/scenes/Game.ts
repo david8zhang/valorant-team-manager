@@ -158,10 +158,22 @@ export default class Game extends Phaser.Scene {
   restartRound() {
     this.resetScores()
     this.resetAgentPositions()
+    this.resetAgentStats()
     this.onResetRoundHandlers.forEach((handler) => {
       handler()
     })
     this.raiseBarriers()
+  }
+
+  resetAgentStats() {
+    const resetFn = (agent) => {
+      agent.kills = 0
+      agent.deaths = 0
+      agent.assists = 0
+      agent.killStreak = 0
+    }
+    this.player.agents.forEach(resetFn)
+    this.cpu.agents.forEach(resetFn)
   }
 
   resetAgentPositions() {

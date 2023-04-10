@@ -196,7 +196,6 @@ export default class UI extends Phaser.Scene {
     this.createCommandBar()
     this.createTopBar()
     this.createSideBar()
-    this.createDebugConsole()
   }
 
   createFireOnSightToggle() {
@@ -399,13 +398,95 @@ export default class UI extends Phaser.Scene {
         break
       }
       case RoundState.MID_ROUND: {
-        this.timer.setTime(Constants.PREROUND_TIME_SEC)
-        this.timer.start()
-        game.roundState = RoundState.PREROUND
-        game.restartRound()
+        this.renderEndOfRoundMessage()
+        game.roundState = RoundState.POSTROUND
         break
       }
     }
+  }
+
+  renderEndOfRoundMessage() {
+    const rectangle = this.add.rectangle(Constants.MAP_WIDTH / 2, Constants.WINDOW_HEIGHT / 2, 0, 0)
+    rectangle.setFillStyle(0xffffff)
+    this.tweens.add({
+      targets: [rectangle],
+      width: {
+        from: 0,
+        to: 300,
+      },
+      height: {
+        from: 0,
+        to: 200,
+      },
+      duration: 200,
+      onUpdate: () => {
+        rectangle.setPosition(
+          Constants.MAP_WIDTH / 2 - rectangle.width / 2,
+          Constants.WINDOW_HEIGHT / 2 - rectangle.height / 2
+        )
+      },
+      onComplete: () => {
+        const scoreMapping = Game.instance.scoreMapping
+        let titleText = ''
+        if (scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]) {
+          titleText = "It's a tie!"
+        } else {
+          const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? 'Player' : 'CPU'
+          titleText = `${winningSide} won!`
+        }
+        const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
+        const textObj = this.add.text(
+          Constants.MAP_WIDTH / 2,
+          Constants.WINDOW_HEIGHT / 2.25,
+          titleText,
+          {
+            fontSize: '30px',
+            color: 'black',
+          }
+        )
+        textObj.setPosition(
+          textObj.x - textObj.displayWidth / 2,
+          textObj.y - textObj.displayHeight / 2
+        )
+        const subtitleTextObj = this.add.text(
+          Constants.MAP_WIDTH / 2,
+          textObj.y + textObj.displayHeight + 20,
+          subtitleText,
+          {
+            fontSize: '20px',
+            color: 'black',
+          }
+        )
+        subtitleTextObj.setPosition(
+          subtitleTextObj.x - subtitleTextObj.displayWidth / 2,
+          subtitleTextObj.y - subtitleTextObj.displayHeight / 2
+        )
+
+        const buttonObj = new Button({
+          x: Constants.MAP_WIDTH / 2,
+          y: subtitleTextObj.y + subtitleTextObj.displayHeight + 25,
+          width: 100,
+          height: 25,
+          text: 'Continue',
+          onClick: () => {
+            // Hide the window
+            rectangle.destroy()
+            textObj.destroy()
+            subtitleTextObj.destroy()
+            buttonObj.destroy()
+
+            // Reset back to preround state
+            Game.instance.roundState = RoundState.PREROUND
+            this.timer.setTime(Constants.PREROUND_TIME_SEC)
+            this.timer.start()
+            Game.instance.restartRound()
+          },
+          scene: this,
+          backgroundColor: 0x222222,
+          textColor: '#ffffff',
+        })
+      },
+    })
   }
 
   update() {
@@ -450,42 +531,6 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
       }
     }
-  }
-
-  createDebugConsole() {
-    const printCPUIntelBoard = new Button({
-      scene: this,
-      x: 75,
-      y: 25,
-      width: 100,
-      height: 30,
-      text: 'Print CPU Intel',
-      onClick: () => {
-        console.log('[CPU Intel]:', Game.instance.cpu.intel)
-      },
-    })
-    printCPUIntelBoard.setVisible(false)
-
-    const printCPUBehaviorTrace = new Button({
-      scene: this,
-      x: 75,
-      y: 25,
-      width: 125,
-      height: 30,
-      text: 'Print CPU Behavior ',
-      onClick: () => {
-        const cpuBehaviorTrees = Game.instance.cpu.agentBehaviorTrees
-        cpuBehaviorTrees.forEach((obj) => {
-          if (obj.agent.getCurrState() !== States.DIE) {
-            console.log(obj.agent.name)
-            const { tree } = obj
-            tree.process(true)
-            console.log('')
-          }
-        })
-      },
-    })
-    printCPUBehaviorTrace.setVisible(false)
   }
 
   updateAgentInfoBoxes(agents: Agent[], side: Side) {

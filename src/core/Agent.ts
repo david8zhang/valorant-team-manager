@@ -376,6 +376,7 @@ export class Agent {
     this.fireOnSight = false
     this.killerId = null
     this.hasSpike = false
+
     this.setState(States.IDLE)
     this.sprite.setPosition(resetConfig.x, resetConfig.y)
     this.setHealth(Agent.FULL_HEALTH)
