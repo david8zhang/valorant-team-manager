@@ -8,6 +8,7 @@ export class DeathState extends State {
   private static RESPAWN_TIME = 5000
 
   enter(agent: Agent) {
+    agent.killStreak = 0
     this.diedTimestamp = Date.now()
     agent.sprite.setVelocity(0, 0)
     if (agent.hasSpike) {

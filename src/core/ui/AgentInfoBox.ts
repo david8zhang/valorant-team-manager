@@ -93,6 +93,11 @@ export class AgentInfoBox {
     this.updateHealth()
     this.setKda()
     this.updateGunIcon()
+    this.updateKillStreak()
+  }
+
+  updateKillStreak() {
+    this.agentKillStreak.setText(`KS: ${this.agent.killStreak}`)
   }
 
   updateGunIcon() {

@@ -238,6 +238,7 @@ export class Agent {
 
   onKillEnemy(enemyAgent: Agent) {
     this.game.addScore(this.side)
+    this.killStreak++
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
     })
