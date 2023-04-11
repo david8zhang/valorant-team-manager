@@ -20,6 +20,9 @@ export enum RoundState {
 }
 
 export class Constants {
+  public static KILL_CREDITS_AMOUNT = 500
+  public static ASSIST_CREDITS_AMOUNT = 250
+
   public static PREROUND_TIME_SEC = 5
   public static MID_ROUND_TIME_SEC = 100
 

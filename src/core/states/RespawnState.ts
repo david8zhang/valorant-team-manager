@@ -1,4 +1,5 @@
 import Game from '~/scenes/Game'
+import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
 import { MapConstants, Region } from '~/utils/MapConstants'
 import { Agent } from '../Agent'
 import { State } from './StateMachine'
@@ -7,12 +8,31 @@ export class RespawnState extends State {
   enter(agent: Agent) {
     const regionToRespawnIn = this.getRegionToRespawnIn()
     const randomPointWithinRegion = this.getRandomTilePointWithinRegion(regionToRespawnIn)
+
+    const shouldBuy = Phaser.Math.Between(0, 1) == 0
+    if (shouldBuy) {
+      agent.currWeapon = this.buyNewWeapon(agent)
+      agent.credits -= GUN_CONFIGS[agent.currWeapon].cost
+    }
+
     agent.reset({
       x: randomPointWithinRegion.x,
       y: randomPointWithinRegion.y,
       sightAngle: 90,
       showOnMap: true,
     })
+  }
+  buyNewWeapon(agent: Agent): GunTypes {
+    let bestWeaponToPurchase = GunTypes.PISTOL
+    const allGunTypes = Object.keys(GunTypes)
+    for (let i = 0; i < allGunTypes.length; i++) {
+      const gunType = allGunTypes[i]
+      const gunConfig = GUN_CONFIGS[gunType]
+      if (agent.credits >= gunConfig.cost) {
+        bestWeaponToPurchase = gunType as GunTypes
+      }
+    }
+    return bestWeaponToPurchase
   }
 
   getRandomTilePointWithinRegion(region: Region) {

@@ -1,6 +1,7 @@
 import Game from '~/scenes/Game'
+import UI from '~/scenes/UI'
 import { Constants, Role } from '~/utils/Constants'
-import { GunTypes } from '~/utils/GunConstants'
+import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
 import { DeathState } from './states/DeathState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
@@ -72,10 +73,7 @@ export class Agent {
   public side: Side
 
   public healthBar!: UIValueBar
-  public weapons: {
-    [key in WeaponTypes]: GunTypes | null
-  }
-  private currEquippedWeapon: WeaponTypes = WeaponTypes.PRIMARY
+  public currWeapon: GunTypes = GunTypes.PISTOL
   public currStateText: Phaser.GameObjects.Text
   public hasSpike: boolean = false
   public team: Team
@@ -83,7 +81,7 @@ export class Agent {
   public kills: number = 0
   public deaths: number = 0
   public assists: number = 0
-  public killStreak: number = 0
+  public credits: number = 0
 
   // The damage that this agent has received from enemies (used for determining kills/assists)
   private damageMapping: {
@@ -123,6 +121,8 @@ export class Agent {
   public onDetectedEnemyHandlers: Function[] = []
   public onKillEnemyHandlers: Function[] = []
   public onWasKilledByEnemyHandlers: Function[] = []
+
+  public healTimerEvent: Phaser.Time.TimerEvent
 
   constructor(config: AgentConfig) {
     this.game = Game.instance
@@ -167,11 +167,6 @@ export class Agent {
 
     // This is so that the agent can carry multiple weapons at once.
     // TODO: Maybe consider just simplifying this so that the agent can only have 1 weapon?
-    this.weapons = {
-      [WeaponTypes.PRIMARY]: GunTypes.RIFLE,
-      [WeaponTypes.SECONDARY]: GunTypes.PISTOL,
-      [WeaponTypes.MELEE]: null,
-    }
     this.currStateText = this.game.add
       .text(
         this.sprite.x,
@@ -189,6 +184,22 @@ export class Agent {
     }
     if (config.fireOnSight) {
       this.fireOnSight = config.fireOnSight
+    }
+
+    // Heal the agent if they aren't in combat for a while
+    this.healTimerEvent = this.game.time.addEvent({
+      loop: true,
+      delay: 1000,
+      callback: () => {
+        this.healOverTime()
+      },
+    })
+  }
+
+  healOverTime() {
+    if (this.getCurrState() !== States.SHOOT && !this.isBeingShotAt) {
+      const newValue = Math.min(this.healthBar.maxValue, this.healthBar.currValue + 25)
+      this.healthBar.setCurrValue(newValue)
     }
   }
 
@@ -238,7 +249,8 @@ export class Agent {
 
   onKillEnemy(enemyAgent: Agent) {
     this.game.addScore(this.side)
-    this.killStreak++
+    this.credits += Constants.KILL_CREDITS_AMOUNT
+    UI.instance.renderKillMessage(this, enemyAgent)
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
     })
@@ -262,7 +274,6 @@ export class Agent {
       this.deaths++
       this.stateMachine.transition(States.DIE)
       if (!this.killerId) {
-        console.info(this.name + ' killed by: ' + attacker.name)
         this.killerId = attacker.name
         attacker.kills++
         attacker.onKillEnemy(this)
@@ -270,6 +281,7 @@ export class Agent {
           if (name !== this.killerId) {
             const agent = this.game.getAgentByName(name)
             if (agent) {
+              agent.credits += Constants.ASSIST_CREDITS_AMOUNT
               agent.assists++
             }
           }
@@ -290,7 +302,6 @@ export class Agent {
     // if the agent has "fireOnSight" toggled
     this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
       this.visionRay.setAngle(angleToShooter)
-
       if (this.getCurrState() !== States.DIE) {
         this.setState(States.SHOOT, shooter)
       }
@@ -324,10 +335,6 @@ export class Agent {
     return intersectedObjects.map((obj) => {
       return obj.object.getData('ref') as Agent
     })
-  }
-
-  get currWeapon(): GunTypes | null {
-    return this.weapons[this.currEquippedWeapon]
   }
 
   setHoldLocation(worldX: number, worldY: number) {
@@ -372,6 +379,14 @@ export class Agent {
 
   // Reset after a round ends
   reset(resetConfig: { x: number; y: number; sightAngle: number; showOnMap: boolean }) {
+    this.healTimerEvent.reset({
+      loop: true,
+      delay: 1000,
+      callback: () => {
+        this.healOverTime()
+      },
+    })
+    this.healTimerEvent.paused = false
     this.isBeingShotAt = false
     this.damageMapping = {}
     this.fireOnSight = false

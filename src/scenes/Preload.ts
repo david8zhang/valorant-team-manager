@@ -32,6 +32,10 @@ export default class Preload extends Phaser.Scene {
     this.load.image('spectre-icon', 'weapons/spectre-icon.png')
     this.load.image('vandal-icon', 'weapons/vandal-icon.png')
 
+    this.load.image('classic-icon-cropped', 'weapons/classic-icon-cropped.png')
+    this.load.image('spectre-icon-cropped', 'weapons/spectre-icon-cropped.png')
+    this.load.image('vandal-icon-cropped', 'weapons/vandal-icon-cropped.png')
+
     MapConstants.CALC_A_SITE_POSITIONS()
     MapConstants.CALC_B_SITE_POSITIONS()
   }

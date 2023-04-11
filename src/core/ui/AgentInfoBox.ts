@@ -19,7 +19,7 @@ export class AgentInfoBox {
   public agentKdaText!: Phaser.GameObjects.Text
   public agentUtilityIcons: Phaser.GameObjects.Rectangle[] = []
   public agentGunIcon!: Phaser.GameObjects.Sprite
-  public agentKillStreak!: Phaser.GameObjects.Text
+  public agentCreditsText!: Phaser.GameObjects.Text
   public infoBoxRect!: Phaser.GameObjects.Rectangle
 
   constructor(scene: Scene, config: AgentInfoConfig) {
@@ -59,11 +59,11 @@ export class AgentInfoBox {
       bgColor: 0x222222,
     })
 
-    this.agentKillStreak = this.scene.add
+    this.agentCreditsText = this.scene.add
       .text(
         position.x + this.infoBoxRect.displayWidth - 50,
         agentNameText.y,
-        `KS: ${this.agent.killStreak}`,
+        `$${this.agent.credits}`,
         {
           fontSize: '14px',
           color: 'white',
@@ -71,7 +71,7 @@ export class AgentInfoBox {
       )
       .setDepth(Constants.SORT_LAYERS.UI)
 
-    const agentKdaTextPosX = this.agentKillStreak.x - 75
+    const agentKdaTextPosX = this.agentCreditsText.x - 75
     this.agentKdaText = this.scene.add
       .text(agentKdaTextPosX, agentNameText.y, '0/0/0', {
         fontSize: '14px',
@@ -93,11 +93,11 @@ export class AgentInfoBox {
     this.updateHealth()
     this.setKda()
     this.updateGunIcon()
-    this.updateKillStreak()
+    this.updateCredits()
   }
 
-  updateKillStreak() {
-    this.agentKillStreak.setText(`KS: ${this.agent.killStreak}`)
+  updateCredits() {
+    this.agentCreditsText.setText(`$${this.agent.credits}`)
   }
 
   updateGunIcon() {
@@ -124,8 +124,8 @@ export class AgentInfoBox {
   setKda() {
     this.agentKdaText.setText(`${this.agent.kills}/${this.agent.deaths}/${this.agent.assists}`)
     this.agentKdaText.setPosition(
-      this.agentKillStreak.x - this.agentKdaText.displayWidth - 20,
-      this.agentKillStreak.y
+      this.agentCreditsText.x - this.agentKdaText.displayWidth - 20,
+      this.agentCreditsText.y
     )
   }
 }

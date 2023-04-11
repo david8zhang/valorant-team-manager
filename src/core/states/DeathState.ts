@@ -1,4 +1,5 @@
 import Game from '~/scenes/Game'
+import { GunTypes } from '~/utils/GunConstants'
 import { Agent, Side } from '../Agent'
 import { State } from './StateMachine'
 import { States } from './States'
@@ -8,7 +9,8 @@ export class DeathState extends State {
   private static RESPAWN_TIME = 5000
 
   enter(agent: Agent) {
-    agent.killStreak = 0
+    agent.currWeapon = GunTypes.PISTOL
+    agent.healTimerEvent.paused = true
     this.diedTimestamp = Date.now()
     agent.sprite.setVelocity(0, 0)
     if (agent.hasSpike) {

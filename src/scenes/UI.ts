@@ -1,11 +1,10 @@
 import { Agent, Side } from '~/core/Agent'
-import { States } from '~/core/states/States'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
 import { Button } from '~/core/ui/Button'
-import { Utility } from '~/core/utility/Utility'
 import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
+import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Game from './Game'
 
 export enum CommandState {
@@ -63,6 +62,14 @@ export default class UI extends Phaser.Scene {
   } = {}
   public fireOnSightToggleSwitch: any
   private didInitialSetup: boolean = false
+
+  private killMessageFeed: {
+    killerNameText: Phaser.GameObjects.Text
+    killedNameText: Phaser.GameObjects.Text
+    gunSprite: Phaser.GameObjects.Sprite
+    boundingRect: Phaser.GameObjects.Rectangle
+    renderTimestamp: number
+  }[] = []
 
   constructor() {
     super('ui')
@@ -398,6 +405,7 @@ export default class UI extends Phaser.Scene {
         break
       }
       case RoundState.MID_ROUND: {
+        game.pause()
         this.renderEndOfRoundMessage()
         game.roundState = RoundState.POSTROUND
         break
@@ -489,9 +497,85 @@ export default class UI extends Phaser.Scene {
     })
   }
 
+  renderKillMessage(killer: Agent, killed: Agent) {
+    const killedNameText = this.add.text(Constants.MAP_WIDTH - 50, 50, killed.name, {
+      fontSize: '12px',
+      color: 'white',
+    })
+
+    killedNameText
+      .setPosition(Constants.MAP_WIDTH - 20 - killedNameText.displayWidth, 50)
+      .setVisible(false)
+
+    const gunConfig = GUN_CONFIGS[killer.currWeapon]
+    const gunSprite = this.add.sprite(killedNameText.x - 10, 50, gunConfig.texture)
+    gunSprite
+      .setPosition(killedNameText.x - 10 - gunSprite.displayWidth, 50)
+      .setFlipX(true)
+      .setVisible(false)
+      .setOrigin(0, 0.5)
+
+    const killerNameText = this.add.text(gunSprite.x - 10, 50, killer.name, {
+      fontSize: '12px',
+      color: 'white',
+    })
+    killerNameText.setPosition(gunSprite.x - 10 - killerNameText.displayWidth, 50).setVisible(false)
+
+    const totalWidth =
+      killerNameText.displayWidth + 10 + gunSprite.displayWidth + 10 + killedNameText.displayWidth
+
+    const boundingRect = this.add.rectangle(
+      Constants.MAP_WIDTH - totalWidth / 2 - 20,
+      50,
+      totalWidth + 30,
+      30,
+      killer.side === Side.PLAYER ? 0x0000ff : 0xff0000
+    )
+    boundingRect
+      .setAlpha(0.5)
+      .setVisible(false)
+      .setDepth(killedNameText.depth - 1)
+
+    const newKillMessage = {
+      killerNameText,
+      killedNameText,
+      gunSprite,
+      renderTimestamp: Date.now(),
+      boundingRect,
+    }
+
+    this.killMessageFeed.push(newKillMessage)
+  }
+
   update() {
     this.initialPlayerSetup()
     this.updateAllAgentInfoBoxes()
+    this.updateKillMessageFeed()
+  }
+
+  updateKillMessageFeed() {
+    let yPosition = Constants.TOP_BAR_HEIGHT + 25
+    const currTimestamp = Date.now()
+    this.killMessageFeed.forEach((message) => {
+      if (currTimestamp - message.renderTimestamp >= 3000) {
+        message.killedNameText.destroy()
+        message.killerNameText.destroy()
+        message.gunSprite.destroy()
+        message.boundingRect.destroy()
+      } else {
+        message.killerNameText.y = yPosition - message.killerNameText.displayHeight / 2
+        message.killedNameText.y = yPosition - message.killedNameText.displayHeight / 2
+        message.gunSprite.y = yPosition
+        message.boundingRect.y = yPosition
+
+        message.boundingRect.setVisible(true)
+        message.killerNameText.setVisible(true)
+        message.killedNameText.setVisible(true)
+        message.gunSprite.setVisible(true)
+        yPosition += 35
+      }
+    })
+    this.killMessageFeed = this.killMessageFeed.filter((message) => message.killedNameText.active)
   }
 
   updateSelectedAgentFireOnSightToggleSwitch() {

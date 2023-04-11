@@ -1,14 +1,13 @@
-import Phaser, { BlendModes } from 'phaser'
-import { Agent, Side } from '~/core/Agent'
+import Phaser from 'phaser'
+import { Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Map } from '~/core/Map'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
-import { States } from '~/core/states/States'
 import { Constants, RoundState } from '~/utils/Constants'
-import { MapConstants } from '~/utils/MapConstants'
-import UI, { CommandState } from './UI'
+import { GunTypes } from '~/utils/GunConstants'
+import UI from './UI'
 
 export default class Game extends Phaser.Scene {
   private static _instance: Game
@@ -28,7 +27,6 @@ export default class Game extends Phaser.Scene {
 
   public pathfinding!: Pathfinding
   public isPaused: boolean = false
-  public pausedStateText!: Phaser.GameObjects.Text
 
   public isDebug: boolean = true
   public debugHandlers: Function[] = []
@@ -96,14 +94,6 @@ export default class Game extends Phaser.Scene {
     this.cpuAgentsGroup = this.add.group()
     this.setupDebugKeyListener()
     this.cameras.main.setScroll(0, -Constants.TOP_BAR_HEIGHT)
-    this.pausedStateText = this.add
-      .text(Constants.MAP_WIDTH, 10, 'Playing')
-      .setDepth(100)
-      .setFontSize(12)
-    this.pausedStateText.setPosition(
-      Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20,
-      10
-    )
     this.initMap()
     this.initRaycaster()
     this.createFOV()
@@ -156,21 +146,23 @@ export default class Game extends Phaser.Scene {
   }
 
   restartRound() {
+    this.unPause()
     this.resetScores()
     this.resetAgentPositions()
-    this.resetAgentStats()
+    this.resetAgentStatsAndWeapons()
     this.onResetRoundHandlers.forEach((handler) => {
       handler()
     })
     this.raiseBarriers()
   }
 
-  resetAgentStats() {
+  resetAgentStatsAndWeapons() {
     const resetFn = (agent) => {
       agent.kills = 0
       agent.deaths = 0
       agent.assists = 0
-      agent.killStreak = 0
+      agent.credits = 0
+      agent.currWeapon = GunTypes.PISTOL
     }
     this.player.agents.forEach(resetFn)
     this.cpu.agents.forEach(resetFn)
@@ -204,9 +196,6 @@ export default class Game extends Phaser.Scene {
 
   pause() {
     this.isPaused = true
-    this.pausedStateText
-      .setText('Paused')
-      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.pause()
     this.onPauseCallbacks.forEach((cb) => {
       cb(true)
@@ -215,9 +204,6 @@ export default class Game extends Phaser.Scene {
 
   unPause() {
     this.isPaused = false
-    this.pausedStateText
-      .setText('Playing')
-      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.unpause()
     this.onPauseCallbacks.forEach((cb) => {
       cb(false)
