@@ -74,7 +74,7 @@ export class Agent {
 
   public healthBar!: UIValueBar
   public currWeapon: GunTypes = GunTypes.PISTOL
-  public currStateText: Phaser.GameObjects.Text
+  public agentNameText: Phaser.GameObjects.Text
   public hasSpike: boolean = false
   public team: Team
 
@@ -164,10 +164,7 @@ export class Agent {
     })
     this.side = config.side
     this.setupHealthBar()
-
-    // This is so that the agent can carry multiple weapons at once.
-    // TODO: Maybe consider just simplifying this so that the agent can only have 1 weapon?
-    this.currStateText = this.game.add
+    this.agentNameText = this.game.add
       .text(
         this.sprite.x,
         this.sprite.y - this.sprite.displayHeight,
@@ -369,9 +366,9 @@ export class Agent {
     this.healthBar.draw()
 
     if (this.game.isDebug) {
-      this.currStateText.setText(this.stateMachine.getState()).setVisible(true)
-      this.currStateText.setPosition(
-        this.sprite.x - this.currStateText.displayWidth / 2,
+      this.agentNameText.setText(this.name).setVisible(true)
+      this.agentNameText.setPosition(
+        this.sprite.x - this.agentNameText.displayWidth / 2,
         this.sprite.y - 20
       )
     }

@@ -29,9 +29,9 @@ export class MapConstants {
 
   public static MAP_CALLOUT_LOCATIONS = [
     {
-      name: 'B-Plant',
+      name: 'B-Site',
       center: {
-        x: 24,
+        x: 40,
         y: 104,
       },
       topLeft: {
@@ -44,7 +44,7 @@ export class MapConstants {
       },
     },
     {
-      name: 'A-Plant',
+      name: 'A-Site',
       center: {
         x: 584,
         y: 152,

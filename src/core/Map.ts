@@ -141,16 +141,6 @@ export class Map {
     this.createWall({ x: 408, y: 360 }, { x: 408, y: 408 }, true)
     this.createWall({ x: 472, y: 344 }, { x: 504, y: 344 })
 
-    // Show site names
-    const aSitePos = MapConstants.A_SITE_CENTER_POS
-    const aSiteText = this.game.add
-      .text(aSitePos.x, aSitePos.y, 'A', { fontSize: '20px' })
-      .setOrigin(0.5)
-    const bSitePos = MapConstants.B_SITE_CENTER_POS
-    const bSiteText = this.game.add
-      .text(bSitePos.x, bSitePos.y, 'B', { fontSize: '20px' })
-      .setOrigin(0.5)
-
     const playerWallCollider = this.game.physics.add.collider(
       this.game.playerAgentsGroup,
       this.walls

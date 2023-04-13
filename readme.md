@@ -4,22 +4,18 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
-- Agent roles (Initiator, Duelist)
+### Management Sim
 
+- Sidebar menu w/ screens
+  - Season games
+  - Players
+  - Free agents
+
+### In-Round Gameplay
+
+- Hot/cold streaks
 - Utility:
-
-  - Flash
-  - Dart
-  - Dog
-  - Stun
-
-- Better CPU AI
-
-  - Refactor Team / Agent AI
-  - Add behaviors based on agent roles
-
-- Spam a specific location command (Same command as shooting)
-- Strafe automatically if shooting an explicit target
-
-- Better art for players/enemies
-- Credits after each round and buy menu
+  - Molotov cocktail
+  - Flashbang grenade
+  - Claymore mine
+  - Frag grenade
