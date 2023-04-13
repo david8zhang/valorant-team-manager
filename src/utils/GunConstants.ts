@@ -20,6 +20,8 @@ export interface GunConfig {
   rangeAccModifiers: {
     [key in Range]: number
   }
+  cost: number
+  texture: string
 }
 
 export const getRangeForPoints = (
@@ -53,6 +55,8 @@ export const GUN_CONFIGS: {
       [Range.MEDIUM]: 0.8,
       [Range.SHORT]: 1,
     },
+    cost: 0,
+    texture: 'classic-icon-cropped',
   },
   [GunTypes.SMG]: {
     damage: {
@@ -66,6 +70,8 @@ export const GUN_CONFIGS: {
       [Range.MEDIUM]: 0.75,
       [Range.SHORT]: 1,
     },
+    cost: 1000,
+    texture: 'spectre-icon-cropped',
   },
   [GunTypes.RIFLE]: {
     damage: {
@@ -79,5 +85,7 @@ export const GUN_CONFIGS: {
       [Range.MEDIUM]: 1,
       [Range.SHORT]: 1,
     },
+    cost: 2000,
+    texture: 'vandal-icon-cropped',
   },
 }

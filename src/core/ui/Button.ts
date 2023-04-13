@@ -6,6 +6,8 @@ export interface ButtonConfig {
   y: number
   onClick: Function
   text: string
+  backgroundColor: number
+  textColor: string
 }
 
 export class Button {
@@ -18,9 +20,10 @@ export class Button {
     this.rectangle = this.scene.add
       .rectangle(config.x, config.y, config.width, config.height, 0xffffff)
       .setAlpha(0.85)
+      .setFillStyle(config.backgroundColor)
     this.text = this.scene.add.text(config.x, config.y, config.text, {
       fontSize: '10px',
-      color: 'black',
+      color: config.textColor,
     })
     this.text.setPosition(
       this.text.x - this.text.displayWidth / 2,
@@ -38,6 +41,11 @@ export class Button {
       })
       config.onClick()
     })
+  }
+
+  destroy() {
+    this.rectangle.destroy()
+    this.text.destroy()
   }
 
   setVisible(isVisible: boolean) {

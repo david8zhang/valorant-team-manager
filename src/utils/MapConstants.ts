@@ -1,3 +1,19 @@
+export interface Region {
+  name: string
+  center: {
+    x: number
+    y: number
+  }
+  topLeft: {
+    x: number
+    y: number
+  }
+  bottomRight: {
+    x: number
+    y: number
+  }
+}
+
 // TODO: These constants should be different across multiple different maps
 export class MapConstants {
   public static DEFAULT_PLANT_LOCATIONS = {

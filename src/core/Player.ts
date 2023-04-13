@@ -3,16 +3,16 @@ import UI, { CommandState } from '~/scenes/UI'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
+import { AndSequenceNode } from './behavior-tree/nodes/AndSequenceNode'
+import { MoveToZone } from './behavior-tree/behaviors/MoveToZone'
+import { PopulateBlackboard } from './behavior-tree/behaviors/PopulateBlackboard'
+import { BehaviorTreeNode } from './behavior-tree/nodes/BehaviorTreeNode'
+import { Blackboard } from './behavior-tree/nodes/Blackboard'
 import { States } from './states/States'
 import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
-
-export enum PeekCommandState {
-  START = 'START',
-  END = 'END',
-  PEEK_LOCATION = 'PEEK_LOCATION',
-}
+import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
 
 export class Player implements Team {
   public game: Game
@@ -22,12 +22,14 @@ export class Player implements Team {
   public onAgentDeathHandlers: Function[] = []
   public currUtilityKey: UtilityKey | null = null
 
+  public agentBehaviorTrees: {
+    agent: Agent
+    tree: BehaviorTreeNode
+  }[] = []
+
   constructor() {
     this.game = Game.instance
-    this.setupCursor()
-    this.setupInputListeners()
     this.createAgents()
-    this.selectAgent(this.selectedAgentIndex)
   }
 
   setupInputListeners() {
@@ -37,7 +39,6 @@ export class Player implements Team {
     this.game.input.on(Phaser.Input.Events.POINTER_MOVE, (e) => {
       this.updateCursor()
     })
-
     this.game.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       if (e.code.includes('Digit')) {
         this.handleDigit(e.key)
@@ -95,14 +96,6 @@ export class Player implements Team {
         }
         case CommandState.MOVE: {
           this.queueAgentMoveCommand(e.worldX, e.worldY)
-          break
-        }
-        case CommandState.PLANT: {
-          this.queueAgentPlantCommand(e.worldX, e.worldY)
-          break
-        }
-        case CommandState.DEFUSE: {
-          this.queueAgentDefuseCommand(e.worldX, e.worldY)
           break
         }
       }
@@ -193,27 +186,6 @@ export class Player implements Team {
     agent.holdLocation = null
   }
 
-  queueAgentPlantCommand(worldX: number, worldY: number) {
-    const agent = this.agents[this.selectedAgentIndex]
-    if (this.isWithinSite(worldX, worldY)) {
-      agent.setState(States.PLANT, {
-        x: worldX,
-        y: worldY,
-      })
-    }
-  }
-
-  queueAgentDefuseCommand(worldX: number, worldY: number) {
-    const agent = this.agents[this.selectedAgentIndex]
-    const spike = this.game.spike
-    if (spike.defuseCircleDetector.contains(worldX, worldY) && !spike.isDefused) {
-      agent.setState(States.DEFUSE, {
-        x: worldX,
-        y: worldY,
-      })
-    }
-  }
-
   private isWithinSitePositions(
     positions: { x: number; y: number }[],
     worldX: number,
@@ -281,6 +253,12 @@ export class Player implements Team {
       })
       this.agents.push(newAgent)
       startX += newAgent.sprite.displayWidth + 20
+
+      const newBehaviorTree = createAgentBehaviorTree(newAgent)
+      this.agentBehaviorTrees.push({
+        agent: newAgent,
+        tree: newBehaviorTree,
+      })
     }
   }
 
@@ -345,10 +323,12 @@ export class Player implements Team {
   }
 
   update() {
-    if (this.selectedAgent.getCurrState() === States.DIE) {
-      this.selectNextLivingAgent()
-    }
-
+    this.agentBehaviorTrees.forEach((obj) => {
+      const { tree, agent } = obj
+      if (agent.getCurrState() !== States.DIE) {
+        tree.process()
+      }
+    })
     this.agents.forEach((agent) => {
       agent.update()
     })

@@ -101,7 +101,6 @@ export class ShootingState extends State {
             this.target.sprite.y
           )
           agent.visionRay.setAngle(angle)
-          agent.crosshairRay.setAngle(angle)
           this.fireBullet(agent, angle)
         }
       }
@@ -209,7 +208,8 @@ export class ShootingState extends State {
     }
   }
 
-  exit() {
+  exit(agent: Agent) {
+    agent.isBeingShotAt = false
     this.target = null
     this.lastBulletFiredTimestamp = 0
     this.muzzleFlareSprite.setVisible(false)

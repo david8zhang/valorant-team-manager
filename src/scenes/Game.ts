@@ -1,14 +1,13 @@
-import Phaser, { BlendModes } from 'phaser'
-import { Agent, Side } from '~/core/Agent'
+import Phaser from 'phaser'
+import { Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Map } from '~/core/Map'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
-import { States } from '~/core/states/States'
 import { Constants, RoundState } from '~/utils/Constants'
-import { MapConstants } from '~/utils/MapConstants'
-import UI, { CommandState } from './UI'
+import { GunTypes } from '~/utils/GunConstants'
+import UI from './UI'
 
 export default class Game extends Phaser.Scene {
   private static _instance: Game
@@ -28,7 +27,6 @@ export default class Game extends Phaser.Scene {
 
   public pathfinding!: Pathfinding
   public isPaused: boolean = false
-  public pausedStateText!: Phaser.GameObjects.Text
 
   public isDebug: boolean = true
   public debugHandlers: Function[] = []
@@ -38,7 +36,7 @@ export default class Game extends Phaser.Scene {
 
   public roundState: RoundState = RoundState.PREROUND
   public attackSide: Side = Side.CPU
-  public roundScoreMapping: {
+  public scoreMapping: {
     [key in Side]: number
   } = {
     [Side.PLAYER]: 0,
@@ -75,6 +73,11 @@ export default class Game extends Phaser.Scene {
     }
   }
 
+  addScore(side: Side) {
+    this.scoreMapping[side]++
+    UI.instance.updateScores()
+  }
+
   setupDebugKeyListener() {
     this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       if (e.code === 'Backquote') {
@@ -91,14 +94,6 @@ export default class Game extends Phaser.Scene {
     this.cpuAgentsGroup = this.add.group()
     this.setupDebugKeyListener()
     this.cameras.main.setScroll(0, -Constants.TOP_BAR_HEIGHT)
-    this.pausedStateText = this.add
-      .text(Constants.MAP_WIDTH, 10, 'Playing')
-      .setDepth(100)
-      .setFontSize(12)
-    this.pausedStateText.setPosition(
-      Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20,
-      10
-    )
     this.initMap()
     this.initRaycaster()
     this.createFOV()
@@ -108,7 +103,6 @@ export default class Game extends Phaser.Scene {
       tilemap: this.map.tilemap,
       unwalkableTiles: [1],
     })
-    this.setupSpike()
     this.initPlayerAndCPU()
   }
 
@@ -137,12 +131,6 @@ export default class Game extends Phaser.Scene {
     })
   }
 
-  setupSpike() {
-    this.spike = new Spike({
-      position: MapConstants.INITIAL_SPIKE_POSITION,
-    })
-  }
-
   initMap() {
     this.map = new Map(this)
   }
@@ -151,13 +139,33 @@ export default class Game extends Phaser.Scene {
     this.map.dropBarriers()
   }
 
+  resetScores() {
+    this.scoreMapping[Side.PLAYER] = 0
+    this.scoreMapping[Side.CPU] = 0
+    UI.instance.updateScores()
+  }
+
   restartRound() {
+    this.unPause()
+    this.resetScores()
     this.resetAgentPositions()
+    this.resetAgentStatsAndWeapons()
     this.onResetRoundHandlers.forEach((handler) => {
       handler()
     })
-    this.spike.reset()
     this.raiseBarriers()
+  }
+
+  resetAgentStatsAndWeapons() {
+    const resetFn = (agent) => {
+      agent.kills = 0
+      agent.deaths = 0
+      agent.assists = 0
+      agent.credits = 0
+      agent.currWeapon = GunTypes.PISTOL
+    }
+    this.player.agents.forEach(resetFn)
+    this.cpu.agents.forEach(resetFn)
   }
 
   resetAgentPositions() {
@@ -184,70 +192,10 @@ export default class Game extends Phaser.Scene {
     this.maskGraphics.clear()
     this.cpu.update()
     this.player.update()
-    this.checkRoundOver()
-  }
-
-  checkRoundOver() {
-    if (this.roundState !== RoundState.POSTROUND) {
-      const defenderAgents = this.attackSide === Side.CPU ? this.player.agents : this.cpu.agents
-      const attackerAgents = this.attackSide === Side.CPU ? this.cpu.agents : this.player.agents
-
-      const areAllDefDead =
-        defenderAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
-      const areAllAtkDead =
-        attackerAgents.filter((a) => a.getCurrState() !== States.DIE).length === 0
-      if (areAllDefDead) {
-        this.roundScoreMapping[this.attackSide]++
-        UI.instance.updateScores()
-        UI.instance.endRoundPrematurely()
-        this.roundState = RoundState.POSTROUND
-      } else if (areAllAtkDead && !this.spike.isPlanted) {
-        const defSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
-        this.roundScoreMapping[defSide]++
-        UI.instance.updateScores()
-        UI.instance.endRoundPrematurely()
-        this.roundState = RoundState.POSTROUND
-      }
-    }
-  }
-
-  plantSpike(agent: Agent, x: number, y: number) {
-    this.spike.plant(x, y)
-    if (this.roundState === RoundState.PRE_PLANT_ROUND) {
-      UI.instance.plantSpike()
-      Game.instance.roundState = RoundState.POST_PLANT_ROUND
-    }
-    UI.instance.selectNewCommand(CommandState.MOVE)
-    agent.hasSpike = false
-  }
-
-  defuseSpike() {
-    this.spike.defuse()
-    const defenseSide = this.attackSide === Side.CPU ? Side.PLAYER : Side.CPU
-    this.roundScoreMapping[defenseSide]++
-    UI.instance.updateScores()
-    UI.instance.endRoundPrematurely()
-    Game.instance.roundState = RoundState.POSTROUND
-    UI.instance.selectNewCommand(CommandState.MOVE)
-  }
-
-  plantTimeExpire() {
-    const defenseSide = this.attackSide === Side.PLAYER ? Side.CPU : Side.PLAYER
-    this.roundScoreMapping[defenseSide]++
-    UI.instance.updateScores()
-  }
-
-  detonateSpike() {
-    this.roundScoreMapping[this.attackSide]++
-    this.spike.detonate()
-    UI.instance.updateScores()
   }
 
   pause() {
     this.isPaused = true
-    this.pausedStateText
-      .setText('Paused')
-      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.pause()
     this.onPauseCallbacks.forEach((cb) => {
       cb(true)
@@ -256,9 +204,6 @@ export default class Game extends Phaser.Scene {
 
   unPause() {
     this.isPaused = false
-    this.pausedStateText
-      .setText('Playing')
-      .setPosition(Constants.MAP_WIDTH - this.pausedStateText.displayWidth - 20, 10)
     this.player.unpause()
     this.onPauseCallbacks.forEach((cb) => {
       cb(false)

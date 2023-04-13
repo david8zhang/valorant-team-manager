@@ -27,15 +27,9 @@ export class MoveState extends State {
     const currTilePos = Game.instance.getTilePosForWorldPos(agent.sprite.x, agent.sprite.y)
     const path = Game.instance.pathfinding.getPath(currTilePos, endTilePos)
     this.currPath = path
-    if (agent.side === Side.PLAYER) {
-      this.tracePath(agent)
-    }
   }
 
   execute(agent: Agent) {
-    if (agent.side === Side.PLAYER) {
-      this.tracePath(agent)
-    }
     if (MoveState.isAtMoveTarget(agent, this.moveTarget) || !this.moveTarget) {
       const currNode = this.currPath.shift()
       if (currNode) {
@@ -122,7 +116,6 @@ export class MoveState extends State {
         agent.holdLocation.y
       )
       agent.visionRay.setAngle(angle)
-      agent.crosshairRay.setAngle(angle)
     } else if (this.moveTarget && !this.arrivedAtDestination && !agent.isPaused) {
       const angle = Phaser.Math.Angle.Between(
         agent.sprite.x,
@@ -131,7 +124,6 @@ export class MoveState extends State {
         this.moveTarget.y
       )
       agent.visionRay.setAngle(angle)
-      agent.crosshairRay.setAngle(angle)
     }
   }
 

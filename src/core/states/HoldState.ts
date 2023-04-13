@@ -20,7 +20,6 @@ export class HoldState extends State {
       )
       agent.sprite.setVelocity(0, 0)
       agent.visionRay.setAngle(angle)
-      agent.crosshairRay.setAngle(angle)
     }
     agent.graphics.lineStyle(2, 0xff0000)
   }

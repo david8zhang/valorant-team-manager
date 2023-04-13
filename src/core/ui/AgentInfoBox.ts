@@ -54,7 +54,7 @@ export class AgentInfoBox {
       y: agentNameText.y + 20,
       maxValue: 100,
       height: 10,
-      width: 320,
+      width: Constants.RIGHT_BAR_WIDTH - 20,
       borderWidth: 0,
       bgColor: 0x222222,
     })
@@ -79,16 +79,6 @@ export class AgentInfoBox {
       })
       .setDepth(Constants.SORT_LAYERS.UI)
 
-    // Utility icons
-    let utilityIconX = agentProfilePic.x + 100
-    for (let i = 1; i <= 3; i++) {
-      const icon = this.scene.add
-        .rectangle(utilityIconX, agentProfilePic.y + 25, 30, 30, 0xff0000)
-        .setDepth(Constants.SORT_LAYERS.UI)
-      utilityIconX += icon.displayWidth + 5
-      this.agentUtilityIcons.push(icon)
-    }
-
     this.agentGunIcon = this.scene.add
       .sprite(
         this.infoBoxRect.x + this.infoBoxRect.displayWidth - 50,
@@ -103,6 +93,11 @@ export class AgentInfoBox {
     this.updateHealth()
     this.setKda()
     this.updateGunIcon()
+    this.updateCredits()
+  }
+
+  updateCredits() {
+    this.agentCreditsText.setText(`$${this.agent.credits}`)
   }
 
   updateGunIcon() {

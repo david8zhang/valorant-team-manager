@@ -1,11 +1,10 @@
 import { Agent, Side } from '~/core/Agent'
-import { States } from '~/core/states/States'
 import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
 import { Button } from '~/core/ui/Button'
-import { Utility } from '~/core/utility/Utility'
 import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
+import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Game from './Game'
 
 export enum CommandState {
@@ -63,6 +62,14 @@ export default class UI extends Phaser.Scene {
   } = {}
   public fireOnSightToggleSwitch: any
   private didInitialSetup: boolean = false
+
+  private killMessageFeed: {
+    killerNameText: Phaser.GameObjects.Text
+    killedNameText: Phaser.GameObjects.Text
+    gunSprite: Phaser.GameObjects.Sprite
+    boundingRect: Phaser.GameObjects.Rectangle
+    renderTimestamp: number
+  }[] = []
 
   constructor() {
     super('ui')
@@ -180,15 +187,22 @@ export default class UI extends Phaser.Scene {
     return !Game.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
   }
 
+  createCommandBar() {
+    const backgroundRectangle = this.add
+      .rectangle(
+        0,
+        Constants.MAP_HEIGHT + Constants.BOTTOM_BAR_HEIGHT,
+        Constants.MAP_WIDTH,
+        Constants.BOTTOM_BAR_HEIGHT
+      )
+      .setOrigin(0)
+    backgroundRectangle.setFillStyle(0xdddddd)
+  }
+
   create() {
     this.createCommandBar()
-    this.createUtilityBar()
-    this.selectNewCommand(this.currCommandState)
-    this.setupKeyboardShortcutListener()
     this.createTopBar()
     this.createSideBar()
-    this.createFireOnSightToggle()
-    this.createDebugConsole()
   }
 
   createFireOnSightToggle() {
@@ -257,108 +271,6 @@ export default class UI extends Phaser.Scene {
     })
   }
 
-  createCommandBar() {
-    const backgroundRectangle = this.add
-      .rectangle(
-        0,
-        Constants.MAP_HEIGHT + Constants.BOTTOM_BAR_HEIGHT,
-        Constants.MAP_WIDTH,
-        Constants.BOTTOM_BAR_HEIGHT
-      )
-      .setOrigin(0)
-
-    const allCommands: {
-      boundingBox: Phaser.GameObjects.Rectangle
-      icon: Phaser.GameObjects.Image
-      shortcutText: Phaser.GameObjects.Text
-    }[] = []
-
-    allCommands.push(
-      this.createCommandIcon(
-        'move-icon',
-        Constants.MAP_WIDTH / 2,
-        Constants.WINDOW_HEIGHT - 27,
-        CommandState.MOVE,
-        'A'
-      )
-    )
-    allCommands.push(
-      this.createCommandIcon(
-        'watch-icon',
-        Constants.MAP_WIDTH / 2,
-        Constants.WINDOW_HEIGHT - 27,
-        CommandState.HOLD,
-        'S'
-      )
-    )
-    allCommands.push(
-      this.createCommandIcon(
-        'stop-watch-icon',
-        Constants.MAP_WIDTH / 2,
-        Constants.WINDOW_HEIGHT - 27,
-        CommandState.STOP_HOLD,
-        'D',
-        true
-      )
-    )
-    const fCommand =
-      Game.instance.attackSide === Side.PLAYER ? CommandState.PLANT : CommandState.DEFUSE
-    allCommands.push(
-      this.createCommandIcon(
-        'plant-icon',
-        Constants.MAP_WIDTH / 2,
-        Constants.WINDOW_HEIGHT - 27,
-        fCommand,
-        'F'
-      )
-    )
-    const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
-    let startX = Constants.MAP_WIDTH / 2.5 - totalWidth / 2
-    allCommands.forEach((command) => {
-      command.boundingBox.setX(startX)
-      command.icon.setX(startX + 18)
-      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 30)
-      startX += 48
-    })
-    backgroundRectangle.setFillStyle(0xdddddd)
-  }
-
-  createUtilityBar() {
-    const allCommands = Object.keys(this.commandMapping)
-    const totalWidth = allCommands.length * 36 + (allCommands.length - 1) * 12
-    const endOfCommandBarX = Constants.MAP_WIDTH / 2.5 + totalWidth / 2
-    this.add
-      .line(
-        0,
-        0,
-        endOfCommandBarX + 24,
-        Constants.MAP_HEIGHT + Constants.TOP_BAR_HEIGHT,
-        endOfCommandBarX + 24,
-        Constants.WINDOW_HEIGHT
-      )
-      .setStrokeStyle(1, 0xaaaaaa)
-      .setDepth(Constants.SORT_LAYERS.UI)
-      .setOrigin(0, 0)
-    let startX = endOfCommandBarX + 48
-    const utilityCommands: any[] = []
-    utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.Q, 'Q')
-    )
-    utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.W, 'W')
-    )
-    utilityCommands.push(
-      this.createUtilityIcon('', startX, Constants.WINDOW_HEIGHT - 30, UtilityKey.E, 'E')
-    )
-    for (let i = 0; i < utilityCommands.length; i++) {
-      const command = utilityCommands[i]
-      command.boundingBox.setX(startX)
-      command.icon.setX(startX + 18)
-      command.shortcutText.setPosition(command.boundingBox.x + 28, command.boundingBox.y - 28)
-      startX += 48
-    }
-  }
-
   createTopBar() {
     this.timer = new Timer(this, {
       fontSize: '22px',
@@ -372,7 +284,7 @@ export default class UI extends Phaser.Scene {
     this.playerScoreText = this.add.text(
       this.timer.clockText.x,
       this.timer.clockText.y - 5,
-      Game.instance.roundScoreMapping[Side.PLAYER].toString(),
+      Game.instance.scoreMapping[Side.PLAYER].toString(),
       {
         fontSize: '30px',
       }
@@ -397,7 +309,7 @@ export default class UI extends Phaser.Scene {
     this.cpuScoreText = this.add.text(
       this.timer.clockText.x,
       this.timer.clockText.y - 5,
-      Game.instance.roundScoreMapping[Side.CPU].toString(),
+      Game.instance.scoreMapping[Side.CPU].toString(),
       {
         fontSize: '30px',
       }
@@ -456,21 +368,13 @@ export default class UI extends Phaser.Scene {
       ) {
         this.renderAgentsInfoBoxes(Game.instance.player.agents, 30)
         this.renderAgentsInfoBoxes(Game.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
-
         this.didInitialSetup = true
-        const agent = Game.instance.player.selectedAgent
-        const utilityMapping = agent.utilityMapping
-        Object.keys(utilityMapping).forEach((key) => {
-          const utilityClass = utilityMapping[key] as Utility
-          const utilityObj = this.utilityKeyMapping[key]
-          this.createCharges(utilityClass, utilityObj)
-        })
       }
     }
   }
 
   updateScores() {
-    this.playerScoreText.setText(Game.instance.roundScoreMapping[Side.PLAYER].toString())
+    this.playerScoreText.setText(Game.instance.scoreMapping[Side.PLAYER].toString())
     this.playerScoreText.setPosition(
       this.timer.clockText.x - this.playerScoreText.displayWidth - 30,
       this.timer.clockText.y - 5
@@ -479,7 +383,7 @@ export default class UI extends Phaser.Scene {
       this.playerScoreText.x - this.playerTeamLabel.displayWidth - 15,
       this.playerScoreText.y + 7
     )
-    this.cpuScoreText.setText(Game.instance.roundScoreMapping[Side.CPU].toString())
+    this.cpuScoreText.setText(Game.instance.scoreMapping[Side.CPU].toString())
     this.cpuScoreText.setPosition(
       this.timer.clockText.x + this.timer.clockText.displayWidth + 30,
       this.timer.clockText.y - 5
@@ -494,80 +398,184 @@ export default class UI extends Phaser.Scene {
     const game = Game.instance
     switch (game.roundState) {
       case RoundState.PREROUND: {
-        this.timer.setTime(Constants.PREPLANT_ROUND_TIME_SEC)
+        this.timer.setTime(Constants.MID_ROUND_TIME_SEC)
         this.timer.start()
-        game.roundState = RoundState.PRE_PLANT_ROUND
+        game.roundState = RoundState.MID_ROUND
         game.dropBarriers()
         break
       }
-      case RoundState.PRE_PLANT_ROUND: {
-        this.timer.setTime(Constants.POST_ROUND)
-        this.timer.start()
+      case RoundState.MID_ROUND: {
+        game.pause()
+        this.renderEndOfRoundMessage()
         game.roundState = RoundState.POSTROUND
-        game.plantTimeExpire()
-        break
-      }
-      case RoundState.POST_PLANT_ROUND: {
-        this.timer.setTime(Constants.POST_ROUND)
-        this.timer.start()
-        game.roundState = RoundState.POSTROUND
-        game.detonateSpike()
-        break
-      }
-      case RoundState.POSTROUND: {
-        this.timer.setTime(Constants.PREROUND_TIME_SEC)
-        game.restartRound()
-        game.roundState = RoundState.PREROUND
-        this.timer.start()
         break
       }
     }
   }
 
-  endRoundPrematurely() {
-    this.timer.stop()
-    this.timer.setTime(Constants.POST_ROUND)
-    this.timer.start()
-  }
-
-  plantSpike() {
-    this.timer.stop()
-    this.timer.setTime(Constants.POSTPLANT_ROUND_TIME_SEC)
-    this.timer.start()
-  }
-
-  setupKeyboardShortcutListener() {
-    this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
-      const keyPressed = e.key.toUpperCase()
-
-      // Handle commands
-      const commandState = this.commandShortcutMapping[keyPressed]
-      if (commandState) {
-        const commandObj = this.commandMapping[commandState]!
-        if (!commandObj.triggerOnPress) {
-          this.selectNewCommand(commandState)
+  renderEndOfRoundMessage() {
+    const rectangle = this.add.rectangle(Constants.MAP_WIDTH / 2, Constants.WINDOW_HEIGHT / 2, 0, 0)
+    rectangle.setFillStyle(0xffffff)
+    this.tweens.add({
+      targets: [rectangle],
+      width: {
+        from: 0,
+        to: 300,
+      },
+      height: {
+        from: 0,
+        to: 200,
+      },
+      duration: 200,
+      onUpdate: () => {
+        rectangle.setPosition(
+          Constants.MAP_WIDTH / 2 - rectangle.width / 2,
+          Constants.WINDOW_HEIGHT / 2 - rectangle.height / 2
+        )
+      },
+      onComplete: () => {
+        const scoreMapping = Game.instance.scoreMapping
+        let titleText = ''
+        if (scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]) {
+          titleText = "It's a tie!"
+        } else {
+          const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? 'Player' : 'CPU'
+          titleText = `${winningSide} won!`
         }
-      }
+        const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
+        const textObj = this.add.text(
+          Constants.MAP_WIDTH / 2,
+          Constants.WINDOW_HEIGHT / 2.25,
+          titleText,
+          {
+            fontSize: '30px',
+            color: 'black',
+          }
+        )
+        textObj.setPosition(
+          textObj.x - textObj.displayWidth / 2,
+          textObj.y - textObj.displayHeight / 2
+        )
+        const subtitleTextObj = this.add.text(
+          Constants.MAP_WIDTH / 2,
+          textObj.y + textObj.displayHeight + 20,
+          subtitleText,
+          {
+            fontSize: '20px',
+            color: 'black',
+          }
+        )
+        subtitleTextObj.setPosition(
+          subtitleTextObj.x - subtitleTextObj.displayWidth / 2,
+          subtitleTextObj.y - subtitleTextObj.displayHeight / 2
+        )
 
-      // Handle utility
-      const utilityKey = this.utilityShortcutMapping[keyPressed]
-      if (utilityKey) {
-        this.selectNewUtility(utilityKey)
-      }
+        const buttonObj = new Button({
+          x: Constants.MAP_WIDTH / 2,
+          y: subtitleTextObj.y + subtitleTextObj.displayHeight + 25,
+          width: 100,
+          height: 25,
+          text: 'Continue',
+          onClick: () => {
+            // Hide the window
+            rectangle.destroy()
+            textObj.destroy()
+            subtitleTextObj.destroy()
+            buttonObj.destroy()
 
-      if (e.key === 'x') {
-        if (Game.instance.player && Game.instance.player.selectedAgent)
-          this.fireOnSightToggleSwitch.setValue(!Game.instance.player.selectedAgent.fireOnSight)
-      }
+            // Reset back to preround state
+            Game.instance.roundState = RoundState.PREROUND
+            this.timer.setTime(Constants.PREROUND_TIME_SEC)
+            this.timer.start()
+            Game.instance.restartRound()
+          },
+          scene: this,
+          backgroundColor: 0x222222,
+          textColor: '#ffffff',
+        })
+      },
     })
+  }
+
+  renderKillMessage(killer: Agent, killed: Agent) {
+    const killedNameText = this.add.text(Constants.MAP_WIDTH - 50, 50, killed.name, {
+      fontSize: '12px',
+      color: 'white',
+    })
+
+    killedNameText
+      .setPosition(Constants.MAP_WIDTH - 20 - killedNameText.displayWidth, 50)
+      .setVisible(false)
+
+    const gunConfig = GUN_CONFIGS[killer.currWeapon]
+    const gunSprite = this.add.sprite(killedNameText.x - 10, 50, gunConfig.texture)
+    gunSprite
+      .setPosition(killedNameText.x - 10 - gunSprite.displayWidth, 50)
+      .setFlipX(true)
+      .setVisible(false)
+      .setOrigin(0, 0.5)
+
+    const killerNameText = this.add.text(gunSprite.x - 10, 50, killer.name, {
+      fontSize: '12px',
+      color: 'white',
+    })
+    killerNameText.setPosition(gunSprite.x - 10 - killerNameText.displayWidth, 50).setVisible(false)
+
+    const totalWidth =
+      killerNameText.displayWidth + 10 + gunSprite.displayWidth + 10 + killedNameText.displayWidth
+
+    const boundingRect = this.add.rectangle(
+      Constants.MAP_WIDTH - totalWidth / 2 - 20,
+      50,
+      totalWidth + 30,
+      30,
+      killer.side === Side.PLAYER ? 0x0000ff : 0xff0000
+    )
+    boundingRect
+      .setAlpha(0.5)
+      .setVisible(false)
+      .setDepth(killedNameText.depth - 1)
+
+    const newKillMessage = {
+      killerNameText,
+      killedNameText,
+      gunSprite,
+      renderTimestamp: Date.now(),
+      boundingRect,
+    }
+
+    this.killMessageFeed.push(newKillMessage)
   }
 
   update() {
     this.initialPlayerSetup()
-    this.updateSelectedAgentCommandState()
-    this.updateSelectedAgentUtility()
     this.updateAllAgentInfoBoxes()
-    this.updateSelectedAgentFireOnSightToggleSwitch()
+    this.updateKillMessageFeed()
+  }
+
+  updateKillMessageFeed() {
+    let yPosition = Constants.TOP_BAR_HEIGHT + 25
+    const currTimestamp = Date.now()
+    this.killMessageFeed.forEach((message) => {
+      if (currTimestamp - message.renderTimestamp >= 3000) {
+        message.killedNameText.destroy()
+        message.killerNameText.destroy()
+        message.gunSprite.destroy()
+        message.boundingRect.destroy()
+      } else {
+        message.killerNameText.y = yPosition - message.killerNameText.displayHeight / 2
+        message.killedNameText.y = yPosition - message.killedNameText.displayHeight / 2
+        message.gunSprite.y = yPosition
+        message.boundingRect.y = yPosition
+
+        message.boundingRect.setVisible(true)
+        message.killerNameText.setVisible(true)
+        message.killedNameText.setVisible(true)
+        message.gunSprite.setVisible(true)
+        yPosition += 35
+      }
+    })
+    this.killMessageFeed = this.killMessageFeed.filter((message) => message.killedNameText.active)
   }
 
   updateSelectedAgentFireOnSightToggleSwitch() {
@@ -599,16 +607,6 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(0.25)
       }
     } else {
-      const commandBtn = this.commandMapping[CommandState.DEFUSE]!.boundingBox
-      const commandIcon = this.commandMapping[CommandState.DEFUSE]!.icon
-      if (Game.instance.spike.isPlanted || Game.instance.spike.isDefused) {
-        commandBtn.setAlpha(1)
-        commandIcon.setAlpha(1)
-      } else {
-        commandBtn.setAlpha(0.25)
-        commandIcon.setAlpha(0.25)
-      }
-
       if (Game.instance.player) {
         const selectedAgent = Game.instance.player.selectedAgent
         const commandBtn = this.commandMapping[CommandState.STOP_HOLD]!.boundingBox
@@ -617,92 +615,6 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
       }
     }
-  }
-
-  updateSelectedAgentUtility() {
-    if (Game.instance.player && Game.instance.player.selectedAgent) {
-      const utilityMapping = Game.instance.player.selectedAgent.utilityMapping
-      Object.keys(utilityMapping).forEach((key) => {
-        const utilityClass = utilityMapping[key] as Utility
-        const utilityObj = this.utilityKeyMapping[key]
-        utilityObj.boundingBox
-          .setAlpha(utilityClass.isDepleted ? 0.25 : 1)
-          .setStrokeStyle(1, 0x000000)
-          .setFillStyle(0xffffff)
-
-        utilityObj.charges.forEach((charge: Phaser.GameObjects.Arc, index: number) => {
-          if (index + 1 > utilityClass.numCharges) {
-            charge.setAlpha(0.2)
-          } else {
-            charge.setAlpha(1)
-          }
-        })
-      })
-    }
-  }
-
-  updateCharges(
-    utility: Utility,
-    utilityObj: { boundingBox: Phaser.GameObjects.Rectangle; charges: Phaser.GameObjects.Arc[] }
-  ) {
-    utilityObj.charges.forEach((charge: any, index: number) => {
-      if (index + 1 < utility.numCharges) {
-      }
-    })
-  }
-
-  createCharges(
-    utility: Utility,
-    utilityObj: { boundingBox: Phaser.GameObjects.Rectangle; charges: Phaser.GameObjects.Arc[] }
-  ) {
-    utilityObj.charges.forEach((c) => c.destroy())
-    const circleWidth = 6
-    const padding = 5
-    const totalWidth = utility.totalCharges * circleWidth + (utility.totalCharges - 1) * padding
-    let xPos =
-      utilityObj.boundingBox.x + (utilityObj.boundingBox.displayWidth / 2 + 2) - totalWidth / 2
-    const charges: Phaser.GameObjects.Arc[] = []
-    for (let i = 0; i < utility.totalCharges; i++) {
-      const circle = this.add.circle(xPos, utilityObj.boundingBox.y + 23, circleWidth / 2, 0x222222)
-      charges.push(circle)
-      xPos += circleWidth + padding
-    }
-    utilityObj.charges = charges
-  }
-
-  createDebugConsole() {
-    const printCPUIntelBoard = new Button({
-      scene: this,
-      x: 75,
-      y: 25,
-      width: 100,
-      height: 30,
-      text: 'Print CPU Intel',
-      onClick: () => {
-        console.log('[CPU Intel]:', Game.instance.cpu.intel)
-      },
-    })
-    printCPUIntelBoard.setVisible(false)
-
-    const printCPUBehaviorTrace = new Button({
-      scene: this,
-      x: 75,
-      y: 25,
-      width: 125,
-      height: 30,
-      text: 'Print CPU Behavior ',
-      onClick: () => {
-        const cpuBehaviorTrees = Game.instance.cpu.agentBehaviorTrees
-        cpuBehaviorTrees.forEach((obj) => {
-          if (obj.agent.getCurrState() !== States.DIE) {
-            console.log(obj.agent.name)
-            const { tree } = obj
-            tree.process(true)
-            console.log('')
-          }
-        })
-      },
-    })
   }
 
   updateAgentInfoBoxes(agents: Agent[], side: Side) {

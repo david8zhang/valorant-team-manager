@@ -13,20 +13,22 @@ export enum Sites {
 
 export enum RoundState {
   PREROUND = 'PREROUND',
+  MID_ROUND = 'MID_ROUND',
   PRE_PLANT_ROUND = 'PRE_PLANT_ROUND',
   POST_PLANT_ROUND = 'POST_PLANT_ROUND',
   POSTROUND = 'POSTROUND',
 }
 
 export class Constants {
+  public static KILL_CREDITS_AMOUNT = 500
+  public static ASSIST_CREDITS_AMOUNT = 250
+
   public static PREROUND_TIME_SEC = 5
-  public static PREPLANT_ROUND_TIME_SEC = 100
-  public static POSTPLANT_ROUND_TIME_SEC = 45
-  public static POST_ROUND = 10
+  public static MID_ROUND_TIME_SEC = 100
 
   public static TOP_BAR_HEIGHT = 60
   public static BOTTOM_BAR_HEIGHT = 60
-  public static RIGHT_BAR_WIDTH = 340
+  public static RIGHT_BAR_WIDTH = 250
 
   public static MAP_WIDTH = 640
   public static MAP_HEIGHT = 480
