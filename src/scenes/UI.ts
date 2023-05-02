@@ -5,7 +5,7 @@ import { Button } from '~/core/ui/Button'
 import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
-import Game from './Game'
+import Round from './Round'
 
 export enum CommandState {
   MOVE = 'MOVE',
@@ -147,7 +147,7 @@ export default class UI extends Phaser.Scene {
 
     // If the spike is not planted yet, the user cannot defuse
     if (newCommandState === CommandState.DEFUSE) {
-      if (!Game.instance.spike.isPlanted) {
+      if (!Round.instance.spike.isPlanted) {
         return
       }
     }
@@ -165,8 +165,8 @@ export default class UI extends Phaser.Scene {
   }
 
   selectNewUtility(utilityKey: UtilityKey) {
-    if (Game.instance.player) {
-      const currUtilityKey = Game.instance.player.currUtilityKey
+    if (Round.instance.player) {
+      const currUtilityKey = Round.instance.player.currUtilityKey
       if (currUtilityKey) {
         const prevUtilityBox = this.utilityKeyMapping[currUtilityKey]!.boundingBox
         if (prevUtilityBox && currUtilityKey !== utilityKey) {
@@ -179,12 +179,12 @@ export default class UI extends Phaser.Scene {
         newUtilityBox.setFillStyle(0xffff00)
       }
 
-      Game.instance.player.handleUtilityPress(utilityKey)
+      Round.instance.player.handleUtilityPress(utilityKey)
     }
   }
 
   canPlantSpike() {
-    return !Game.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
+    return !Round.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
   }
 
   createCommandBar() {
@@ -224,8 +224,8 @@ export default class UI extends Phaser.Scene {
       }
     )
     this.fireOnSightToggleSwitch.on('valuechange', (value) => {
-      if (Game.instance.player && Game.instance.player.selectedAgent) {
-        Game.instance.player.selectedAgent.fireOnSight = value
+      if (Round.instance.player && Round.instance.player.selectedAgent) {
+        Round.instance.player.selectedAgent.fireOnSight = value
       }
     })
   }
@@ -284,7 +284,7 @@ export default class UI extends Phaser.Scene {
     this.playerScoreText = this.add.text(
       this.timer.clockText.x,
       this.timer.clockText.y - 5,
-      Game.instance.scoreMapping[Side.PLAYER].toString(),
+      Round.instance.scoreMapping[Side.PLAYER].toString(),
       {
         fontSize: '30px',
       }
@@ -309,7 +309,7 @@ export default class UI extends Phaser.Scene {
     this.cpuScoreText = this.add.text(
       this.timer.clockText.x,
       this.timer.clockText.y - 5,
-      Game.instance.scoreMapping[Side.CPU].toString(),
+      Round.instance.scoreMapping[Side.CPU].toString(),
       {
         fontSize: '30px',
       }
@@ -343,15 +343,15 @@ export default class UI extends Phaser.Scene {
       .setVisible(false)
     this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_DOWN, (e) => {
       if (e.code === 'Space') {
-        if (Game.instance.isPaused) {
+        if (Round.instance.isPaused) {
           playOrPauseButton.setTexture('pause')
           pauseOverlay.setVisible(false)
-          Game.instance.unPause()
+          Round.instance.unPause()
           this.timer.start()
         } else {
           playOrPauseButton.setTexture('play')
           pauseOverlay.setVisible(true)
-          Game.instance.pause()
+          Round.instance.pause()
           this.timer.stop()
         }
       }
@@ -361,20 +361,20 @@ export default class UI extends Phaser.Scene {
   initialPlayerSetup() {
     if (!this.didInitialSetup) {
       if (
-        Game.instance.player &&
-        Game.instance.cpu &&
-        Game.instance.cpu.agents &&
-        Game.instance.player.selectedAgent
+        Round.instance.player &&
+        Round.instance.cpu &&
+        Round.instance.cpu.agents &&
+        Round.instance.player.selectedAgent
       ) {
-        this.renderAgentsInfoBoxes(Game.instance.player.agents, 30)
-        this.renderAgentsInfoBoxes(Game.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
+        this.renderAgentsInfoBoxes(Round.instance.player.agents, 30)
+        this.renderAgentsInfoBoxes(Round.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
         this.didInitialSetup = true
       }
     }
   }
 
   updateScores() {
-    this.playerScoreText.setText(Game.instance.scoreMapping[Side.PLAYER].toString())
+    this.playerScoreText.setText(Round.instance.scoreMapping[Side.PLAYER].toString())
     this.playerScoreText.setPosition(
       this.timer.clockText.x - this.playerScoreText.displayWidth - 30,
       this.timer.clockText.y - 5
@@ -383,7 +383,7 @@ export default class UI extends Phaser.Scene {
       this.playerScoreText.x - this.playerTeamLabel.displayWidth - 15,
       this.playerScoreText.y + 7
     )
-    this.cpuScoreText.setText(Game.instance.scoreMapping[Side.CPU].toString())
+    this.cpuScoreText.setText(Round.instance.scoreMapping[Side.CPU].toString())
     this.cpuScoreText.setPosition(
       this.timer.clockText.x + this.timer.clockText.displayWidth + 30,
       this.timer.clockText.y - 5
@@ -395,7 +395,7 @@ export default class UI extends Phaser.Scene {
   }
 
   handleTimerExpired() {
-    const game = Game.instance
+    const game = Round.instance
     switch (game.roundState) {
       case RoundState.PREROUND: {
         this.timer.setTime(Constants.MID_ROUND_TIME_SEC)
@@ -434,7 +434,7 @@ export default class UI extends Phaser.Scene {
         )
       },
       onComplete: () => {
-        const scoreMapping = Game.instance.scoreMapping
+        const scoreMapping = Round.instance.scoreMapping
         let titleText = ''
         if (scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]) {
           titleText = "It's a tie!"
@@ -484,10 +484,10 @@ export default class UI extends Phaser.Scene {
             buttonObj.destroy()
 
             // Reset back to preround state
-            Game.instance.roundState = RoundState.PREROUND
+            Round.instance.roundState = RoundState.PREROUND
             this.timer.setTime(Constants.PREROUND_TIME_SEC)
             this.timer.start()
-            Game.instance.restartRound()
+            Round.instance.restartRound()
           },
           scene: this,
           backgroundColor: 0x222222,
@@ -580,23 +580,23 @@ export default class UI extends Phaser.Scene {
 
   updateSelectedAgentFireOnSightToggleSwitch() {
     // Render fire on sight toggle
-    if (Game.instance.player && Game.instance.player.selectedAgent) {
-      this.fireOnSightToggleSwitch.setValue(Game.instance.player.selectedAgent.fireOnSight)
+    if (Round.instance.player && Round.instance.player.selectedAgent) {
+      this.fireOnSightToggleSwitch.setValue(Round.instance.player.selectedAgent.fireOnSight)
     }
   }
 
   updateAllAgentInfoBoxes() {
     // Render agent info boxes
-    if (Game.instance.player && Game.instance.player.agents) {
-      this.updateAgentInfoBoxes(Game.instance.player.agents, Side.PLAYER)
+    if (Round.instance.player && Round.instance.player.agents) {
+      this.updateAgentInfoBoxes(Round.instance.player.agents, Side.PLAYER)
     }
-    if (Game.instance.cpu && Game.instance.cpu.agents) {
-      this.updateAgentInfoBoxes(Game.instance.cpu.agents, Side.CPU)
+    if (Round.instance.cpu && Round.instance.cpu.agents) {
+      this.updateAgentInfoBoxes(Round.instance.cpu.agents, Side.CPU)
     }
   }
 
   updateSelectedAgentCommandState() {
-    if (Game.instance.attackSide === Side.PLAYER) {
+    if (Round.instance.attackSide === Side.PLAYER) {
       const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
       const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
       if (this.isSelectingSpikeCarrier()) {
@@ -607,8 +607,8 @@ export default class UI extends Phaser.Scene {
         commandIcon.setAlpha(0.25)
       }
     } else {
-      if (Game.instance.player) {
-        const selectedAgent = Game.instance.player.selectedAgent
+      if (Round.instance.player) {
+        const selectedAgent = Round.instance.player.selectedAgent
         const commandBtn = this.commandMapping[CommandState.STOP_HOLD]!.boundingBox
         const commandIcon = this.commandMapping[CommandState.STOP_HOLD]!.icon
         commandBtn.setAlpha(selectedAgent.holdLocation ? 1 : 0.25)
@@ -627,7 +627,7 @@ export default class UI extends Phaser.Scene {
   }
 
   isSelectingSpikeCarrier() {
-    const player = Game.instance.player
+    const player = Round.instance.player
     const selectedAgent = player.selectedAgent
     return selectedAgent.hasSpike
   }

@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants } from '~/utils/Constants'
 import { Agent, Side } from '../Agent'
 import { Node } from '../Pathfinding'
@@ -23,9 +23,9 @@ export class MoveState extends State {
     if (onReachedDestination) {
       this.onReachedDestination = onReachedDestination
     }
-    const endTilePos = Game.instance.getTilePosForWorldPos(pointToMoveTo.x, pointToMoveTo.y)
-    const currTilePos = Game.instance.getTilePosForWorldPos(agent.sprite.x, agent.sprite.y)
-    const path = Game.instance.pathfinding.getPath(currTilePos, endTilePos)
+    const endTilePos = Round.instance.getTilePosForWorldPos(pointToMoveTo.x, pointToMoveTo.y)
+    const currTilePos = Round.instance.getTilePosForWorldPos(agent.sprite.x, agent.sprite.y)
+    const path = Round.instance.pathfinding.getPath(currTilePos, endTilePos)
     this.currPath = path
   }
 
@@ -33,7 +33,7 @@ export class MoveState extends State {
     if (MoveState.isAtMoveTarget(agent, this.moveTarget) || !this.moveTarget) {
       const currNode = this.currPath.shift()
       if (currNode) {
-        this.moveTarget = Game.instance.getWorldPosForTilePos(
+        this.moveTarget = Round.instance.getWorldPosForTilePos(
           currNode.position.row,
           currNode.position.col
         )
@@ -64,11 +64,11 @@ export class MoveState extends State {
       return
     }
 
-    const currNodeWorldPos = Game.instance.getWorldPosForTilePos(
+    const currNodeWorldPos = Round.instance.getWorldPosForTilePos(
       tileAtMoveTarget.position.row,
       tileAtMoveTarget.position.col
     )
-    const initialLine = Game.instance.add
+    const initialLine = Round.instance.add
       .line(0, 0, agent.sprite.x, agent.sprite.y, currNodeWorldPos.x, currNodeWorldPos.y)
       .setStrokeStyle(0.5, 0x00ff00)
       .setDisplayOrigin(0.5)
@@ -77,15 +77,15 @@ export class MoveState extends State {
     for (let i = 1; i < this.currPath.length; i++) {
       const prevNode = this.currPath[i - 1]
       const currNode = this.currPath[i]
-      const prevNodeWorldPos = Game.instance.getWorldPosForTilePos(
+      const prevNodeWorldPos = Round.instance.getWorldPosForTilePos(
         prevNode.position.row,
         prevNode.position.col
       )
-      const currNodeWorldPos = Game.instance.getWorldPosForTilePos(
+      const currNodeWorldPos = Round.instance.getWorldPosForTilePos(
         currNode.position.row,
         currNode.position.col
       )
-      const line = Game.instance.add
+      const line = Round.instance.add
         .line(0, 0, currNodeWorldPos.x, currNodeWorldPos.y, prevNodeWorldPos.x, prevNodeWorldPos.y)
         .setStrokeStyle(0.5, 0x00ff00)
         .setDisplayOrigin(0.5)
@@ -128,7 +128,7 @@ export class MoveState extends State {
   }
 
   private moveTowardTarget(agent: Agent) {
-    if (Game.instance.isPaused) {
+    if (Round.instance.isPaused) {
       agent.sprite.setVelocity(0, 0)
       return
     }
@@ -150,7 +150,7 @@ export class MoveState extends State {
         this.moveTarget
       )
       const velocityVector = new Phaser.Math.Vector2()
-      Game.instance.physics.velocityFromRotation(angle, 100, velocityVector)
+      Round.instance.physics.velocityFromRotation(angle, 100, velocityVector)
       agent.sprite.setVelocity(velocityVector.x, velocityVector.y)
     }
   }

@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants } from '~/utils/Constants'
 import { Utility, UtilityConfig } from './Utility'
 
@@ -14,7 +14,7 @@ export class Smoke extends Utility {
   private didPlaceSmokes: boolean = false
   private isPlacingSmokes: boolean = false
 
-  constructor(game: Game, config: UtilityConfig) {
+  constructor(game: Round, config: UtilityConfig) {
     super(game, config)
     this.setupMouseListener()
     this.setupSmokesSprites()

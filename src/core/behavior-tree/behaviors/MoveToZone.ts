@@ -1,6 +1,6 @@
 import { Agent } from '~/core/Agent'
 import { States } from '~/core/states/States'
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { MapConstants } from '~/utils/MapConstants'
 import { BehaviorStatus } from '../nodes/BehaviorStatus'
 import { BehaviorTreeNode } from '../nodes/BehaviorTreeNode'
@@ -19,15 +19,15 @@ export class MoveToZone extends BehaviorTreeNode {
       const allRegions = MapConstants.MAP_CALLOUT_LOCATIONS
       const randomRegion = allRegions[Phaser.Math.Between(0, allRegions.length - 1)]
 
-      const topLeftTile = Game.instance.getTileAt(randomRegion.topLeft.x, randomRegion.topLeft.y)
-      const bottomRightTile = Game.instance.getTileAt(
+      const topLeftTile = Round.instance.getTileAt(randomRegion.topLeft.x, randomRegion.topLeft.y)
+      const bottomRightTile = Round.instance.getTileAt(
         randomRegion.bottomRight.x,
         randomRegion.bottomRight.y
       )
       if (topLeftTile && bottomRightTile) {
         const row = Phaser.Math.Between(topLeftTile.y, bottomRightTile.y)
         const col = Phaser.Math.Between(topLeftTile.x, bottomRightTile.x)
-        this.currMoveLocation = Game.instance.getWorldPosForTilePos(row, col)
+        this.currMoveLocation = Round.instance.getWorldPosForTilePos(row, col)
       }
     }
     const currAgent = this.blackboard.getData(BlackboardKeys.CURR_AGENT) as Agent

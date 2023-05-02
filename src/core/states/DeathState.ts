@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { GunTypes } from '~/utils/GunConstants'
 import { Agent, Side } from '../Agent'
 import { State } from './StateMachine'
@@ -14,7 +14,7 @@ export class DeathState extends State {
     this.diedTimestamp = Date.now()
     agent.sprite.setVelocity(0, 0)
     if (agent.hasSpike) {
-      Game.instance.spike.drop(agent.sprite.x, agent.sprite.y, agent)
+      Round.instance.spike.drop(agent.sprite.x, agent.sprite.y, agent)
     }
     agent.hasSpike = false
     agent.team.onAgentDeathHandlers.forEach((handler) => {

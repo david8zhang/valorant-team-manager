@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
 import { MapConstants, Region } from '~/utils/MapConstants'
 import { Agent } from '../Agent'
@@ -36,11 +36,11 @@ export class RespawnState extends State {
   }
 
   getRandomTilePointWithinRegion(region: Region) {
-    const topLeftTile = Game.instance.getTileAt(region.topLeft.x, region.topLeft.y)!
-    const bottomRightTile = Game.instance.getTileAt(region.bottomRight.x, region.bottomRight.y)!
+    const topLeftTile = Round.instance.getTileAt(region.topLeft.x, region.topLeft.y)!
+    const bottomRightTile = Round.instance.getTileAt(region.bottomRight.x, region.bottomRight.y)!
     const row = Phaser.Math.Between(topLeftTile.y, bottomRightTile.y)
     const col = Phaser.Math.Between(topLeftTile.x, bottomRightTile.x)
-    return Game.instance.getWorldPosForTilePos(row, col)
+    return Round.instance.getWorldPosForTilePos(row, col)
   }
 
   getRegionToRespawnIn() {
@@ -52,8 +52,8 @@ export class RespawnState extends State {
   }
 
   containsAgent(region: Region) {
-    const playerAgents = Game.instance.player.agents
-    const cpuAgents = Game.instance.cpu.agents
+    const playerAgents = Round.instance.player.agents
+    const cpuAgents = Round.instance.cpu.agents
     const allAgents = playerAgents.concat(cpuAgents)
     for (let i = 0; i < allAgents.length; i++) {
       const agent = allAgents[i]

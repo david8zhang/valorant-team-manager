@@ -1,13 +1,9 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import UI, { CommandState } from '~/scenes/UI'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
-import { AndSequenceNode } from './behavior-tree/nodes/AndSequenceNode'
-import { MoveToZone } from './behavior-tree/behaviors/MoveToZone'
-import { PopulateBlackboard } from './behavior-tree/behaviors/PopulateBlackboard'
 import { BehaviorTreeNode } from './behavior-tree/nodes/BehaviorTreeNode'
-import { Blackboard } from './behavior-tree/nodes/Blackboard'
 import { States } from './states/States'
 import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
@@ -15,7 +11,7 @@ import { UtilityName } from './utility/UtilityNames'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
 
 export class Player implements Team {
-  public game: Game
+  public game: Round
   public cursorRect!: Phaser.GameObjects.Rectangle
   public agents: Agent[] = []
   public selectedAgentIndex: number = 0
@@ -28,7 +24,7 @@ export class Player implements Team {
   }[] = []
 
   constructor() {
-    this.game = Game.instance
+    this.game = Round.instance
     this.createAgents()
   }
 

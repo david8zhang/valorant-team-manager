@@ -1,9 +1,9 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Agent } from './Agent'
 
 export interface Team {
   onAgentDeathHandlers: Function[]
-  game: Game
+  game: Round
   agents: Agent[]
 
   createAgents(): void

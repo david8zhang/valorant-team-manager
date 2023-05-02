@@ -2,10 +2,12 @@ import Phaser from 'phaser'
 import PhaserRaycaster from 'phaser-raycaster'
 import ToggleSwitchPlugin from 'phaser3-rex-plugins/plugins/toggleswitch-plugin'
 
-import Game from './scenes/Game'
+import Round from './scenes/Round'
 import Preload from './scenes/Preload'
 import UI from './scenes/UI'
 import { Constants } from './utils/Constants'
+import StartMenu from './scenes/StartMenu'
+import Home from './scenes/Home'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -42,7 +44,7 @@ const config: Phaser.Types.Core.GameConfig = {
       },
     ],
   },
-  scene: [Preload, Game, UI],
+  scene: [Preload, StartMenu, Home, Round, UI],
 }
 
 export default new Phaser.Game(config)

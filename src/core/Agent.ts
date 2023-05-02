@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import UI from '~/scenes/UI'
 import { Constants, Role } from '~/utils/Constants'
 import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
@@ -61,7 +61,7 @@ export class Agent {
   public shotRay: any
   public role: Role
 
-  public game: Game
+  public game: Round
   public sprite: Phaser.Physics.Arcade.Sprite
   public spikeIcon: Phaser.GameObjects.Image
   public isPaused: boolean = false
@@ -125,7 +125,7 @@ export class Agent {
   public healTimerEvent: Phaser.Time.TimerEvent
 
   constructor(config: AgentConfig) {
-    this.game = Game.instance
+    this.game = Round.instance
     this.team = config.team
     this.stats = config.stats
     if (config.hideSightCones) {

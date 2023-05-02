@@ -8,6 +8,7 @@ export interface ButtonConfig {
   text: string
   backgroundColor: number
   textColor: string
+  fontSize?: string
 }
 
 export class Button {
@@ -22,7 +23,7 @@ export class Button {
       .setAlpha(0.85)
       .setFillStyle(config.backgroundColor)
     this.text = this.scene.add.text(config.x, config.y, config.text, {
-      fontSize: '10px',
+      fontSize: config.fontSize ? config.fontSize : '10px',
       color: config.textColor,
     })
     this.text.setPosition(

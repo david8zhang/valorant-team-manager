@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants, RoundState } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent } from './Agent'
@@ -13,7 +13,7 @@ export interface SpikeConfig {
 
 export class Spike {
   public sprite: Phaser.Physics.Arcade.Sprite
-  public game: Game
+  public game: Round
   public isPlanted: boolean = false
   public isDefused: boolean = false
   public isDetonated: boolean = false
@@ -24,7 +24,7 @@ export class Spike {
   public explosionCircleDetector: Phaser.Geom.Circle
 
   constructor(config: SpikeConfig) {
-    this.game = Game.instance
+    this.game = Round.instance
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, 'spike')
       .setDepth(Constants.SORT_LAYERS.Player - 1)

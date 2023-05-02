@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
@@ -15,7 +15,7 @@ import { MoveToZone } from './behavior-tree/behaviors/MoveToZone'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
 
 export class CPU implements Team {
-  public game: Game
+  public game: Round
   public agents: Agent[] = []
   public onAgentDeathHandlers: Function[] = []
 
@@ -30,7 +30,7 @@ export class CPU implements Team {
   public intel: Intel
 
   constructor() {
-    this.game = Game.instance
+    this.game = Round.instance
     this.createAgents()
     this.setupDebugListener()
     this.intel = new Intel()

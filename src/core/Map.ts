@@ -1,9 +1,9 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 
 export class Map {
-  private game: Game
+  private game: Round
   public tilemap!: Phaser.Tilemaps.Tilemap
   public layers: any = {}
   public walls!: Phaser.GameObjects.Group
@@ -18,7 +18,7 @@ export class Map {
     rect: Phaser.GameObjects.Rectangle
   }[] = []
 
-  constructor(game: Game) {
+  constructor(game: Round) {
     this.game = game
     this.setupTilemap()
     this.setupWalls()

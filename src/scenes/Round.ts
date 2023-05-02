@@ -9,8 +9,8 @@ import { Constants, RoundState } from '~/utils/Constants'
 import { GunTypes } from '~/utils/GunConstants'
 import UI from './UI'
 
-export default class Game extends Phaser.Scene {
-  private static _instance: Game
+export default class Round extends Phaser.Scene {
+  private static _instance: Round
 
   public maskGraphics!: Phaser.GameObjects.Graphics
   public graphics!: Phaser.GameObjects.Graphics
@@ -48,14 +48,14 @@ export default class Game extends Phaser.Scene {
   public map!: Map
 
   constructor() {
-    super('game')
-    if (!Game._instance) {
-      Game._instance = this
+    super('round')
+    if (!Round._instance) {
+      Round._instance = this
     }
   }
 
   public static get instance() {
-    return Game._instance
+    return Round._instance
   }
 
   getTileAt(worldX: number, worldY: number) {

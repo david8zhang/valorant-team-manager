@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Constants } from '~/utils/Constants'
 import { getRangeForPoints, GUN_CONFIGS, GunConfig, Range } from '~/utils/GunConstants'
 import { Agent } from '../Agent'
@@ -20,13 +20,13 @@ export class ShootingState extends State {
     }
     agent.sprite.setVelocity(0, 0)
     if (!this.muzzleFlareSprite) {
-      this.muzzleFlareSprite = Game.instance.add
+      this.muzzleFlareSprite = Round.instance.add
         .sprite(agent.sprite.x, agent.sprite.y, 'muzzle-flare')
         .setDepth(Constants.SORT_LAYERS.Player + 100)
         .setVisible(false)
     }
     this.isWithinReactionDelay = true
-    Game.instance.time.delayedCall(250, () => {
+    Round.instance.time.delayedCall(250, () => {
       this.isWithinReactionDelay = false
     })
   }
@@ -108,7 +108,7 @@ export class ShootingState extends State {
   }
 
   fireBullet(agent: Agent, angle: number) {
-    if (this.target && agent.currWeapon && !Game.instance.isPaused) {
+    if (this.target && agent.currWeapon && !Round.instance.isPaused) {
       const currTimestamp = Date.now()
       const weaponConfig = GUN_CONFIGS[agent.currWeapon] as GunConfig
 
@@ -149,13 +149,13 @@ export class ShootingState extends State {
     agent.shotRay.setAngle(missAngle)
     const intersection = agent.shotRay.cast()
 
-    this.tracerLine = Game.instance.add
+    this.tracerLine = Round.instance.add
       .line(0, 0, agent.sprite.x, agent.sprite.y, intersection.x, intersection.y)
       .setStrokeStyle(1, 0xfeff32)
       .setDisplayOrigin(0.5)
       .setDepth(Constants.SORT_LAYERS.UI + 100)
 
-    Game.instance.tweens.add({
+    Round.instance.tweens.add({
       targets: [this.tracerLine, this.muzzleFlareSprite],
       alpha: {
         from: 1,
@@ -171,12 +171,12 @@ export class ShootingState extends State {
   }
 
   handleHit(agent: Agent, weaponConfig: GunConfig) {
-    this.tracerLine = Game.instance.add
+    this.tracerLine = Round.instance.add
       .line(0, 0, agent.sprite.x, agent.sprite.y, this.target!.sprite.x, this.target!.sprite.y)
       .setStrokeStyle(1, 0xfeff32)
       .setDisplayOrigin(0.5)
       .setDepth(Constants.SORT_LAYERS.UI + 100)
-    Game.instance.tweens.add({
+    Round.instance.tweens.add({
       targets: [this.tracerLine, this.muzzleFlareSprite],
       alpha: {
         from: 1,

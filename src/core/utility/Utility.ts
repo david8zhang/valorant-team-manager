@@ -1,4 +1,4 @@
-import Game from '~/scenes/Game'
+import Round from '~/scenes/Round'
 import { Agent, Side } from '../Agent'
 import { UtilityKey } from './UtilityKey'
 import { UtilityName } from './UtilityNames'
@@ -14,7 +14,7 @@ export abstract class Utility {
   public key: UtilityKey
   public name: UtilityName
   public texture: string
-  public game: Game
+  public game: Round
   public agent: Agent
   public preventOtherCommands: boolean = false
   public isDepleted: boolean = false
@@ -22,7 +22,7 @@ export abstract class Utility {
   public totalCharges: number = 0
   public numCharges: number = 0
 
-  constructor(game: Game, config: UtilityConfig) {
+  constructor(game: Round, config: UtilityConfig) {
     this.game = game
     this.key = config.key
     this.texture = config.texture
