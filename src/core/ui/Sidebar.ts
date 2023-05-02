@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import { Constants } from '~/utils/Constants'
 
 export interface SidebarConfig {
+  width: number
   options: {
     text: string
     onClick: Function
@@ -16,10 +17,10 @@ export class Sidebar {
   constructor(scene: Scene, config: SidebarConfig) {
     this.scene = scene
     this.rectangle = this.scene.add
-      .rectangle(0, 0, 200, Constants.WINDOW_HEIGHT, 0xdddddd)
+      .rectangle(0, 0, config.width, Constants.WINDOW_HEIGHT, 0xdddddd)
       .setOrigin(0)
     this.highlightRect = this.scene.add
-      .rectangle(0, 0, 200, 25, 0x555555)
+      .rectangle(0, 0, config.width, 25, 0x555555)
       .setOrigin(0)
       .setVisible(false)
 

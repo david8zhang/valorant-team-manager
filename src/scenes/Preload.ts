@@ -1,9 +1,10 @@
-import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
+import { Save } from '~/utils/Save'
 
 export default class Preload extends Phaser.Scene {
   constructor() {
     super('preload')
+    new Save()
   }
 
   preload() {
@@ -41,7 +42,7 @@ export default class Preload extends Phaser.Scene {
   }
 
   create() {
-    this.scene.start('home')
+    this.scene.start('team-mgmt')
     // this.scene.start('start')
     // this.scene.start('ui')
     // this.scene.start('round')

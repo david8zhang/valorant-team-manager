@@ -1,7 +1,7 @@
 import Round from '~/scenes/Round'
 import UI from '~/scenes/UI'
-import { Constants, Role } from '~/utils/Constants'
-import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
+import { Constants } from '~/utils/Constants'
+import { GunTypes } from '~/utils/GunConstants'
 import { DeathState } from './states/DeathState'
 import { IdleState } from './states/IdleState'
 import { MoveState } from './states/MoveState'
@@ -21,12 +21,6 @@ export enum Side {
   CPU = 'CPU',
 }
 
-export enum WeaponTypes {
-  PRIMARY = 'PRIMARY',
-  SECONDARY = 'SECONDARY',
-  MELEE = 'MELEE',
-}
-
 export interface AgentConfig {
   position: {
     x: number
@@ -37,7 +31,6 @@ export interface AgentConfig {
   sightAngleDeg: number
   raycaster: any
   side: Side
-  role: Role
   team: Team
   stats: {
     accuracyPct: number
@@ -59,7 +52,6 @@ export class Agent {
   public visionRay: any
   public visionPolygon!: Phaser.Geom.Polygon
   public shotRay: any
-  public role: Role
 
   public game: Round
   public sprite: Phaser.Physics.Arcade.Sprite
@@ -132,7 +124,6 @@ export class Agent {
       this.hideSightCones = config.hideSightCones
     }
     this.name = config.name
-    this.role = config.role
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
