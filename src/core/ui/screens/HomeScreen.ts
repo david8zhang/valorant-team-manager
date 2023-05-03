@@ -4,23 +4,70 @@ import { Screen } from './Screen'
 import { HomePlayerInfo } from '../HomePlayerInfo'
 import TeamMgmt from '~/scenes/TeamMgmt'
 import { Constants } from '~/utils/Constants'
+import { Button } from '../Button'
+import { ScreenKeys } from './ScreenKeys'
 
 export class HomeScreen implements Screen {
-  private scene: Scene
+  private scene: TeamMgmt
   private playerCards: HomePlayerInfo[] = []
+  private queueButton: Button
+  private teamNameText!: Phaser.GameObjects.Text
+  private winLossRecordText!: Phaser.GameObjects.Text
 
-  constructor(scene: Scene) {
+  constructor(scene: TeamMgmt) {
     this.scene = scene
     this.setupPlayerCards()
+    this.queueButton = new Button({
+      scene: this.scene,
+      width: 200,
+      height: 50,
+      x: 200 + TeamMgmt.BODY_WIDTH / 2,
+      y: Constants.WINDOW_HEIGHT - 60,
+      text: 'Queue Up',
+      backgroundColor: 0x444444,
+      onClick: () => {
+        this.scene.renderActiveScreen(ScreenKeys.SEASON)
+      },
+      fontSize: '20px',
+      textColor: 'white',
+      strokeColor: 0x000000,
+      strokeWidth: 1,
+    })
+    this.setupTeamName()
+    this.setupWinLossRecordText()
+  }
+
+  setupWinLossRecordText() {
+    const winLossRecord = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
+    this.winLossRecordText = this.scene.add.text(
+      200 + TeamMgmt.BODY_WIDTH / 2,
+      this.teamNameText.y + this.teamNameText.displayHeight + 15,
+      `${winLossRecord.wins}W - ${winLossRecord.losses}L`,
+      {
+        fontSize: '20px',
+        color: 'black',
+      }
+    )
+    this.winLossRecordText.setPosition(
+      200 + TeamMgmt.BODY_WIDTH / 2 - this.winLossRecordText.displayWidth / 2,
+      this.winLossRecordText.y - this.winLossRecordText.displayHeight / 2
+    )
+  }
+
+  setupTeamName() {
+    const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    this.teamNameText = this.scene.add.text(200 + TeamMgmt.BODY_WIDTH / 2, 40, teamName, {
+      fontSize: '40px',
+      color: 'black',
+    })
+    this.teamNameText.setPosition(
+      this.teamNameText.x - this.teamNameText.displayWidth / 2,
+      this.teamNameText.y - this.teamNameText.displayHeight / 2
+    )
   }
 
   setupPlayerCards() {
     let playerConfigs = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)
-    if (!playerConfigs) {
-      playerConfigs = this.generateNewPlayers()
-      Save.setData(SaveKeys.PLAYER_AGENT_CONFIGS, playerConfigs)
-    }
-
     const padding = 15
     const cardWidth =
       TeamMgmt.BODY_WIDTH / playerConfigs.length -
@@ -32,9 +79,9 @@ export class HomeScreen implements Screen {
           name: config.name,
           position: {
             x: xPos,
-            y: padding,
+            y: padding + 90,
           },
-          height: Constants.WINDOW_HEIGHT - 30,
+          height: Constants.WINDOW_HEIGHT - 240,
           width: cardWidth,
         })
       )
@@ -42,7 +89,36 @@ export class HomeScreen implements Screen {
     })
   }
 
-  setVisible(isVisible: boolean) {}
+  onRender() {
+    const players = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)
+    const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const teamWinLossRecord = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
+    this.playerCards.forEach((playerCard, index) => {
+      playerCard.updateInfo(players[index])
+    })
+    this.teamNameText.setText(teamName)
+    this.teamNameText.setPosition(
+      200 + TeamMgmt.BODY_WIDTH / 2 - this.teamNameText.displayWidth / 2,
+      40 - this.teamNameText.displayHeight / 2
+    )
+    this.winLossRecordText.setText(`${teamWinLossRecord.wins}W - ${teamWinLossRecord.losses}L`)
+    this.winLossRecordText.setPosition(
+      200 + TeamMgmt.BODY_WIDTH / 2 - this.winLossRecordText.displayWidth / 2,
+      this.teamNameText.y +
+        this.teamNameText.displayHeight +
+        15 -
+        this.winLossRecordText.displayHeight / 2
+    )
+  }
+
+  setVisible(isVisible: boolean) {
+    this.playerCards.forEach((playerCard) => {
+      playerCard.setVisible(isVisible)
+    })
+    this.teamNameText.setVisible(isVisible)
+    this.winLossRecordText.setVisible(isVisible)
+    this.queueButton.setVisible(isVisible)
+  }
 
   generateNewPlayers(): any[] {
     const newPlayers: any[] = []

@@ -16,20 +16,31 @@ export class HomePlayerInfo {
   private playerNameText: Phaser.GameObjects.Text
 
   constructor(scene: Scene, config: HomePlayerInfoConfig) {
-    console.log(config)
     this.scene = scene
     this.rectangle = this.scene.add
       .rectangle(config.position.x, config.position.y, config.width, config.height)
       .setStrokeStyle(1, 0x000000)
       .setOrigin(0)
     this.playerNameText = this.scene.add.text(this.rectangle.x, this.rectangle.y, config.name, {
-      fontSize: '12px',
+      fontSize: '24px',
       color: 'black',
     })
+    this.playerNameText.setPosition(
+      this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
+      this.rectangle.y + this.rectangle.displayHeight / 2 - this.playerNameText.displayHeight / 2
+    )
   }
 
   setVisible(isVisible: boolean) {
     this.rectangle.setVisible(isVisible)
     this.playerNameText.setVisible(isVisible)
+  }
+
+  updateInfo(config: HomePlayerInfoConfig) {
+    this.playerNameText.setText(config.name)
+    this.playerNameText.setPosition(
+      this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
+      this.rectangle.y + this.rectangle.displayHeight / 2 - this.playerNameText.displayHeight / 2
+    )
   }
 }

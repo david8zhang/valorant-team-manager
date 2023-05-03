@@ -13,6 +13,8 @@ export enum RoundState {
 }
 
 export class Constants {
+  public static TEAM_NAME_PLACEHOLDER = 'Guangdong Tigers'
+
   public static KILL_CREDITS_AMOUNT = 500
   public static ASSIST_CREDITS_AMOUNT = 250
 
