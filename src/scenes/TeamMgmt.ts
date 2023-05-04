@@ -134,6 +134,7 @@ export default class TeamMgmt extends Phaser.Scene {
         },
       ],
     })
+    this.renderActiveScreen(this.activeScreenKey)
   }
 
   renderActiveScreen(newActiveScreenKey: ScreenKeys) {

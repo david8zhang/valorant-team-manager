@@ -8,12 +8,14 @@ export interface TeamRankingsConfig {
 export class TeamRankings {
   private scene: TeamMgmt
   private group: Phaser.GameObjects.Group
+  private titleText: Phaser.GameObjects.Text
+  private bgRect: Phaser.GameObjects.Rectangle
   private static START_X = 665
 
   constructor(scene: TeamMgmt, config: TeamRankingsConfig) {
     this.scene = scene
     this.group = this.scene.add.group()
-    const titleText = this.scene.add.text(
+    this.titleText = this.scene.add.text(
       (TeamRankings.START_X + Constants.WINDOW_WIDTH) / 2,
       50,
       'Team Rankings',
@@ -23,12 +25,12 @@ export class TeamRankings {
         align: 'center',
       }
     )
-    titleText.setWordWrapWidth(Constants.WINDOW_WIDTH - TeamRankings.START_X - 50)
-    titleText.setPosition(
-      (TeamRankings.START_X + Constants.WINDOW_WIDTH) / 2 - titleText.displayWidth / 2,
+    this.titleText.setWordWrapWidth(Constants.WINDOW_WIDTH - TeamRankings.START_X - 50)
+    this.titleText.setPosition(
+      (TeamRankings.START_X + Constants.WINDOW_WIDTH) / 2 - this.titleText.displayWidth / 2,
       50
     )
-    const rect = this.scene.add
+    this.bgRect = this.scene.add
       .rectangle(
         TeamRankings.START_X - 10,
         0,
@@ -36,15 +38,24 @@ export class TeamRankings {
         Constants.WINDOW_HEIGHT
       )
       .setOrigin(0)
-    rect.setStrokeStyle(1, 0x000000)
-    this.group.add(rect)
-    this.group.add(titleText)
+    this.bgRect.setStrokeStyle(1, 0x000000)
     this.setupRankings(config)
+  }
+
+  getWinLossRatio(teamConfig: TeamConfig) {
+    if (teamConfig.losses == 0) {
+      return Number.MAX_SAFE_INTEGER
+    }
+    return teamConfig.wins / teamConfig.losses
   }
 
   setupRankings(config: TeamRankingsConfig) {
     let yPos = 125
-    config.allTeams.forEach((team: TeamConfig) => {
+    const sortedByRanking = config.allTeams.sort((a, b) => {
+      return this.getWinLossRatio(b) - this.getWinLossRatio(a)
+    })
+
+    sortedByRanking.forEach((team: TeamConfig) => {
       const teamName = this.scene.add.text(TeamRankings.START_X, yPos, team.name, {
         fontSize: '12px',
         color: 'black',
@@ -65,7 +76,14 @@ export class TeamRankings {
     })
   }
 
+  updateRankings(allTeams: TeamConfig[]) {
+    this.group.clear(true, true)
+    this.setupRankings({ allTeams })
+  }
+
   setVisible(isVisible: boolean) {
     this.group.setVisible(isVisible)
+    this.titleText.setVisible(isVisible)
+    this.bgRect.setVisible(isVisible)
   }
 }

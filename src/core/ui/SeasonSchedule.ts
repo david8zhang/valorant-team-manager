@@ -15,10 +15,12 @@ export class SeasonSchedule {
   private leftCarat!: Phaser.GameObjects.Image
   private matchText: Phaser.GameObjects.Text[] = []
   private rectangle!: Phaser.GameObjects.Rectangle
+  private currMatchIndex: number = 0
 
   constructor(scene: TeamMgmt, config: SeasonScheduleConfig) {
     this.scene = scene
     this.schedule = config.schedule
+    this.currMatchIndex = config.currMatchIndex
     this.setupSeasonSchedule()
   }
 
@@ -83,25 +85,19 @@ export class SeasonSchedule {
     this.matchText = []
     let xPos = this.leftCarat.x + this.leftCarat.displayWidth / 2 + 25
     this.pageIndex += amt
-    if (this.pageIndex == 0) {
-      this.leftCarat.setVisible(false)
-      this.rightCarat.setVisible(true)
-    }
-    if (this.pageIndex == this.schedule.length / this.pageSize - 1) {
-      this.leftCarat.setVisible(true)
-      this.rightCarat.setVisible(false)
-    }
+    this.pageIndex = Math.max(0, this.pageIndex)
+    this.pageIndex = Math.min(this.pageIndex, this.schedule.length / this.pageSize - 1)
 
     const matches = this.schedule.slice(
       this.pageIndex * this.pageSize,
       this.pageIndex * this.pageSize + this.pageSize
     )
-
-    matches.forEach((matchConfig: MatchConfig) => {
+    matches.forEach((matchConfig: MatchConfig, index: number) => {
+      const matchNum = index + this.pageIndex * this.pageSize
       const text = this.scene.add
         .text(xPos, this.rightCarat.y + 2, matchConfig.shortName, {
           fontSize: '20px',
-          color: 'black',
+          color: this.currMatchIndex > matchNum ? 'gray' : 'black',
         })
         .setOrigin(0)
       this.matchText.push(text)
@@ -113,8 +109,8 @@ export class SeasonSchedule {
     this.matchText.forEach((matchText) => {
       matchText.setVisible(isVisible)
     })
+    this.rectangle.setVisible(isVisible)
     this.leftCarat.setVisible(isVisible)
     this.rightCarat.setVisible(isVisible)
-    this.rectangle.setVisible(isVisible)
   }
 }

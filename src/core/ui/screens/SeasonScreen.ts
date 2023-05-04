@@ -10,19 +10,21 @@ export class SeasonScreen implements Screen {
   private schedule: MatchConfig[] = []
   private upcomingMatch!: UpcomingMatch
   private seasonSchedule!: SeasonSchedule
+  private rankingsList!: TeamRankings
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.setupCurrentMatch()
     this.setupRankings()
     this.setupSchedule()
+    this.setVisible(false)
   }
 
   setupRankings() {
     const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
-    const rankingsList = new TeamRankings(this.scene, {
+    this.rankingsList = new TeamRankings(this.scene, {
       allTeams: Object.values(allTeamMapping),
     })
   }
@@ -34,7 +36,6 @@ export class SeasonScreen implements Screen {
       [key: string]: TeamConfig
     }
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-
     const currMatch = seasonSchedule[currMatchIndex]
     const homeTeam: TeamConfig = currMatch.isHome
       ? allTeamMapping[teamName]
@@ -46,7 +47,6 @@ export class SeasonScreen implements Screen {
     this.upcomingMatch = new UpcomingMatch(this.scene, {
       homeTeam,
       awayTeam,
-      allTeamConfigs: Object.values(allTeamMapping),
     })
   }
 
@@ -59,9 +59,39 @@ export class SeasonScreen implements Screen {
     })
   }
 
-  onRender() {
-    console.log('Went here!')
+  updateUpcomingMatch() {
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+      [key: string]: TeamConfig
+    }
+    const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const currMatch = seasonSchedule[currMatchIndex]
+    const homeTeam: TeamConfig = currMatch.isHome
+      ? allTeamMapping[teamName]
+      : allTeamMapping[currMatch.opponent]
+    const awayTeam: TeamConfig = currMatch.isHome
+      ? allTeamMapping[currMatch.opponent]
+      : allTeamMapping[teamName]
+    this.upcomingMatch.updateTeams(homeTeam, awayTeam)
   }
 
-  setVisible(isVisible: boolean) {}
+  updateTeamRankings() {
+    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+      [key: string]: TeamConfig
+    }
+    this.rankingsList.updateRankings(Object.values(allTeamMapping))
+  }
+
+  onRender() {
+    this.updateUpcomingMatch()
+    this.updateTeamRankings()
+    this.seasonSchedule.updateSchedulePage(0)
+  }
+
+  setVisible(isVisible: boolean) {
+    this.seasonSchedule.setVisible(isVisible)
+    this.rankingsList.setVisible(isVisible)
+    this.upcomingMatch.setVisible(isVisible)
+  }
 }
