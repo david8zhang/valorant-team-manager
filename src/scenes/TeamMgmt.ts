@@ -4,13 +4,25 @@ import { ScreenKeys } from '~/core/ui/screens/ScreenKeys'
 import { SeasonScreen } from '~/core/ui/screens/SeasonScreen'
 import { Constants } from '~/utils/Constants'
 import { Save, SaveKeys } from '~/utils/Save'
-import { CPU_TEAM_NAMES } from '~/utils/TeamConstants'
+import { CPU_TEAM_NAMES, SHORT_NAMES } from '~/utils/TeamConstants'
 import { Utilities } from '~/utils/Utilities'
+
+export interface TeamConfig {
+  name: string
+  wins: number
+  losses: number
+}
+
+export interface MatchConfig {
+  opponent: string
+  shortName: string
+  isHome: boolean
+}
 
 export default class TeamMgmt extends Phaser.Scene {
   private sidebar!: Sidebar
-  public static SIDEBAR_WIDTH = 200
-  public static BODY_WIDTH = Constants.WINDOW_WIDTH - TeamMgmt.SIDEBAR_WIDTH
+  public static BODY_WIDTH = Constants.WINDOW_WIDTH - Constants.TEAM_MGMT_SIDEBAR_WIDTH
+
   public screens!: {
     [key in ScreenKeys]: any
   }
@@ -22,27 +34,58 @@ export default class TeamMgmt extends Phaser.Scene {
 
   initializeNewGameData() {
     const newPlayers = this.generateNewPlayers()
-    const teamConfigs = this.generateTeams()
+    const teamConfigMapping = this.generateTeams()
+    const seasonSchedule = this.generateSchedule(Object.values(teamConfigMapping))
     const winLossRecord = {
       wins: 0,
       losses: 0,
     }
-
+    // Add player team to the mapping
+    teamConfigMapping[Constants.TEAM_NAME_PLACEHOLDER] = {
+      name: Constants.TEAM_NAME_PLACEHOLDER,
+      ...winLossRecord,
+    }
     Save.setData(SaveKeys.PLAYER_AGENT_CONFIGS, newPlayers)
     Save.setData(SaveKeys.PLAYER_TEAM_NAME, Constants.TEAM_NAME_PLACEHOLDER)
     Save.setData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD, winLossRecord)
-    Save.setData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS, teamConfigs)
+    Save.setData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS, teamConfigMapping)
+    Save.setData(SaveKeys.SEASON_SCHEDULE, seasonSchedule)
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
   }
 
   generateTeams() {
     const shuffledCPUTeamNames = Utilities.shuffle([...CPU_TEAM_NAMES])
-    return shuffledCPUTeamNames.map((teamName) => {
-      return {
-        name: teamName,
-        wins: 0,
-        losses: 0,
-      }
+    const allTeams = shuffledCPUTeamNames
+      .map((teamName) => {
+        return {
+          name: teamName,
+          wins: 0,
+          losses: 0,
+        }
+      })
+      .slice(0, shuffledCPUTeamNames.length - 1)
+    const teamNameToObjMapping = allTeams.reduce((acc, curr) => {
+      acc[curr.name] = curr
+      return acc
+    }, {})
+    return teamNameToObjMapping
+  }
+
+  generateSchedule(otherTeamConfigs: TeamConfig[]): MatchConfig[] {
+    const result: MatchConfig[] = []
+    otherTeamConfigs.forEach((team) => {
+      result.push({
+        isHome: true,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
+      result.push({
+        isHome: false,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
     })
+    return Utilities.shuffle([...result])
   }
 
   generateNewPlayers() {
@@ -67,7 +110,7 @@ export default class TeamMgmt extends Phaser.Scene {
       .setStrokeStyle(1, 0x000000)
     this.cameras.main.setBackgroundColor('#ffffff')
     this.sidebar = new Sidebar(this, {
-      width: TeamMgmt.SIDEBAR_WIDTH,
+      width: Constants.TEAM_MGMT_SIDEBAR_WIDTH,
       options: [
         {
           text: 'Home',

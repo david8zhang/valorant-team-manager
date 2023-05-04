@@ -1,4 +1,3 @@
-import { Scene } from 'phaser'
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
 import { HomePlayerInfo } from '../HomePlayerInfo'
@@ -16,7 +15,6 @@ export class HomeScreen implements Screen {
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
-    this.setupPlayerCards()
     this.queueButton = new Button({
       scene: this.scene,
       width: 200,
@@ -33,8 +31,10 @@ export class HomeScreen implements Screen {
       strokeColor: 0x000000,
       strokeWidth: 1,
     })
+    this.setupPlayerCards()
     this.setupTeamName()
     this.setupWinLossRecordText()
+    this.setVisible(false)
   }
 
   setupWinLossRecordText() {
@@ -72,7 +72,7 @@ export class HomeScreen implements Screen {
     const cardWidth =
       TeamMgmt.BODY_WIDTH / playerConfigs.length -
       padding * ((playerConfigs.length + 1) / playerConfigs.length)
-    let xPos = TeamMgmt.SIDEBAR_WIDTH + padding
+    let xPos = Constants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     playerConfigs.forEach((config) => {
       this.playerCards.push(
         new HomePlayerInfo(this.scene, {
