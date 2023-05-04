@@ -13,6 +13,7 @@ export enum RoundState {
 }
 
 export class Constants {
+  public static TEAM_MGMT_SIDEBAR_WIDTH = 200
   public static TEAM_NAME_PLACEHOLDER = 'Guangdong Tigers'
 
   public static KILL_CREDITS_AMOUNT = 500

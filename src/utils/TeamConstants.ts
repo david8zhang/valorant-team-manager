@@ -8,3 +8,14 @@ export const CPU_TEAM_NAMES = [
   'Nightland Titans',
   'Quickwater Hawks',
 ]
+
+export const SHORT_NAMES = {
+  'Ironborn Dragons': 'IRO',
+  'Cavebell Vikings': 'CAV',
+  'Deadmere Flames': 'DEF',
+  'Roguemire Cardinal': 'ROG',
+  'Thornford Rangers': 'THO',
+  'Faycoast Angels': 'FAY',
+  'Nightland Titans': 'NIT',
+  'Quickwater Hawks': 'QUH',
+}
