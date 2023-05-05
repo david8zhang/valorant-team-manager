@@ -15,6 +15,12 @@ import { Utility, UtilityConfig } from './utility/Utility'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityMapping } from './utility/UtilityMapping'
 import { UtilityName } from './utility/UtilityNames'
+import {
+  PlayerRank,
+  RANK_TO_ACCURACY_MAPPING,
+  RANK_TO_HS_MAPPING,
+  RANK_TO_REACTION_MAPPING,
+} from '~/utils/PlayerConstants'
 
 export enum Side {
   PLAYER = 'PLAYER',
@@ -33,9 +39,9 @@ export interface AgentConfig {
   side: Side
   team: Team
   stats: {
-    accuracyPct: number
-    headshotPct: number
-    reactionTimeMs: number
+    accuracy: PlayerRank
+    headshot: PlayerRank
+    reaction: PlayerRank
   }
   utility: {
     [key in UtilityKey]?: UtilityName
@@ -119,7 +125,7 @@ export class Agent {
   constructor(config: AgentConfig) {
     this.game = Round.instance
     this.team = config.team
-    this.stats = config.stats
+    this.stats = this.convertRankToStats(config.stats)
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
@@ -182,6 +188,14 @@ export class Agent {
         this.healOverTime()
       },
     })
+  }
+
+  convertRankToStats(config: any) {
+    return {
+      accuracyPct: RANK_TO_ACCURACY_MAPPING[config.accuracy],
+      headshotPct: RANK_TO_HS_MAPPING[config.headshot],
+      reactionTimeMs: RANK_TO_REACTION_MAPPING[config.reaction],
+    }
   }
 
   healOverTime() {

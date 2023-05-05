@@ -6,6 +6,7 @@ import { UtilityKey } from '~/core/utility/UtilityKey'
 import { Constants, RoundState } from '~/utils/Constants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Round from './Round'
+import { TeamConfig } from './TeamMgmt'
 
 export enum CommandState {
   MOVE = 'MOVE',
@@ -71,6 +72,8 @@ export default class UI extends Phaser.Scene {
     renderTimestamp: number
   }[] = []
 
+  public cpuTeamConfig!: TeamConfig
+
   constructor() {
     super('ui')
     this.commandMapping = {}
@@ -82,6 +85,10 @@ export default class UI extends Phaser.Scene {
 
   public static get instance() {
     return UI._instance
+  }
+
+  init(data: { cpuTeamConfig: TeamConfig }) {
+    this.cpuTeamConfig = data.cpuTeamConfig
   }
 
   createCommandIcon(
@@ -243,17 +250,22 @@ export default class UI extends Phaser.Scene {
       .setDepth(Constants.SORT_LAYERS.UI)
 
     this.playerSidebarTeamLabel = this.add
-      .text(Constants.MAP_WIDTH + 10, 10, 'Player', {
+      .text(Constants.MAP_WIDTH + 10, 10, Constants.TEAM_SHORT_NAME, {
         fontSize: '16px',
         color: 'white',
       })
       .setDepth(Constants.SORT_LAYERS.UI)
 
     this.cpuSidebarTeamLabel = this.add
-      .text(Constants.MAP_WIDTH + 10, Constants.WINDOW_HEIGHT / 2 + 10, 'CPU', {
-        fontSize: '16px',
-        color: 'white',
-      })
+      .text(
+        Constants.MAP_WIDTH + 10,
+        Constants.WINDOW_HEIGHT / 2 + 10,
+        this.cpuTeamConfig.shortName,
+        {
+          fontSize: '16px',
+          color: 'white',
+        }
+      )
       .setDepth(Constants.SORT_LAYERS.UI)
   }
 
@@ -294,7 +306,7 @@ export default class UI extends Phaser.Scene {
       this.timer.clockText.y - 5
     )
     this.playerTeamLabel = this.add
-      .text(this.playerScoreText.x, this.playerScoreText.y, 'Player', {
+      .text(this.playerScoreText.x, this.playerScoreText.y, Constants.TEAM_SHORT_NAME, {
         fontSize: '15px',
         align: 'center',
       })
@@ -319,7 +331,7 @@ export default class UI extends Phaser.Scene {
       this.timer.clockText.y - 5
     )
     this.cpuTeamLabel = this.add
-      .text(this.cpuScoreText.x, this.cpuScoreText.y - 15, 'CPU', {
+      .text(this.cpuScoreText.x, this.cpuScoreText.y - 15, this.cpuTeamConfig.shortName, {
         fontSize: '15px',
         align: 'center',
       })

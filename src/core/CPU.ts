@@ -13,6 +13,11 @@ import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { MoveToZone } from './behavior-tree/behaviors/MoveToZone'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+
+export interface CPUConfig {
+  teamRoster: PlayerAgentConfig[]
+}
 
 export class CPU implements Team {
   public game: Round
@@ -29,9 +34,9 @@ export class CPU implements Team {
   public teamBlackboard!: Blackboard
   public intel: Intel
 
-  constructor() {
+  constructor(config: CPUConfig) {
     this.game = Round.instance
-    this.createAgents()
+    this.createAgents(config.teamRoster)
     this.setupDebugListener()
     this.intel = new Intel()
   }
@@ -58,17 +63,17 @@ export class CPU implements Team {
     })
   }
 
-  createAgents() {
+  createAgents(cpuAgentConfigs: PlayerAgentConfig[]) {
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
-      const config = Constants.CPU_AGENT_CONFIGS[i]
+      const config = cpuAgentConfigs[i]
       const newAgent = new Agent({
         position: {
           x: startX,
           y: startY,
         },
         name: config.name,
-        texture: config.texture,
+        texture: 'cpu-agent',
         sightAngleDeg: 270,
         hideSightCones: !this.game.isDebug,
         raycaster: this.game.cpuRaycaster,

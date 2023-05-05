@@ -10,7 +10,7 @@ export class TeamRankings {
   private group: Phaser.GameObjects.Group
   private titleText: Phaser.GameObjects.Text
   private bgRect: Phaser.GameObjects.Rectangle
-  private static START_X = 665
+  public static START_X = 665
 
   constructor(scene: TeamMgmt, config: TeamRankingsConfig) {
     this.scene = scene

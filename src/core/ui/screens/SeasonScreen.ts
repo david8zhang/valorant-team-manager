@@ -4,6 +4,8 @@ import TeamMgmt, { MatchConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { UpcomingMatch } from '../UpcomingMatch'
 import { TeamRankings } from '../TeamRankings'
 import { SeasonSchedule } from '../SeasonSchedule'
+import { Button } from '../Button'
+import { Constants } from '~/utils/Constants'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -11,13 +13,34 @@ export class SeasonScreen implements Screen {
   private upcomingMatch!: UpcomingMatch
   private seasonSchedule!: SeasonSchedule
   private rankingsList!: TeamRankings
+  private startMatchButton!: Button
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.setupCurrentMatch()
     this.setupRankings()
     this.setupSchedule()
+    this.setupStartMatchButton()
     this.setVisible(false)
+  }
+
+  setupStartMatchButton() {
+    this.startMatchButton = new Button({
+      scene: this.scene,
+      x: (Constants.TEAM_MGMT_SIDEBAR_WIDTH + TeamRankings.START_X) / 2,
+      y: Constants.WINDOW_HEIGHT - 100,
+      width: 200,
+      height: 50,
+      text: 'Start Match',
+      backgroundColor: 0x444444,
+      onClick: () => {
+        this.scene.startGame()
+      },
+      fontSize: '20px',
+      textColor: 'white',
+      strokeColor: 0x000000,
+      strokeWidth: 1,
+    })
   }
 
   setupRankings() {
@@ -93,5 +116,6 @@ export class SeasonScreen implements Screen {
     this.seasonSchedule.setVisible(isVisible)
     this.rankingsList.setVisible(isVisible)
     this.upcomingMatch.setVisible(isVisible)
+    this.startMatchButton.setVisible(isVisible)
   }
 }

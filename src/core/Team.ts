@@ -1,10 +1,11 @@
 import Round from '~/scenes/Round'
-import { Agent } from './Agent'
+import { Agent, AgentConfig } from './Agent'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
 
 export interface Team {
   onAgentDeathHandlers: Function[]
   game: Round
   agents: Agent[]
 
-  createAgents(): void
+  createAgents(agentConfigs?: PlayerAgentConfig[]): void
 }

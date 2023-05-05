@@ -3,14 +3,27 @@ import { HomeScreen } from '~/core/ui/screens/HomeScreen'
 import { ScreenKeys } from '~/core/ui/screens/ScreenKeys'
 import { SeasonScreen } from '~/core/ui/screens/SeasonScreen'
 import { Constants } from '~/utils/Constants'
+import { PlayerRank } from '~/utils/PlayerConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { CPU_TEAM_NAMES, SHORT_NAMES } from '~/utils/TeamConstants'
 import { Utilities } from '~/utils/Utilities'
 
+export interface PlayerAgentConfig {
+  name: string
+  texture: string
+  stats: {
+    accuracy: PlayerRank
+    headshot: PlayerRank
+    reaction: PlayerRank
+  }
+}
+
 export interface TeamConfig {
   name: string
+  shortName: string
   wins: number
   losses: number
+  roster: PlayerAgentConfig[]
 }
 
 export interface MatchConfig {
@@ -33,7 +46,7 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   initializeNewGameData() {
-    const newPlayers = this.generateNewPlayers()
+    const newPlayers = this.generateNewPlayers(Constants.TEAM_NAME_PLACEHOLDER)
     const teamConfigMapping = this.generateTeams()
     const seasonSchedule = this.generateSchedule(Object.values(teamConfigMapping))
     const winLossRecord = {
@@ -44,6 +57,7 @@ export default class TeamMgmt extends Phaser.Scene {
     teamConfigMapping[Constants.TEAM_NAME_PLACEHOLDER] = {
       name: Constants.TEAM_NAME_PLACEHOLDER,
       ...winLossRecord,
+      roster: newPlayers,
     }
     Save.setData(SaveKeys.PLAYER_AGENT_CONFIGS, newPlayers)
     Save.setData(SaveKeys.PLAYER_TEAM_NAME, Constants.TEAM_NAME_PLACEHOLDER)
@@ -53,14 +67,31 @@ export default class TeamMgmt extends Phaser.Scene {
     Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
   }
 
+  startGame() {
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX) as number
+    const schedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+      [teamName: string]: TeamConfig
+    }
+    const currMatch = schedule[currMatchIndex]
+    this.scene.start('round', {
+      cpuTeamConfig: allTeamMapping[currMatch.opponent],
+    })
+    this.scene.start('ui', {
+      cpuTeamConfig: allTeamMapping[currMatch.opponent],
+    })
+  }
+
   generateTeams() {
     const shuffledCPUTeamNames = Utilities.shuffle([...CPU_TEAM_NAMES])
     const allTeams = shuffledCPUTeamNames
       .map((teamName) => {
         return {
           name: teamName,
+          shortName: SHORT_NAMES[teamName],
           wins: 0,
           losses: 0,
+          roster: this.generateNewPlayers(teamName),
         }
       })
       .slice(0, shuffledCPUTeamNames.length - 1)
@@ -88,11 +119,18 @@ export default class TeamMgmt extends Phaser.Scene {
     return Utilities.shuffle([...result])
   }
 
-  generateNewPlayers() {
-    const newPlayers: any[] = []
+  generateNewPlayers(teamName: string): PlayerAgentConfig[] {
+    const newPlayers: PlayerAgentConfig[] = []
+    const prefix = SHORT_NAMES[teamName]
     for (let i = 1; i <= 3; i++) {
       newPlayers.push({
-        name: `Agent-${i}`,
+        name: `${prefix}-${i}`,
+        texture: '',
+        stats: {
+          accuracy: PlayerRank.BRONZE,
+          headshot: PlayerRank.BRONZE,
+          reaction: PlayerRank.BRONZE,
+        },
       })
     }
     return newPlayers

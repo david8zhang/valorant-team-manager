@@ -9,6 +9,8 @@ import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
+import { Save, SaveKeys } from '~/utils/Save'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
 
 export class Player implements Team {
   public game: Round
@@ -227,16 +229,17 @@ export class Player implements Team {
   }
 
   createAgents() {
+    const saveData = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS) as PlayerAgentConfig[]
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
-      const config = Constants.PLAYER_AGENT_CONFIGS[i]
+      const config = saveData[i] as PlayerAgentConfig
       const newAgent = new Agent({
         position: {
           x: startX,
           y: startY,
         },
         name: config.name,
-        texture: config.texture,
+        texture: 'player-agent',
         sightAngleDeg: 90,
         raycaster: this.game.playerRaycaster,
         side: Side.PLAYER,

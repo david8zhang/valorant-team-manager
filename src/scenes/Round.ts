@@ -8,6 +8,7 @@ import { Spike } from '~/core/Spike'
 import { Constants, RoundState } from '~/utils/Constants'
 import { GunTypes } from '~/utils/GunConstants'
 import UI from './UI'
+import { PlayerAgentConfig, TeamConfig } from './TeamMgmt'
 
 export default class Round extends Phaser.Scene {
   private static _instance: Round
@@ -44,14 +45,19 @@ export default class Round extends Phaser.Scene {
   }
   public spike!: Spike
   public onPauseCallbacks: Function[] = []
-
   public map!: Map
+
+  public cpuTeamConfig!: TeamConfig
 
   constructor() {
     super('round')
     if (!Round._instance) {
       Round._instance = this
     }
+  }
+
+  public init(data: { cpuTeamConfig: TeamConfig }) {
+    this.cpuTeamConfig = data.cpuTeamConfig
   }
 
   public static get instance() {
@@ -120,7 +126,9 @@ export default class Round extends Phaser.Scene {
 
   initPlayerAndCPU() {
     this.player = new Player()
-    this.cpu = new CPU()
+    this.cpu = new CPU({
+      teamRoster: this.cpuTeamConfig.roster,
+    })
     this.cpu.agents.forEach((agent) => {
       this.playerAgentsGroup.add(agent.sprite)
       this.playerRaycaster.mapGameObjects(agent.sprite, true)

@@ -18,4 +18,5 @@ export const SHORT_NAMES = {
   'Faycoast Angels': 'FAY',
   'Nightland Titans': 'NIT',
   'Quickwater Hawks': 'QUH',
+  'Guangdong Tigers': 'GDT',
 }
