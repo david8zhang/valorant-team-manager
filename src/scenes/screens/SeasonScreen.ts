@@ -1,11 +1,11 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
 import TeamMgmt, { MatchConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { UpcomingMatch } from '../UpcomingMatch'
-import { TeamRankings } from '../TeamRankings'
-import { SeasonSchedule } from '../SeasonSchedule'
-import { Button } from '../Button'
 import { Constants } from '~/utils/Constants'
+import { TeamRankings } from '~/core/ui/TeamRankings'
+import { UpcomingMatch } from '~/core/ui/UpcomingMatch'
+import { SeasonSchedule } from '~/core/ui/SeasonSchedule'
+import { Button } from '~/core/ui/Button'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -44,7 +44,7 @@ export class SeasonScreen implements Screen {
   }
 
   setupRankings() {
-    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+    const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
     this.rankingsList = new TeamRankings(this.scene, {
@@ -55,7 +55,7 @@ export class SeasonScreen implements Screen {
   setupCurrentMatch() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
-    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+    const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
@@ -85,7 +85,7 @@ export class SeasonScreen implements Screen {
   updateUpcomingMatch() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
-    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+    const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
@@ -100,7 +100,7 @@ export class SeasonScreen implements Screen {
   }
 
   updateTeamRankings() {
-    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+    const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
     this.rankingsList.updateRankings(Object.values(allTeamMapping))

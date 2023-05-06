@@ -20,6 +20,9 @@ export class AgentInfoBox {
   public agentUtilityIcons: Phaser.GameObjects.Rectangle[] = []
   public agentGunIcon!: Phaser.GameObjects.Sprite
   public agentCreditsText!: Phaser.GameObjects.Text
+  public agentProfilePic!: Phaser.GameObjects.Rectangle
+  public agentNameText!: Phaser.GameObjects.Text
+
   public infoBoxRect!: Phaser.GameObjects.Rectangle
 
   constructor(scene: Scene, config: AgentInfoConfig) {
@@ -36,13 +39,13 @@ export class AgentInfoBox {
       .setDepth(Constants.SORT_LAYERS.UI)
       .setOrigin(0)
 
-    const agentProfilePic = this.scene.add
+    this.agentProfilePic = this.scene.add
       .rectangle(position.x, position.y, 65, 45, 0xff0000)
       .setOrigin(0)
       .setDepth(Constants.SORT_LAYERS.UI)
 
-    const agentNameText = this.scene.add
-      .text(agentProfilePic.x, agentProfilePic.y + 50, this.agent.name, {
+    this.agentNameText = this.scene.add
+      .text(this.agentProfilePic.x, this.agentProfilePic.y + 50, this.agent.name, {
         fontSize: '14px',
         color: 'white',
       })
@@ -51,7 +54,7 @@ export class AgentInfoBox {
 
     this.agentHealthBar = new UIValueBar(this.scene, {
       x: position.x,
-      y: agentNameText.y + 20,
+      y: this.agentNameText.y + 20,
       maxValue: 100,
       height: 10,
       width: Constants.RIGHT_BAR_WIDTH - 20,
@@ -62,7 +65,7 @@ export class AgentInfoBox {
     this.agentCreditsText = this.scene.add
       .text(
         position.x + this.infoBoxRect.displayWidth - 50,
-        agentNameText.y,
+        this.agentNameText.y,
         `$${this.agent.credits}`,
         {
           fontSize: '14px',
@@ -73,7 +76,7 @@ export class AgentInfoBox {
 
     const agentKdaTextPosX = this.agentCreditsText.x - 75
     this.agentKdaText = this.scene.add
-      .text(agentKdaTextPosX, agentNameText.y, '0/0/0', {
+      .text(agentKdaTextPosX, this.agentNameText.y, '0/0/0', {
         fontSize: '14px',
         color: 'white',
       })
@@ -82,11 +85,21 @@ export class AgentInfoBox {
     this.agentGunIcon = this.scene.add
       .sprite(
         this.infoBoxRect.x + this.infoBoxRect.displayWidth - 50,
-        agentProfilePic.y + 25,
+        this.agentProfilePic.y + 25,
         'classic-icon'
       )
       .setFlipX(true)
       .setDepth(Constants.SORT_LAYERS.UI)
+  }
+
+  destroy() {
+    this.agentHealthBar.destroy()
+    this.agentKdaText.destroy()
+    this.agentUtilityIcons.forEach((icon) => icon.destroy())
+    this.agentGunIcon.destroy()
+    this.agentCreditsText.destroy()
+    this.agentProfilePic.destroy()
+    this.agentNameText.destroy()
   }
 
   update() {
@@ -101,6 +114,9 @@ export class AgentInfoBox {
   }
 
   updateGunIcon() {
+    if (!this.agentGunIcon.scene) {
+      return
+    }
     switch (this.agent.currWeapon) {
       case GunTypes.PISTOL: {
         this.agentGunIcon.setTexture('classic-icon')

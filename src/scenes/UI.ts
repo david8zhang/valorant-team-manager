@@ -7,6 +7,7 @@ import { Constants, RoundState } from '~/utils/Constants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Round from './Round'
 import { TeamConfig } from './TeamMgmt'
+import { Save, SaveKeys } from '~/utils/Save'
 
 export enum CommandState {
   MOVE = 'MOVE',
@@ -73,6 +74,7 @@ export default class UI extends Phaser.Scene {
   }[] = []
 
   public cpuTeamConfig!: TeamConfig
+  public calledCreate: boolean = false
 
   constructor() {
     super('ui')
@@ -194,20 +196,14 @@ export default class UI extends Phaser.Scene {
     return !Round.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
   }
 
-  createCommandBar() {
-    const backgroundRectangle = this.add
-      .rectangle(
-        0,
-        Constants.MAP_HEIGHT + Constants.BOTTOM_BAR_HEIGHT,
-        Constants.MAP_WIDTH,
-        Constants.BOTTOM_BAR_HEIGHT
-      )
-      .setOrigin(0)
-    backgroundRectangle.setFillStyle(0xdddddd)
-  }
-
   create() {
-    this.createCommandBar()
+    if (this.calledCreate) {
+      Round.instance.roundState = RoundState.PREROUND
+      this.timer.setTime(Constants.PREROUND_TIME_SEC)
+      this.timer.start()
+      Round.instance.restartRound()
+    }
+    this.calledCreate = true
     this.createTopBar()
     this.createSideBar()
   }
@@ -494,12 +490,8 @@ export default class UI extends Phaser.Scene {
             textObj.destroy()
             subtitleTextObj.destroy()
             buttonObj.destroy()
-
-            // Reset back to preround state
-            Round.instance.roundState = RoundState.PREROUND
-            this.timer.setTime(Constants.PREROUND_TIME_SEC)
-            this.timer.start()
-            Round.instance.restartRound()
+            this.didInitialSetup = false
+            this.loadTeamMgmtScreen()
           },
           scene: this,
           backgroundColor: 0x222222,
@@ -507,6 +499,34 @@ export default class UI extends Phaser.Scene {
         })
       },
     })
+  }
+
+  loadTeamMgmtScreen() {
+    const playerWinLoss = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
+
+    const opponentTeam = allTeams[this.cpuTeamConfig.name]
+
+    const scoreMapping = Round.instance.scoreMapping
+    if (scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU]) {
+      playerWinLoss.wins++
+      opponentTeam.losses++
+    } else if (scoreMapping[Side.PLAYER] < scoreMapping[Side.CPU]) {
+      playerWinLoss.losses++
+      opponentTeam.wins++
+    }
+
+    allTeams[this.cpuTeamConfig.name] = opponentTeam
+    allTeams[playerTeamName] = { ...allTeams[playerTeamName], ...playerWinLoss }
+    Save.setData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD, playerWinLoss)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length - 1))
+
+    this.scene.bringToTop('team-mgmt')
+    this.scene.start('team-mgmt')
   }
 
   renderKillMessage(killer: Agent, killed: Agent) {

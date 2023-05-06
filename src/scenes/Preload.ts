@@ -1,5 +1,7 @@
 import { MapConstants } from '~/utils/MapConstants'
 import { Save } from '~/utils/Save'
+import { PostRoundConfig } from './PostRound'
+import { Side } from '~/core/Agent'
 
 export default class Preload extends Phaser.Scene {
   constructor() {
@@ -45,9 +47,60 @@ export default class Preload extends Phaser.Scene {
   }
 
   create() {
-    this.scene.start('team-mgmt')
+    const data: PostRoundConfig = {
+      winningSide: Side.PLAYER,
+      teamStats: {
+        [Side.PLAYER]: {
+          totalKills: 30,
+          totalAssists: 10,
+          totalDeaths: 5,
+        },
+        [Side.CPU]: {
+          totalKills: 30,
+          totalAssists: 10,
+          totalDeaths: 5,
+        },
+      },
+      playerStats: {
+        'GTD-1': {
+          kills: 10,
+          deaths: 5,
+          assists: 5,
+          teamMvp: false,
+          matchMvp: true,
+        },
+        'GTD-2': {
+          kills: 10,
+          deaths: 5,
+          assists: 5,
+          teamMvp: false,
+          matchMvp: false,
+        },
+        'GTD-3': {
+          kills: 10,
+          deaths: 5,
+          assists: 5,
+          teamMvp: false,
+          matchMvp: false,
+        },
+      },
+      cpuTeamConfig: {
+        name: 'Ironborn Dragons',
+        shortName: 'IRD',
+        wins: 1,
+        losses: 0,
+        roster: [],
+      },
+      playerTeamConfig: {
+        name: 'Guangdong Tigers',
+        shortName: 'GDT',
+        wins: 1,
+        losses: 0,
+        roster: [],
+      },
+    }
+    this.scene.start('post-round', data)
+    // this.scene.start('team-mgmt')
     // this.scene.start('start')
-    // this.scene.start('ui')
-    // this.scene.start('round')
   }
 }

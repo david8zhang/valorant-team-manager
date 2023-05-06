@@ -1,10 +1,10 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
-import { HomePlayerInfo } from '../HomePlayerInfo'
 import TeamMgmt from '~/scenes/TeamMgmt'
 import { Constants } from '~/utils/Constants'
-import { Button } from '../Button'
 import { ScreenKeys } from './ScreenKeys'
+import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
+import { Button } from '~/core/ui/Button'
 
 export class HomeScreen implements Screen {
   private scene: TeamMgmt

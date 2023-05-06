@@ -1,20 +1,27 @@
 import { Sidebar } from '~/core/ui/Sidebar'
-import { HomeScreen } from '~/core/ui/screens/HomeScreen'
-import { ScreenKeys } from '~/core/ui/screens/ScreenKeys'
-import { SeasonScreen } from '~/core/ui/screens/SeasonScreen'
 import { Constants } from '~/utils/Constants'
 import { PlayerRank } from '~/utils/PlayerConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { CPU_TEAM_NAMES, SHORT_NAMES } from '~/utils/TeamConstants'
 import { Utilities } from '~/utils/Utilities'
+import { ScreenKeys } from './screens/ScreenKeys'
+import { HomeScreen } from './screens/HomeScreen'
+import { SeasonScreen } from './screens/SeasonScreen'
+import { TeamScreen } from './screens/TeamScreen'
 
 export interface PlayerAgentConfig {
   name: string
   texture: string
+  isStarting: boolean
   stats: {
     accuracy: PlayerRank
     headshot: PlayerRank
     reaction: PlayerRank
+  }
+  experience: {
+    accuracy: number
+    headshot: number
+    reaction: number
   }
 }
 
@@ -39,7 +46,7 @@ export default class TeamMgmt extends Phaser.Scene {
   public screens!: {
     [key in ScreenKeys]: any
   }
-  public activeScreenKey: ScreenKeys = ScreenKeys.HOME
+  public activeScreenKey: ScreenKeys = ScreenKeys.TEAM
 
   constructor() {
     super('team-mgmt')
@@ -62,7 +69,7 @@ export default class TeamMgmt extends Phaser.Scene {
     Save.setData(SaveKeys.PLAYER_AGENT_CONFIGS, newPlayers)
     Save.setData(SaveKeys.PLAYER_TEAM_NAME, Constants.TEAM_NAME_PLACEHOLDER)
     Save.setData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD, winLossRecord)
-    Save.setData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS, teamConfigMapping)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, teamConfigMapping)
     Save.setData(SaveKeys.SEASON_SCHEDULE, seasonSchedule)
     Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
   }
@@ -70,7 +77,7 @@ export default class TeamMgmt extends Phaser.Scene {
   startGame() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX) as number
     const schedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
-    const allTeamMapping = Save.getData(SaveKeys.CPU_CONTROLLED_TEAM_CONFIGS) as {
+    const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [teamName: string]: TeamConfig
     }
     const currMatch = schedule[currMatchIndex]
@@ -125,11 +132,17 @@ export default class TeamMgmt extends Phaser.Scene {
     for (let i = 1; i <= 3; i++) {
       newPlayers.push({
         name: `${prefix}-${i}`,
+        isStarting: true,
         texture: '',
         stats: {
           accuracy: PlayerRank.BRONZE,
           headshot: PlayerRank.BRONZE,
           reaction: PlayerRank.BRONZE,
+        },
+        experience: {
+          accuracy: 0,
+          headshot: 0,
+          reaction: 0,
         },
       })
     }
@@ -137,10 +150,14 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   create() {
-    this.initializeNewGameData()
+    if (!Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)) {
+      this.initializeNewGameData()
+    }
+
     this.screens = {
       [ScreenKeys.HOME]: new HomeScreen(this),
       [ScreenKeys.SEASON]: new SeasonScreen(this),
+      [ScreenKeys.TEAM]: new TeamScreen(this),
     }
     this.add
       .rectangle(201, 0, Constants.WINDOW_WIDTH - 202, Constants.WINDOW_HEIGHT - 2)
@@ -164,7 +181,9 @@ export default class TeamMgmt extends Phaser.Scene {
         },
         {
           text: 'My Team',
-          onClick: () => {},
+          onClick: () => {
+            this.renderActiveScreen(ScreenKeys.TEAM)
+          },
         },
         {
           text: 'Front Office',
