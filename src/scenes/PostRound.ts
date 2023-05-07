@@ -1,11 +1,9 @@
 import { Side } from '~/core/Agent'
-import { PostRoundTeam } from '~/core/ui/PostRoundTeam'
-import { PostRoundTeamStats } from '~/core/ui/PostRoundTeamStats'
 import { Constants } from '~/utils/Constants'
-import { Save, SaveKeys } from '~/utils/Save'
 import { TeamConfig } from './TeamMgmt'
 import { PostRoundScreenKeys, ScreenKeys } from './screens/ScreenKeys'
 import { PostRoundTeamStatsScreen } from './screens/PostRoundTeamStatsScreen'
+import { PostRoundPlayerStatsScreen } from './screens/PostRoundPlayerStatsScreen'
 
 export interface PostRoundConfig {
   winningSide: Side
@@ -74,7 +72,7 @@ export class PostRound extends Phaser.Scene {
       .setOrigin(0)
     this.screens = {
       [PostRoundScreenKeys.TEAM_STATS]: new PostRoundTeamStatsScreen(this),
-      [PostRoundScreenKeys.PLAYER_STATS]: null,
+      [PostRoundScreenKeys.PLAYER_STATS]: new PostRoundPlayerStatsScreen(this),
       [PostRoundScreenKeys.PLAYER_EXP]: null,
     }
     this.renderActiveScreen(this.activeScreenKey)

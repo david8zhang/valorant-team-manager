@@ -44,6 +44,18 @@ export class PostRoundTeamStats {
     this.setupDeathsStatLine(config)
   }
 
+  setVisible(isVisible: boolean) {
+    this.killsText.setVisible(isVisible)
+    this.assistsText.setVisible(isVisible)
+    this.deathsText.setVisible(isVisible)
+    this.playerKillsText.setVisible(isVisible)
+    this.cpuKillsText.setVisible(isVisible)
+    this.playerAssistsText.setVisible(isVisible)
+    this.cpuAssistsText.setVisible(isVisible)
+    this.playerDeathsText.setVisible(isVisible)
+    this.cpuDeathsText.setVisible(isVisible)
+  }
+
   setupDeathsStatLine(config: PostRoundTeamStatsConfig) {
     this.deathsText = this.scene.add.text(
       config.position.x,
