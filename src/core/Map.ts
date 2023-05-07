@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { MapConstants } from '~/utils/MapConstants'
 
 export class Map {
@@ -34,15 +34,15 @@ export class Map {
           fontSize: '8px',
           color: 'white',
         })
-        .setDepth(Constants.SORT_LAYERS.UI)
+        .setDepth(RoundConstants.SORT_LAYERS.UI)
       text.setPosition(center.x - text.displayWidth / 2, center.y - text.displayHeight / 2)
     })
   }
 
   generateRegions() {
     let regionId = 0
-    for (let i = 0; i < Constants.MAP_WIDTH; i += Map.REGION_WIDTH_PIXELS) {
-      for (let j = 0; j < Constants.MAP_HEIGHT; j += Map.REGION_HEIGHT_PIXELS) {
+    for (let i = 0; i < RoundConstants.MAP_WIDTH; i += Map.REGION_WIDTH_PIXELS) {
+      for (let j = 0; j < RoundConstants.MAP_HEIGHT; j += Map.REGION_HEIGHT_PIXELS) {
         const tileTopLeft = this.getTileAt(i, j)
         const tileBottomRight = this.getTileAt(i + 118, j + 88)
         const regionRect = this.game.add
@@ -53,7 +53,7 @@ export class Map {
             Map.REGION_HEIGHT_PIXELS
           )
           .setStrokeStyle(2, 0x00ff00)
-          .setDepth(Constants.SORT_LAYERS.UI + 100)
+          .setDepth(RoundConstants.SORT_LAYERS.UI + 100)
           .setVisible(false)
         this.regions.push({
           regionId,
@@ -111,7 +111,7 @@ export class Map {
     const startYPos = isVertical ? start.y - 8 : start.y
     const wallSprite = this.game.physics.add
       .sprite(startXPos, startYPos, isVertical ? 'wall-vertical' : 'wall-horizontal')
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
     if (isVertical) {
       wallSprite.setOrigin(0.5, 0)
     } else {

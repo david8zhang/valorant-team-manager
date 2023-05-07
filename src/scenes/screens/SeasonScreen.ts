@@ -1,7 +1,7 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
 import TeamMgmt, { MatchConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { TeamRankings } from '~/core/ui/TeamRankings'
 import { UpcomingMatch } from '~/core/ui/UpcomingMatch'
 import { SeasonSchedule } from '~/core/ui/SeasonSchedule'
@@ -27,8 +27,8 @@ export class SeasonScreen implements Screen {
   setupStartMatchButton() {
     this.startMatchButton = new Button({
       scene: this.scene,
-      x: (Constants.TEAM_MGMT_SIDEBAR_WIDTH + TeamRankings.START_X) / 2,
-      y: Constants.WINDOW_HEIGHT - 100,
+      x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + TeamRankings.START_X) / 2,
+      y: RoundConstants.WINDOW_HEIGHT - 100,
       width: 200,
       height: 50,
       text: 'Start Match',

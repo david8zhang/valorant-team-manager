@@ -1,7 +1,7 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
-import TeamMgmt from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from './ScreenKeys'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
 import { Button } from '~/core/ui/Button'
@@ -20,7 +20,7 @@ export class HomeScreen implements Screen {
       width: 200,
       height: 50,
       x: 200 + TeamMgmt.BODY_WIDTH / 2,
-      y: Constants.WINDOW_HEIGHT - 60,
+      y: RoundConstants.WINDOW_HEIGHT - 60,
       text: 'Queue Up',
       backgroundColor: 0x444444,
       onClick: () => {
@@ -38,11 +38,13 @@ export class HomeScreen implements Screen {
   }
 
   setupWinLossRecordText() {
-    const winLossRecord = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+
     this.winLossRecordText = this.scene.add.text(
       200 + TeamMgmt.BODY_WIDTH / 2,
       this.teamNameText.y + this.teamNameText.displayHeight + 15,
-      `${winLossRecord.wins}W - ${winLossRecord.losses}L`,
+      `${playerTeam.wins}W - ${playerTeam.losses}L`,
       {
         fontSize: '20px',
         color: 'black',
@@ -67,12 +69,15 @@ export class HomeScreen implements Screen {
   }
 
   setupPlayerCards() {
-    let playerConfigs = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerConfigs = playerTeam.roster
+
     const padding = 15
     const cardWidth =
       TeamMgmt.BODY_WIDTH / playerConfigs.length -
       padding * ((playerConfigs.length + 1) / playerConfigs.length)
-    let xPos = Constants.TEAM_MGMT_SIDEBAR_WIDTH + padding
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     playerConfigs.forEach((config) => {
       this.playerCards.push(
         new HomePlayerInfo(this.scene, {
@@ -81,7 +86,7 @@ export class HomeScreen implements Screen {
             x: xPos,
             y: padding + 90,
           },
-          height: Constants.WINDOW_HEIGHT - 240,
+          height: RoundConstants.WINDOW_HEIGHT - 240,
           width: cardWidth,
         })
       )
@@ -90,9 +95,11 @@ export class HomeScreen implements Screen {
   }
 
   onRender() {
-    const players = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const players = playerTeam.roster
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-    const teamWinLossRecord = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
+
     this.playerCards.forEach((playerCard, index) => {
       playerCard.updateInfo(players[index])
     })
@@ -101,7 +108,7 @@ export class HomeScreen implements Screen {
       200 + TeamMgmt.BODY_WIDTH / 2 - this.teamNameText.displayWidth / 2,
       40 - this.teamNameText.displayHeight / 2
     )
-    this.winLossRecordText.setText(`${teamWinLossRecord.wins}W - ${teamWinLossRecord.losses}L`)
+    this.winLossRecordText.setText(`${playerTeam.wins}W - ${playerTeam.losses}L`)
     this.winLossRecordText.setPosition(
       200 + TeamMgmt.BODY_WIDTH / 2 - this.winLossRecordText.displayWidth / 2,
       this.teamNameText.y +

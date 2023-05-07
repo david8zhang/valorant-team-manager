@@ -5,15 +5,15 @@ import ToggleSwitchPlugin from 'phaser3-rex-plugins/plugins/toggleswitch-plugin'
 import Round from './scenes/Round'
 import Preload from './scenes/Preload'
 import UI from './scenes/UI'
-import { Constants } from './utils/Constants'
+import { RoundConstants } from './utils/RoundConstants'
 import StartMenu from './scenes/StartMenu'
 import TeamMgmt from './scenes/TeamMgmt'
 import { PostRound } from './scenes/PostRound'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
-  width: Constants.WINDOW_WIDTH,
-  height: Constants.WINDOW_HEIGHT,
+  width: RoundConstants.WINDOW_WIDTH,
+  height: RoundConstants.WINDOW_HEIGHT,
   parent: 'phaser',
   physics: {
     default: 'arcade',

@@ -1,5 +1,5 @@
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface TeamRankingsConfig {
   allTeams: TeamConfig[]
@@ -16,7 +16,7 @@ export class TeamRankings {
     this.scene = scene
     this.group = this.scene.add.group()
     this.titleText = this.scene.add.text(
-      (TeamRankings.START_X + Constants.WINDOW_WIDTH) / 2,
+      (TeamRankings.START_X + RoundConstants.WINDOW_WIDTH) / 2,
       50,
       'Team Rankings',
       {
@@ -25,17 +25,17 @@ export class TeamRankings {
         align: 'center',
       }
     )
-    this.titleText.setWordWrapWidth(Constants.WINDOW_WIDTH - TeamRankings.START_X - 50)
+    this.titleText.setWordWrapWidth(RoundConstants.WINDOW_WIDTH - TeamRankings.START_X - 50)
     this.titleText.setPosition(
-      (TeamRankings.START_X + Constants.WINDOW_WIDTH) / 2 - this.titleText.displayWidth / 2,
+      (TeamRankings.START_X + RoundConstants.WINDOW_WIDTH) / 2 - this.titleText.displayWidth / 2,
       50
     )
     this.bgRect = this.scene.add
       .rectangle(
         TeamRankings.START_X - 10,
         0,
-        Constants.WINDOW_WIDTH - TeamRankings.START_X + 20,
-        Constants.WINDOW_HEIGHT
+        RoundConstants.WINDOW_WIDTH - TeamRankings.START_X + 20,
+        RoundConstants.WINDOW_HEIGHT
       )
       .setOrigin(0)
     this.bgRect.setStrokeStyle(1, 0x000000)
@@ -61,7 +61,7 @@ export class TeamRankings {
         color: 'black',
       })
       const record = this.scene.add.text(
-        Constants.WINDOW_WIDTH,
+        RoundConstants.WINDOW_WIDTH,
         yPos,
         `${team.wins}W - ${team.losses}L`,
         {
@@ -69,7 +69,7 @@ export class TeamRankings {
           color: 'black',
         }
       )
-      record.setPosition(Constants.WINDOW_WIDTH - record.displayWidth - 10, yPos)
+      record.setPosition(RoundConstants.WINDOW_WIDTH - record.displayWidth - 10, yPos)
       this.group.add(teamName)
       this.group.add(record)
       yPos += teamName.displayHeight + 15

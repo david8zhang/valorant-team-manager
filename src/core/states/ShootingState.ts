@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { getRangeForPoints, GUN_CONFIGS, GunConfig, Range } from '~/utils/GunConstants'
 import { Agent } from '../Agent'
 import { State } from './StateMachine'
@@ -22,7 +22,7 @@ export class ShootingState extends State {
     if (!this.muzzleFlareSprite) {
       this.muzzleFlareSprite = Round.instance.add
         .sprite(agent.sprite.x, agent.sprite.y, 'muzzle-flare')
-        .setDepth(Constants.SORT_LAYERS.Player + 100)
+        .setDepth(RoundConstants.SORT_LAYERS.Player + 100)
         .setVisible(false)
     }
     this.isWithinReactionDelay = true
@@ -153,7 +153,7 @@ export class ShootingState extends State {
       .line(0, 0, agent.sprite.x, agent.sprite.y, intersection.x, intersection.y)
       .setStrokeStyle(1, 0xfeff32)
       .setDisplayOrigin(0.5)
-      .setDepth(Constants.SORT_LAYERS.UI + 100)
+      .setDepth(RoundConstants.SORT_LAYERS.UI + 100)
 
     Round.instance.tweens.add({
       targets: [this.tracerLine, this.muzzleFlareSprite],
@@ -175,7 +175,7 @@ export class ShootingState extends State {
       .line(0, 0, agent.sprite.x, agent.sprite.y, this.target!.sprite.x, this.target!.sprite.y)
       .setStrokeStyle(1, 0xfeff32)
       .setDisplayOrigin(0.5)
-      .setDepth(Constants.SORT_LAYERS.UI + 100)
+      .setDepth(RoundConstants.SORT_LAYERS.UI + 100)
     Round.instance.tweens.add({
       targets: [this.tracerLine, this.muzzleFlareSprite],
       alpha: {

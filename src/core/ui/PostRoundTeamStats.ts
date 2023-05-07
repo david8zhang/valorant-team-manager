@@ -1,7 +1,7 @@
 import { Scene } from 'phaser'
 import TeamMgmt from '~/scenes/TeamMgmt'
 import { Side } from '../Agent'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface PostRoundTeamStatsConfig {
   position: {
@@ -34,8 +34,8 @@ export class PostRoundTeamStats {
   private playerDeathsText!: Phaser.GameObjects.Text
   private cpuDeathsText!: Phaser.GameObjects.Text
 
-  private static LEFT_START_X = Constants.WINDOW_WIDTH / 2 - 125
-  private static RIGHT_START_X = Constants.WINDOW_WIDTH / 2 + 125
+  private static LEFT_START_X = RoundConstants.WINDOW_WIDTH / 2 - 125
+  private static RIGHT_START_X = RoundConstants.WINDOW_WIDTH / 2 + 125
 
   constructor(scene: Scene, config: PostRoundTeamStatsConfig) {
     this.scene = scene

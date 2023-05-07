@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { Utility, UtilityConfig } from './Utility'
 
 export class Smoke extends Utility {
@@ -26,14 +26,14 @@ export class Smoke extends Utility {
     this.smokesCursor = this.game.add
       .circle(0, 0, 0, 0x00ffff, 0.25)
       .setStrokeStyle(1, 0x00ffff, 1)
-      .setDepth(Constants.SORT_LAYERS.Player)
+      .setDepth(RoundConstants.SORT_LAYERS.Player)
       .setRadius(Smoke.SMOKE_RADIUS)
       .setVisible(false)
     for (let i = 1; i <= 2; i++) {
       const smoke = this.game.add
         .circle(0, 0, 0, 0x00ffff, 0.25)
         .setStrokeStyle(1, 0x00ffff, 1)
-        .setDepth(Constants.SORT_LAYERS.Player)
+        .setDepth(RoundConstants.SORT_LAYERS.Player)
         .setRadius(0)
         .setVisible(false)
       this.smokes.push(smoke)

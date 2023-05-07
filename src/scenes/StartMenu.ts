@@ -1,6 +1,6 @@
 import { Scene } from 'phaser'
 import { Button } from '~/core/ui/Button'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export default class StartMenu extends Scene {
   constructor() {
@@ -9,8 +9,8 @@ export default class StartMenu extends Scene {
 
   create() {
     const titleScreenText = this.add.text(
-      Constants.WINDOW_WIDTH / 2,
-      Constants.WINDOW_HEIGHT / 2.5,
+      RoundConstants.WINDOW_WIDTH / 2,
+      RoundConstants.WINDOW_HEIGHT / 2.5,
       'FPS Manager',
       {
         fontSize: '75px',
@@ -18,8 +18,8 @@ export default class StartMenu extends Scene {
       }
     )
     titleScreenText.setPosition(
-      Constants.WINDOW_WIDTH / 2 - titleScreenText.displayWidth / 2,
-      Constants.WINDOW_HEIGHT / 2.5 - titleScreenText.displayHeight / 2
+      RoundConstants.WINDOW_WIDTH / 2 - titleScreenText.displayWidth / 2,
+      RoundConstants.WINDOW_HEIGHT / 2.5 - titleScreenText.displayHeight / 2
     )
 
     const startButton = new Button({
@@ -33,7 +33,7 @@ export default class StartMenu extends Scene {
       height: 50,
       fontSize: '25px',
       scene: this,
-      x: Constants.WINDOW_WIDTH / 2,
+      x: RoundConstants.WINDOW_WIDTH / 2,
       y: titleScreenText.y + titleScreenText.displayHeight + 50,
     })
   }

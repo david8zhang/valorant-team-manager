@@ -62,21 +62,21 @@ export default class Preload extends Phaser.Scene {
         },
       },
       playerStats: {
-        'GTD-1': {
+        'GDT-1': {
           kills: 10,
           deaths: 5,
           assists: 5,
           teamMvp: false,
           matchMvp: true,
         },
-        'GTD-2': {
+        'GDT-2': {
           kills: 10,
           deaths: 5,
           assists: 5,
           teamMvp: false,
           matchMvp: false,
         },
-        'GTD-3': {
+        'GDT-3': {
           kills: 10,
           deaths: 5,
           assists: 5,
@@ -89,14 +89,64 @@ export default class Preload extends Phaser.Scene {
         shortName: 'IRD',
         wins: 1,
         losses: 0,
-        roster: [],
+        roster: [
+          {
+            name: 'IRO-1',
+            isStarting: true,
+            texture: '',
+            potential: 1,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+          {
+            name: 'IRO-2',
+            isStarting: true,
+            texture: '',
+            potential: 1,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+          {
+            name: 'IRO-3',
+            isStarting: true,
+            texture: '',
+            potential: 1,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+        ],
       },
       playerTeamConfig: {
         name: 'Guangdong Tigers',
         shortName: 'GDT',
         wins: 1,
         losses: 0,
-        roster: [],
+        roster: [
+          {
+            name: 'GDT-1',
+            isStarting: true,
+            texture: '',
+            potential: 2,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+          {
+            name: 'GDT-2',
+            isStarting: true,
+            texture: '',
+            potential: 0,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+          {
+            name: 'GDT-3',
+            isStarting: true,
+            texture: '',
+            potential: 0,
+            attributes: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+          },
+        ],
       },
     }
     this.scene.start('post-round', data)

@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { GunTypes } from '~/utils/GunConstants'
 import { Agent } from '../Agent'
 import { UIValueBar } from './UIValueBar'
@@ -33,23 +33,23 @@ export class AgentInfoBox {
 
   setupBox(position: { x: number; y: number }) {
     this.infoBoxRect = this.scene.add
-      .rectangle(position.x, position.y, Constants.RIGHT_BAR_WIDTH - 20, 80)
+      .rectangle(position.x, position.y, RoundConstants.RIGHT_BAR_WIDTH - 20, 80)
       .setFillStyle(0xffffff)
       .setAlpha(0.2)
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
       .setOrigin(0)
 
     this.agentProfilePic = this.scene.add
       .rectangle(position.x, position.y, 65, 45, 0xff0000)
       .setOrigin(0)
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.agentNameText = this.scene.add
       .text(this.agentProfilePic.x, this.agentProfilePic.y + 50, this.agent.name, {
         fontSize: '14px',
         color: 'white',
       })
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
       .setOrigin(0)
 
     this.agentHealthBar = new UIValueBar(this.scene, {
@@ -57,7 +57,7 @@ export class AgentInfoBox {
       y: this.agentNameText.y + 20,
       maxValue: 100,
       height: 10,
-      width: Constants.RIGHT_BAR_WIDTH - 20,
+      width: RoundConstants.RIGHT_BAR_WIDTH - 20,
       borderWidth: 0,
       bgColor: 0x222222,
     })
@@ -72,7 +72,7 @@ export class AgentInfoBox {
           color: 'white',
         }
       )
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     const agentKdaTextPosX = this.agentCreditsText.x - 75
     this.agentKdaText = this.scene.add
@@ -80,7 +80,7 @@ export class AgentInfoBox {
         fontSize: '14px',
         color: 'white',
       })
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.agentGunIcon = this.scene.add
       .sprite(
@@ -89,7 +89,7 @@ export class AgentInfoBox {
         'classic-icon'
       )
       .setFlipX(true)
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
   }
 
   destroy() {

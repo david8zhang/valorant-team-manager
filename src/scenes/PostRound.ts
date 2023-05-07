@@ -1,9 +1,10 @@
 import { Side } from '~/core/Agent'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { TeamConfig } from './TeamMgmt'
 import { PostRoundScreenKeys, ScreenKeys } from './screens/ScreenKeys'
-import { PostRoundTeamStatsScreen } from './screens/PostRoundTeamStatsScreen'
-import { PostRoundPlayerStatsScreen } from './screens/PostRoundPlayerStatsScreen'
+import { PostRoundTeamStatsScreen } from './screens/PostRound/PostRoundTeamStatsScreen'
+import { PostRoundPlayerStatsScreen } from './screens/PostRound/PostRoundPlayerStatsScreen'
+import { PostRoundPlayerExpScreen } from './screens/PostRound/PostRoundPlayerExpScreen'
 
 export interface PostRoundConfig {
   winningSide: Side
@@ -67,13 +68,13 @@ export class PostRound extends Phaser.Scene {
   create() {
     this.cameras.main.setBackgroundColor(0xffffff)
     const bgRect = this.add
-      .rectangle(1, 0, Constants.WINDOW_WIDTH - 2, Constants.WINDOW_HEIGHT - 2)
+      .rectangle(1, 0, RoundConstants.WINDOW_WIDTH - 2, RoundConstants.WINDOW_HEIGHT - 2)
       .setStrokeStyle(1, 0x000000)
       .setOrigin(0)
     this.screens = {
       [PostRoundScreenKeys.TEAM_STATS]: new PostRoundTeamStatsScreen(this),
       [PostRoundScreenKeys.PLAYER_STATS]: new PostRoundPlayerStatsScreen(this),
-      [PostRoundScreenKeys.PLAYER_EXP]: null,
+      [PostRoundScreenKeys.PLAYER_EXP]: new PostRoundPlayerExpScreen(this),
     }
     this.renderActiveScreen(this.activeScreenKey)
   }

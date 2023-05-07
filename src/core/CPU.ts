@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
 import { AndSequenceNode } from './behavior-tree/nodes/AndSequenceNode'
@@ -79,7 +79,7 @@ export class CPU implements Team {
         raycaster: this.game.cpuRaycaster,
         side: Side.CPU,
         team: this,
-        stats: config.stats,
+        attributes: config.attributes,
         utility: {
           [UtilityKey.Q]: UtilityName.SMOKE,
         },

@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface TimerConfig {
   fontSize: string
@@ -22,7 +22,7 @@ export class Timer {
       fontSize: config.fontSize,
     })
     this.onTimerExpired = config.onTimerExpired
-    this.clockText.setPosition(Constants.MAP_WIDTH / 2 - this.clockText.width / 2, 18)
+    this.clockText.setPosition(RoundConstants.MAP_WIDTH / 2 - this.clockText.width / 2, 18)
     this.timerEvent = this.game.time.addEvent({
       callback: () => {
         this.decrementClock()
@@ -35,7 +35,7 @@ export class Timer {
     this.currSeconds--
     this.clockText
       .setText(this.convertToClockString(this.currSeconds))
-      .setPosition(Constants.MAP_WIDTH / 2 - this.clockText.width / 2, 18)
+      .setPosition(RoundConstants.MAP_WIDTH / 2 - this.clockText.width / 2, 18)
     if (this.currSeconds === 0) {
       if (this.onTimerExpired) {
         this.timerEvent.paused = true

@@ -3,7 +3,7 @@ import { Timer } from '~/core/Timer'
 import { AgentInfoBox } from '~/core/ui/AgentInfoBox'
 import { Button } from '~/core/ui/Button'
 import { UtilityKey } from '~/core/utility/UtilityKey'
-import { Constants, RoundState } from '~/utils/Constants'
+import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Round from './Round'
 import { TeamConfig } from './TeamMgmt'
@@ -199,7 +199,7 @@ export default class UI extends Phaser.Scene {
   create() {
     if (this.calledCreate) {
       Round.instance.roundState = RoundState.PREROUND
-      this.timer.setTime(Constants.PREROUND_TIME_SEC)
+      this.timer.setTime(RoundConstants.PREROUND_TIME_SEC)
       this.timer.start()
       Round.instance.restartRound()
     }
@@ -210,14 +210,14 @@ export default class UI extends Phaser.Scene {
 
   createFireOnSightToggle() {
     const fireOnSightText = this.add
-      .text(20, Constants.WINDOW_HEIGHT - 30, 'Auto Fire', {
+      .text(20, RoundConstants.WINDOW_HEIGHT - 30, 'Auto Fire', {
         color: '#000000',
         fontSize: '12px',
       })
       .setOrigin(0, 0.5)
     this.fireOnSightToggleSwitch = this.add.rexToggleSwitch(
       fireOnSightText.x + fireOnSightText.displayWidth + 25,
-      Constants.WINDOW_HEIGHT - 30,
+      RoundConstants.WINDOW_HEIGHT - 30,
       36,
       36,
       0xff0000,
@@ -236,33 +236,33 @@ export default class UI extends Phaser.Scene {
   createSideBar() {
     this.add
       .rectangle(
-        Constants.MAP_WIDTH,
+        RoundConstants.MAP_WIDTH,
         0,
-        Constants.RIGHT_BAR_WIDTH,
-        Constants.WINDOW_HEIGHT,
+        RoundConstants.RIGHT_BAR_WIDTH,
+        RoundConstants.WINDOW_HEIGHT,
         0x000000
       )
       .setOrigin(0, 0)
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.playerSidebarTeamLabel = this.add
-      .text(Constants.MAP_WIDTH + 10, 10, Constants.TEAM_SHORT_NAME, {
+      .text(RoundConstants.MAP_WIDTH + 10, 10, RoundConstants.TEAM_SHORT_NAME, {
         fontSize: '16px',
         color: 'white',
       })
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.cpuSidebarTeamLabel = this.add
       .text(
-        Constants.MAP_WIDTH + 10,
-        Constants.WINDOW_HEIGHT / 2 + 10,
+        RoundConstants.MAP_WIDTH + 10,
+        RoundConstants.WINDOW_HEIGHT / 2 + 10,
         this.cpuTeamConfig.shortName,
         {
           fontSize: '16px',
           color: 'white',
         }
       )
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
   }
 
   renderAgentsInfoBoxes(agents: Agent[], startingY: number) {
@@ -271,7 +271,7 @@ export default class UI extends Phaser.Scene {
       this.agentInfoBoxMapping[agent.name] = new AgentInfoBox(this, {
         agent,
         position: {
-          x: Constants.MAP_WIDTH + 10,
+          x: RoundConstants.MAP_WIDTH + 10,
           y: startY,
         },
       })
@@ -285,7 +285,7 @@ export default class UI extends Phaser.Scene {
       onTimerExpired: () => {
         this.handleTimerExpired()
       },
-      time: Constants.PREROUND_TIME_SEC,
+      time: RoundConstants.PREROUND_TIME_SEC,
     })
 
     // Setup player score text
@@ -302,7 +302,7 @@ export default class UI extends Phaser.Scene {
       this.timer.clockText.y - 5
     )
     this.playerTeamLabel = this.add
-      .text(this.playerScoreText.x, this.playerScoreText.y, Constants.TEAM_SHORT_NAME, {
+      .text(this.playerScoreText.x, this.playerScoreText.y, RoundConstants.TEAM_SHORT_NAME, {
         fontSize: '15px',
         align: 'center',
       })
@@ -337,13 +337,15 @@ export default class UI extends Phaser.Scene {
       this.cpuScoreText.y + 7
     )
 
-    const playOrPauseButton = this.add.image(Constants.MAP_WIDTH - 30, 30, 'pause').setScale(0.75)
+    const playOrPauseButton = this.add
+      .image(RoundConstants.MAP_WIDTH - 30, 30, 'pause')
+      .setScale(0.75)
     const pauseOverlay = this.add
       .rectangle(
         0,
-        Constants.TOP_BAR_HEIGHT,
-        Constants.MAP_WIDTH,
-        Constants.MAP_HEIGHT,
+        RoundConstants.TOP_BAR_HEIGHT,
+        RoundConstants.MAP_WIDTH,
+        RoundConstants.MAP_HEIGHT,
         0x000000,
         0.1
       )
@@ -375,7 +377,7 @@ export default class UI extends Phaser.Scene {
         Round.instance.player.selectedAgent
       ) {
         this.renderAgentsInfoBoxes(Round.instance.player.agents, 30)
-        this.renderAgentsInfoBoxes(Round.instance.cpu.agents, Constants.WINDOW_HEIGHT / 2 + 30)
+        this.renderAgentsInfoBoxes(Round.instance.cpu.agents, RoundConstants.WINDOW_HEIGHT / 2 + 30)
         this.didInitialSetup = true
       }
     }
@@ -406,7 +408,7 @@ export default class UI extends Phaser.Scene {
     const game = Round.instance
     switch (game.roundState) {
       case RoundState.PREROUND: {
-        this.timer.setTime(Constants.MID_ROUND_TIME_SEC)
+        this.timer.setTime(RoundConstants.MID_ROUND_TIME_SEC)
         this.timer.start()
         game.roundState = RoundState.MID_ROUND
         game.dropBarriers()
@@ -422,7 +424,12 @@ export default class UI extends Phaser.Scene {
   }
 
   renderEndOfRoundMessage() {
-    const rectangle = this.add.rectangle(Constants.MAP_WIDTH / 2, Constants.WINDOW_HEIGHT / 2, 0, 0)
+    const rectangle = this.add.rectangle(
+      RoundConstants.MAP_WIDTH / 2,
+      RoundConstants.WINDOW_HEIGHT / 2,
+      0,
+      0
+    )
     rectangle.setFillStyle(0xffffff)
     this.tweens.add({
       targets: [rectangle],
@@ -437,8 +444,8 @@ export default class UI extends Phaser.Scene {
       duration: 200,
       onUpdate: () => {
         rectangle.setPosition(
-          Constants.MAP_WIDTH / 2 - rectangle.width / 2,
-          Constants.WINDOW_HEIGHT / 2 - rectangle.height / 2
+          RoundConstants.MAP_WIDTH / 2 - rectangle.width / 2,
+          RoundConstants.WINDOW_HEIGHT / 2 - rectangle.height / 2
         )
       },
       onComplete: () => {
@@ -452,8 +459,8 @@ export default class UI extends Phaser.Scene {
         }
         const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
         const textObj = this.add.text(
-          Constants.MAP_WIDTH / 2,
-          Constants.WINDOW_HEIGHT / 2.25,
+          RoundConstants.MAP_WIDTH / 2,
+          RoundConstants.WINDOW_HEIGHT / 2.25,
           titleText,
           {
             fontSize: '30px',
@@ -465,7 +472,7 @@ export default class UI extends Phaser.Scene {
           textObj.y - textObj.displayHeight / 2
         )
         const subtitleTextObj = this.add.text(
-          Constants.MAP_WIDTH / 2,
+          RoundConstants.MAP_WIDTH / 2,
           textObj.y + textObj.displayHeight + 20,
           subtitleText,
           {
@@ -479,7 +486,7 @@ export default class UI extends Phaser.Scene {
         )
 
         const buttonObj = new Button({
-          x: Constants.MAP_WIDTH / 2,
+          x: RoundConstants.MAP_WIDTH / 2,
           y: subtitleTextObj.y + subtitleTextObj.displayHeight + 25,
           width: 100,
           height: 25,
@@ -502,26 +509,26 @@ export default class UI extends Phaser.Scene {
   }
 
   loadTeamMgmtScreen() {
-    const playerWinLoss = Save.getData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD)
     const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
+    const playerTeamConfig = allTeams[playerTeamName] as TeamConfig
+
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
 
     const opponentTeam = allTeams[this.cpuTeamConfig.name]
 
     const scoreMapping = Round.instance.scoreMapping
-    if (scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU]) {
-      playerWinLoss.wins++
-      opponentTeam.losses++
-    } else if (scoreMapping[Side.PLAYER] < scoreMapping[Side.CPU]) {
-      playerWinLoss.losses++
-      opponentTeam.wins++
-    }
+    // if (scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU]) {
+    // playerTeamConfig.wins++
+    // opponentTeam.losses++
+    // } else if (scoreMapping[Side.PLAYER] < scoreMapping[Side.CPU]) {
+    playerTeamConfig.losses++
+    opponentTeam.wins++
+    // }
 
     allTeams[this.cpuTeamConfig.name] = opponentTeam
-    allTeams[playerTeamName] = { ...allTeams[playerTeamName], ...playerWinLoss }
-    Save.setData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD, playerWinLoss)
+    allTeams[playerTeamName] = { ...allTeams[playerTeamName], ...playerTeamConfig }
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
     Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length - 1))
 
@@ -530,13 +537,13 @@ export default class UI extends Phaser.Scene {
   }
 
   renderKillMessage(killer: Agent, killed: Agent) {
-    const killedNameText = this.add.text(Constants.MAP_WIDTH - 50, 50, killed.name, {
+    const killedNameText = this.add.text(RoundConstants.MAP_WIDTH - 50, 50, killed.name, {
       fontSize: '12px',
       color: 'white',
     })
 
     killedNameText
-      .setPosition(Constants.MAP_WIDTH - 20 - killedNameText.displayWidth, 50)
+      .setPosition(RoundConstants.MAP_WIDTH - 20 - killedNameText.displayWidth, 50)
       .setVisible(false)
 
     const gunConfig = GUN_CONFIGS[killer.currWeapon]
@@ -557,7 +564,7 @@ export default class UI extends Phaser.Scene {
       killerNameText.displayWidth + 10 + gunSprite.displayWidth + 10 + killedNameText.displayWidth
 
     const boundingRect = this.add.rectangle(
-      Constants.MAP_WIDTH - totalWidth / 2 - 20,
+      RoundConstants.MAP_WIDTH - totalWidth / 2 - 20,
       50,
       totalWidth + 30,
       30,
@@ -586,7 +593,7 @@ export default class UI extends Phaser.Scene {
   }
 
   updateKillMessageFeed() {
-    let yPosition = Constants.TOP_BAR_HEIGHT + 25
+    let yPosition = RoundConstants.TOP_BAR_HEIGHT + 25
     const currTimestamp = Date.now()
     this.killMessageFeed.forEach((message) => {
       if (currTimestamp - message.renderTimestamp >= 3000) {

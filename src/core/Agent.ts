@@ -1,6 +1,6 @@
 import Round from '~/scenes/Round'
 import UI from '~/scenes/UI'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { GunTypes } from '~/utils/GunConstants'
 import { DeathState } from './states/DeathState'
 import { IdleState } from './states/IdleState'
@@ -16,6 +16,7 @@ import { UtilityKey } from './utility/UtilityKey'
 import { UtilityMapping } from './utility/UtilityMapping'
 import { UtilityName } from './utility/UtilityNames'
 import {
+  PlayerAttributes,
   PlayerRank,
   RANK_TO_ACCURACY_MAPPING,
   RANK_TO_HS_MAPPING,
@@ -38,10 +39,8 @@ export interface AgentConfig {
   raycaster: any
   side: Side
   team: Team
-  stats: {
-    accuracy: PlayerRank
-    headshot: PlayerRank
-    reaction: PlayerRank
+  attributes: {
+    [key in PlayerAttributes]: PlayerRank
   }
   utility: {
     [key in UtilityKey]?: UtilityName
@@ -125,7 +124,7 @@ export class Agent {
   constructor(config: AgentConfig) {
     this.game = Round.instance
     this.team = config.team
-    this.stats = this.convertRankToStats(config.stats)
+    this.stats = this.convertRankToStats(config.attributes)
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
@@ -133,14 +132,14 @@ export class Agent {
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
-      .setDepth(Constants.SORT_LAYERS.Player)
+      .setDepth(RoundConstants.SORT_LAYERS.Player)
       .setName('agent')
       .setData('ref', this)
       .setPushable(false)
 
     this.spikeIcon = this.game.add
       .image(config.position.x + 4, config.position.y + 4, 'spike-icon')
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
       .setScale(1)
       .setVisible(false)
 
@@ -171,7 +170,7 @@ export class Agent {
           color: '#ffffff',
         }
       )
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
     this.setupUtility(config.utility)
     if (config.onDetectedEnemyHandler) {
       this.onDetectedEnemyHandlers.push(config.onDetectedEnemyHandler)
@@ -251,7 +250,7 @@ export class Agent {
 
   onKillEnemy(enemyAgent: Agent) {
     this.game.addScore(this.side)
-    this.credits += Constants.KILL_CREDITS_AMOUNT
+    this.credits += RoundConstants.KILL_CREDITS_AMOUNT
     UI.instance.renderKillMessage(this, enemyAgent)
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
@@ -283,7 +282,7 @@ export class Agent {
           if (name !== this.killerId) {
             const agent = this.game.getAgentByName(name)
             if (agent) {
-              agent.credits += Constants.ASSIST_CREDITS_AMOUNT
+              agent.credits += RoundConstants.ASSIST_CREDITS_AMOUNT
               agent.assists++
             }
           }

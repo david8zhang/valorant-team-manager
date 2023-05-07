@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants, RoundState } from '~/utils/Constants'
+import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent } from './Agent'
 import { States } from './states/States'
@@ -27,7 +27,7 @@ export class Spike {
     this.game = Round.instance
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, 'spike')
-      .setDepth(Constants.SORT_LAYERS.Player - 1)
+      .setDepth(RoundConstants.SORT_LAYERS.Player - 1)
     this.game.physics.add.overlap(this.game.playerAgentsGroup, this.sprite, (agentSprite) => {
       this.handleSpikePickup(agentSprite)
     })

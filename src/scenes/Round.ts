@@ -5,7 +5,7 @@ import { Map } from '~/core/Map'
 import { Pathfinding } from '~/core/Pathfinding'
 import { Player } from '~/core/Player'
 import { Spike } from '~/core/Spike'
-import { Constants, RoundState } from '~/utils/Constants'
+import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GunTypes } from '~/utils/GunConstants'
 import UI from './UI'
 import { PlayerAgentConfig, TeamConfig } from './TeamMgmt'
@@ -99,12 +99,12 @@ export default class Round extends Phaser.Scene {
     this.playerAgentsGroup = this.add.group()
     this.cpuAgentsGroup = this.add.group()
     this.setupDebugKeyListener()
-    this.cameras.main.setScroll(0, -Constants.TOP_BAR_HEIGHT)
+    this.cameras.main.setScroll(0, -RoundConstants.TOP_BAR_HEIGHT)
     this.initMap()
     this.initRaycaster()
     this.createFOV()
-    this.fow.setDepth(Constants.SORT_LAYERS.BottomLayer + 1)
-    this.map.layers.top.setDepth(Constants.SORT_LAYERS.TopLayer)
+    this.fow.setDepth(RoundConstants.SORT_LAYERS.BottomLayer + 1)
+    this.map.layers.top.setDepth(RoundConstants.SORT_LAYERS.TopLayer)
     this.pathfinding = new Pathfinding({
       tilemap: this.map.tilemap,
       unwalkableTiles: [1],
@@ -193,7 +193,7 @@ export default class Round extends Phaser.Scene {
     this.mask.setInvertAlpha()
     this.fow = this.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.2 } }).setDepth(100)
     this.fow.setMask(this.mask)
-    this.fow.fillRect(0, 0, Constants.MAP_WIDTH, Constants.MAP_HEIGHT)
+    this.fow.fillRect(0, 0, RoundConstants.MAP_WIDTH, RoundConstants.MAP_HEIGHT)
   }
 
   update() {

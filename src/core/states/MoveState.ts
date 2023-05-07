@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { Agent, Side } from '../Agent'
 import { Node } from '../Pathfinding'
 import { State } from './StateMachine'
@@ -72,7 +72,7 @@ export class MoveState extends State {
       .line(0, 0, agent.sprite.x, agent.sprite.y, currNodeWorldPos.x, currNodeWorldPos.y)
       .setStrokeStyle(0.5, 0x00ff00)
       .setDisplayOrigin(0.5)
-      .setDepth(Constants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
     this.pathLines.push(initialLine)
     for (let i = 1; i < this.currPath.length; i++) {
       const prevNode = this.currPath[i - 1]
@@ -89,7 +89,7 @@ export class MoveState extends State {
         .line(0, 0, currNodeWorldPos.x, currNodeWorldPos.y, prevNodeWorldPos.x, prevNodeWorldPos.y)
         .setStrokeStyle(0.5, 0x00ff00)
         .setDisplayOrigin(0.5)
-        .setDepth(Constants.SORT_LAYERS.UI)
+        .setDepth(RoundConstants.SORT_LAYERS.UI)
       this.pathLines.push(line)
     }
   }

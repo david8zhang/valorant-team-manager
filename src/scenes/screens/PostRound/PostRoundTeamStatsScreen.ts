@@ -1,11 +1,11 @@
 import { Side } from '~/core/Agent'
-import { PostRound } from '../PostRound'
-import { Screen } from './Screen'
 import { PostRoundTeam } from '~/core/ui/PostRoundTeam'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { PostRoundTeamStats } from '~/core/ui/PostRoundTeamStats'
 import { Button } from '~/core/ui/Button'
-import { PostRoundScreenKeys } from './ScreenKeys'
+import { PostRound } from '~/scenes/PostRound'
+import { PostRoundScreenKeys } from '../ScreenKeys'
+import { Screen } from '../Screen'
 
 export class PostRoundTeamStatsScreen implements Screen {
   private postRoundText!: Phaser.GameObjects.Text
@@ -37,14 +37,14 @@ export class PostRoundTeamStatsScreen implements Screen {
     this.playerTeam = new PostRoundTeam(this.scene, {
       position: {
         x: 150,
-        y: Constants.WINDOW_HEIGHT / 2,
+        y: RoundConstants.WINDOW_HEIGHT / 2,
       },
       teamConfig: this.scene.playerTeamConfig,
     })
     this.cpuTeam = new PostRoundTeam(this.scene, {
       position: {
-        x: Constants.WINDOW_WIDTH - 150,
-        y: Constants.WINDOW_HEIGHT / 2,
+        x: RoundConstants.WINDOW_WIDTH - 150,
+        y: RoundConstants.WINDOW_HEIGHT / 2,
       },
       teamConfig: this.scene.cpuTeamConfig,
     })
@@ -53,8 +53,8 @@ export class PostRoundTeamStatsScreen implements Screen {
   setupContinueButton() {
     this.continueButton = new Button({
       scene: this.scene,
-      x: Constants.WINDOW_WIDTH / 2,
-      y: Constants.WINDOW_HEIGHT - 75,
+      x: RoundConstants.WINDOW_WIDTH / 2,
+      y: RoundConstants.WINDOW_HEIGHT - 75,
       backgroundColor: 0x444444,
       width: 150,
       height: 50,
@@ -69,8 +69,8 @@ export class PostRoundTeamStatsScreen implements Screen {
 
   setupPostRoundText() {
     this.postRoundText = this.scene.add.text(
-      Constants.WINDOW_WIDTH / 2,
-      Constants.WINDOW_HEIGHT / 2,
+      RoundConstants.WINDOW_WIDTH / 2,
+      RoundConstants.WINDOW_HEIGHT / 2,
       `${this.scene.winningSide === Side.PLAYER ? 'Victory' : 'Defeat'}`,
       {
         fontSize: '50px',
@@ -78,16 +78,16 @@ export class PostRoundTeamStatsScreen implements Screen {
       }
     )
     this.postRoundText.setPosition(
-      Constants.WINDOW_WIDTH / 2 - this.postRoundText.displayWidth / 2,
-      Constants.WINDOW_HEIGHT / 6 - this.postRoundText.displayHeight / 2
+      RoundConstants.WINDOW_WIDTH / 2 - this.postRoundText.displayWidth / 2,
+      RoundConstants.WINDOW_HEIGHT / 6 - this.postRoundText.displayHeight / 2
     )
   }
 
   setupPostRoundTeamStats() {
     this.postRoundTeamStats = new PostRoundTeamStats(this.scene, {
       position: {
-        x: Constants.WINDOW_WIDTH / 2,
-        y: Constants.WINDOW_HEIGHT / 2 - 50,
+        x: RoundConstants.WINDOW_WIDTH / 2,
+        y: RoundConstants.WINDOW_HEIGHT / 2 - 50,
       },
       totalKills: {
         [Side.PLAYER]: this.scene.teamStats.PLAYER.totalKills,

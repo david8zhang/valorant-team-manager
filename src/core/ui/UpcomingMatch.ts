@@ -1,5 +1,5 @@
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { UpcomingMatchTeam } from './UpcomingMatchTeam'
 
 export interface UpcomingMatchConfig {
@@ -13,7 +13,7 @@ export class UpcomingMatch {
   private awayTeam!: UpcomingMatchTeam
 
   private static TEAM_START_X = 320
-  private static TEAM_START_Y = Constants.WINDOW_HEIGHT / 2
+  private static TEAM_START_Y = RoundConstants.WINDOW_HEIGHT / 2
 
   constructor(scene: TeamMgmt, config: UpcomingMatchConfig) {
     this.scene = scene

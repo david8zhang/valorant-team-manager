@@ -1,4 +1,4 @@
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 interface UIValueBarConfig {
   x: number
@@ -51,7 +51,7 @@ export class UIValueBar {
     this.showBorder = showBorder || false
     scene.add.existing(this.bar)
     this.draw()
-    this.bar.setDepth(Constants.SORT_LAYERS.UI)
+    this.bar.setDepth(RoundConstants.SORT_LAYERS.UI)
   }
 
   setVisible(visible: boolean) {

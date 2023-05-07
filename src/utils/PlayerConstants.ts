@@ -1,3 +1,15 @@
+export enum PlayerPotential {
+  HIGH,
+  MEDIUM,
+  LOW,
+}
+
+export enum PlayerAttributes {
+  ACCURACY = 'accuracy',
+  REACTION = 'reaction',
+  HEADSHOT = 'headshot',
+}
+
 export enum PlayerRank {
   BRONZE,
   SILVER,
@@ -40,4 +52,19 @@ export const RANK_TO_REACTION_MAPPING = {
   [PlayerRank.MASTER]: 175,
   [PlayerRank.GRANDMASTER]: 170,
   [PlayerRank.CHALLENGER]: 165,
+}
+
+export const PLAYER_POTENTIAL_TO_EXP_MAPPING = {
+  [PlayerPotential.LOW]: {
+    low: 5,
+    high: 15,
+  },
+  [PlayerPotential.MEDIUM]: {
+    low: 10,
+    high: 20,
+  },
+  [PlayerPotential.HIGH]: {
+    low: 15,
+    high: 25,
+  },
 }

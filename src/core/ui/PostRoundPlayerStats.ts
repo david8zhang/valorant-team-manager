@@ -54,7 +54,6 @@ export class PostRoundPlayerStats {
 
   setupMatchMVPText(config: PostRoundPlayerStatsConfig) {
     if (config.stats.matchMvp) {
-      console.log('Went here!')
       this.matchMVPText = this.scene.add.text(
         this.playerNameText.x,
         this.playerNameText.y - this.rectangle.displayHeight / 2 + 15,

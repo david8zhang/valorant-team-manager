@@ -1,5 +1,5 @@
 import TeamMgmt, { MatchConfig } from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface SeasonScheduleConfig {
   schedule: MatchConfig[]
@@ -27,15 +27,15 @@ export class SeasonSchedule {
   setupSeasonSchedule() {
     this.rectangle = this.scene.add
       .rectangle(
-        Constants.TEAM_MGMT_SIDEBAR_WIDTH,
+        RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH,
         0,
-        Constants.WINDOW_WIDTH - Constants.TEAM_MGMT_SIDEBAR_WIDTH - 235,
+        RoundConstants.WINDOW_WIDTH - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH - 235,
         50
       )
       .setOrigin(0)
     this.rectangle.setStrokeStyle(1, 0x000000)
     this.leftCarat = this.scene.add
-      .image(Constants.TEAM_MGMT_SIDEBAR_WIDTH, 10, 'backward')
+      .image(RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH, 10, 'backward')
       .setScale(0.5)
       .setOrigin(0)
       .setInteractive()
@@ -56,7 +56,11 @@ export class SeasonSchedule {
       })
 
     this.rightCarat = this.scene.add
-      .image(Constants.TEAM_MGMT_SIDEBAR_WIDTH + this.rectangle.displayWidth - 25, 10, 'forward')
+      .image(
+        RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + this.rectangle.displayWidth - 25,
+        10,
+        'forward'
+      )
       .setScale(0.5)
       .setOrigin(0)
       .setInteractive()

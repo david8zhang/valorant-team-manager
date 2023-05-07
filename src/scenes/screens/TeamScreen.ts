@@ -1,5 +1,5 @@
-import TeamMgmt from '~/scenes/TeamMgmt'
-import { Constants } from '~/utils/Constants'
+import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import { RoundConstants } from '~/utils/RoundConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
@@ -14,7 +14,7 @@ export class TeamScreen implements Screen {
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.titleText = this.scene.add.text(
-      Constants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
+      RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
       20,
       'Starting Lineup',
       {
@@ -32,7 +32,7 @@ export class TeamScreen implements Screen {
       scene: this.scene,
       width: 200,
       height: 40,
-      x: Constants.WINDOW_WIDTH - 115,
+      x: RoundConstants.WINDOW_WIDTH - 115,
       y: this.titleText.y + 20,
       text: 'View Roster',
       backgroundColor: 0x444444,
@@ -55,12 +55,14 @@ export class TeamScreen implements Screen {
   }
 
   setupStartingLineupCards() {
-    let playerConfigs = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerConfigs = playerTeam.roster
     const padding = 15
     const cardWidth =
       TeamMgmt.BODY_WIDTH / playerConfigs.length -
       padding * ((playerConfigs.length + 1) / playerConfigs.length)
-    let xPos = Constants.TEAM_MGMT_SIDEBAR_WIDTH + padding
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     playerConfigs.forEach((config) => {
       this.startingLineup.push(
         new HomePlayerInfo(this.scene, {
@@ -69,7 +71,7 @@ export class TeamScreen implements Screen {
             x: xPos,
             y: padding + 75,
           },
-          height: Constants.WINDOW_HEIGHT - 240,
+          height: RoundConstants.WINDOW_HEIGHT - 240,
           width: cardWidth,
         })
       )

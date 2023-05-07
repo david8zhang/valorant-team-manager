@@ -1,6 +1,5 @@
 import Round from '~/scenes/Round'
 import UI, { CommandState } from '~/scenes/UI'
-import { Constants } from '~/utils/Constants'
 import { MapConstants } from '~/utils/MapConstants'
 import { Agent, Side } from './Agent'
 import { BehaviorTreeNode } from './behavior-tree/nodes/BehaviorTreeNode'
@@ -10,7 +9,8 @@ import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
 import { Save, SaveKeys } from '~/utils/Save'
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import { RoundConstants } from '~/utils/RoundConstants'
 
 export class Player implements Team {
   public game: Round
@@ -166,9 +166,9 @@ export class Player implements Team {
     const tile = this.game.getTileAt(worldX, worldY)
     return (
       worldX >= 0 &&
-      worldX <= Constants.MAP_WIDTH &&
+      worldX <= RoundConstants.MAP_WIDTH &&
       worldY >= 0 &&
-      Constants.MAP_HEIGHT &&
+      RoundConstants.MAP_HEIGHT &&
       tile &&
       tile.index !== 1
     )
@@ -229,10 +229,12 @@ export class Player implements Team {
   }
 
   createAgents() {
-    const saveData = Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS) as PlayerAgentConfig[]
+    const teamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeamConfig = teamConfigs[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerAgentConfigs = playerTeamConfig.roster
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
-      const config = saveData[i] as PlayerAgentConfig
+      const config = playerAgentConfigs[i] as PlayerAgentConfig
       const newAgent = new Agent({
         position: {
           x: startX,
@@ -244,7 +246,7 @@ export class Player implements Team {
         raycaster: this.game.playerRaycaster,
         side: Side.PLAYER,
         team: this,
-        stats: config.stats,
+        attributes: config.attributes,
         utility: {
           [UtilityKey.Q]: UtilityName.SMOKE,
         },

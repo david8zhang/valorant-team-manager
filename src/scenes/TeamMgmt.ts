@@ -1,6 +1,6 @@
 import { Sidebar } from '~/core/ui/Sidebar'
-import { Constants } from '~/utils/Constants'
-import { PlayerRank } from '~/utils/PlayerConstants'
+import { RoundConstants } from '~/utils/RoundConstants'
+import { PlayerAttributes, PlayerPotential, PlayerRank } from '~/utils/PlayerConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { CPU_TEAM_NAMES, SHORT_NAMES } from '~/utils/TeamConstants'
 import { Utilities } from '~/utils/Utilities'
@@ -13,15 +13,12 @@ export interface PlayerAgentConfig {
   name: string
   texture: string
   isStarting: boolean
-  stats: {
-    accuracy: PlayerRank
-    headshot: PlayerRank
-    reaction: PlayerRank
+  potential: PlayerPotential
+  attributes: {
+    [key in PlayerAttributes]: PlayerRank
   }
   experience: {
-    accuracy: number
-    headshot: number
-    reaction: number
+    [key in PlayerAttributes]: number
   }
 }
 
@@ -41,7 +38,7 @@ export interface MatchConfig {
 
 export default class TeamMgmt extends Phaser.Scene {
   private sidebar!: Sidebar
-  public static BODY_WIDTH = Constants.WINDOW_WIDTH - Constants.TEAM_MGMT_SIDEBAR_WIDTH
+  public static BODY_WIDTH = RoundConstants.WINDOW_WIDTH - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH
 
   public screens!: {
     [key in ScreenKeys]: any
@@ -53,7 +50,7 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   initializeNewGameData() {
-    const newPlayers = this.generateNewPlayers(Constants.TEAM_NAME_PLACEHOLDER)
+    const newPlayers = this.generateNewPlayers(RoundConstants.TEAM_NAME_PLACEHOLDER)
     const teamConfigMapping = this.generateTeams()
     const seasonSchedule = this.generateSchedule(Object.values(teamConfigMapping))
     const winLossRecord = {
@@ -61,14 +58,12 @@ export default class TeamMgmt extends Phaser.Scene {
       losses: 0,
     }
     // Add player team to the mapping
-    teamConfigMapping[Constants.TEAM_NAME_PLACEHOLDER] = {
-      name: Constants.TEAM_NAME_PLACEHOLDER,
+    teamConfigMapping[RoundConstants.TEAM_NAME_PLACEHOLDER] = {
+      name: RoundConstants.TEAM_NAME_PLACEHOLDER,
       ...winLossRecord,
       roster: newPlayers,
     }
-    Save.setData(SaveKeys.PLAYER_AGENT_CONFIGS, newPlayers)
-    Save.setData(SaveKeys.PLAYER_TEAM_NAME, Constants.TEAM_NAME_PLACEHOLDER)
-    Save.setData(SaveKeys.PLAYER_TEAM_WIN_LOSS_RECORD, winLossRecord)
+    Save.setData(SaveKeys.PLAYER_TEAM_NAME, RoundConstants.TEAM_NAME_PLACEHOLDER)
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, teamConfigMapping)
     Save.setData(SaveKeys.SEASON_SCHEDULE, seasonSchedule)
     Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
@@ -134,15 +129,16 @@ export default class TeamMgmt extends Phaser.Scene {
         name: `${prefix}-${i}`,
         isStarting: true,
         texture: '',
-        stats: {
-          accuracy: PlayerRank.BRONZE,
-          headshot: PlayerRank.BRONZE,
-          reaction: PlayerRank.BRONZE,
+        potential: Phaser.Math.Between(0, 2),
+        attributes: {
+          [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,
+          [PlayerAttributes.HEADSHOT]: PlayerRank.BRONZE,
+          [PlayerAttributes.REACTION]: PlayerRank.BRONZE,
         },
         experience: {
-          accuracy: 0,
-          headshot: 0,
-          reaction: 0,
+          [PlayerAttributes.ACCURACY]: 0,
+          [PlayerAttributes.HEADSHOT]: 0,
+          [PlayerAttributes.REACTION]: 0,
         },
       })
     }
@@ -150,7 +146,7 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   create() {
-    if (!Save.getData(SaveKeys.PLAYER_AGENT_CONFIGS)) {
+    if (!Save.getData(SaveKeys.ALL_TEAM_CONFIGS)) {
       this.initializeNewGameData()
     }
 
@@ -160,12 +156,12 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.TEAM]: new TeamScreen(this),
     }
     this.add
-      .rectangle(201, 0, Constants.WINDOW_WIDTH - 202, Constants.WINDOW_HEIGHT - 2)
+      .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)
       .setOrigin(0)
       .setStrokeStyle(1, 0x000000)
     this.cameras.main.setBackgroundColor('#ffffff')
     this.sidebar = new Sidebar(this, {
-      width: Constants.TEAM_MGMT_SIDEBAR_WIDTH,
+      width: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH,
       options: [
         {
           text: 'Home',

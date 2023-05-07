@@ -1,22 +1,26 @@
-import { Scene } from 'phaser'
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PostRound } from '~/scenes/PostRound'
+import { PlayerStatGrowthConfig } from '~/scenes/screens/PostRound/PostRoundPlayerExpScreen'
+import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 
-export interface HomePlayerInfoConfig {
-  name: string
-  width: number
-  height: number
+export interface PostRoundPlayerStatsConfig {
   position: {
     x: number
     y: number
   }
+  width: number
+  height: number
+  name: string
+  exp: {
+    [key in PlayerAttributes]?: PlayerStatGrowthConfig
+  }
 }
 
-export class HomePlayerInfo {
-  private scene: Scene
+export class PostRoundPlayerExp {
+  private scene: PostRound
   private rectangle: Phaser.GameObjects.Rectangle
   private playerNameText: Phaser.GameObjects.Text
 
-  constructor(scene: Scene, config: HomePlayerInfoConfig) {
+  constructor(scene: PostRound, config: PostRoundPlayerStatsConfig) {
     this.scene = scene
     this.rectangle = this.scene.add
       .rectangle(config.position.x, config.position.y, config.width, config.height)
@@ -28,20 +32,12 @@ export class HomePlayerInfo {
     })
     this.playerNameText.setPosition(
       this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
-      this.rectangle.y + this.rectangle.displayHeight / 2 - this.playerNameText.displayHeight / 2
+      this.rectangle.y + 200
     )
   }
 
   setVisible(isVisible: boolean) {
     this.rectangle.setVisible(isVisible)
     this.playerNameText.setVisible(isVisible)
-  }
-
-  updateInfo(config: PlayerAgentConfig) {
-    this.playerNameText.setText(config.name)
-    this.playerNameText.setPosition(
-      this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
-      this.rectangle.y + this.rectangle.displayHeight / 2 - this.playerNameText.displayHeight / 2
-    )
   }
 }
