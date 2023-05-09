@@ -10,6 +10,12 @@ export enum PlayerAttributes {
   HEADSHOT = 'headshot',
 }
 
+export const PLAYER_ATTRIBUTE_ABBREV = {
+  [PlayerAttributes.ACCURACY]: 'Acc.',
+  [PlayerAttributes.REACTION]: 'React.',
+  [PlayerAttributes.HEADSHOT]: 'HS',
+}
+
 export enum PlayerRank {
   BRONZE,
   SILVER,

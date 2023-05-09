@@ -90,7 +90,7 @@ export class PostRoundPlayerStats {
       .text(
         this.rectangle.x + this.rectangle.displayWidth - 15,
         this.totalDeathsText.y,
-        `${config.stats.kills}`,
+        `${config.stats.deaths}`,
         {
           fontSize: '15px',
           color: 'black',

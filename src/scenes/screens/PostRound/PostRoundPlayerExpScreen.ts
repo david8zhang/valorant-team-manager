@@ -1,7 +1,7 @@
 import { RoundConstants } from '~/utils/RoundConstants'
 import { PostRound } from '../../PostRound'
 import { Screen } from '../Screen'
-import TeamMgmt from '~/scenes/TeamMgmt'
+import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
 import { PostRoundPlayerExp } from '~/core/ui/PostRoundPlayerExp'
 import {
   PLAYER_POTENTIAL_TO_EXP_MAPPING,
@@ -9,6 +9,8 @@ import {
   PlayerRank,
 } from '~/utils/PlayerConstants'
 import { Side } from '~/core/Agent'
+import { Button } from '~/core/ui/Button'
+import { Save, SaveKeys } from '~/utils/Save'
 
 export interface PlayerStatGrowthConfig {
   curr: number
@@ -21,6 +23,7 @@ export interface PlayerStatGrowthConfig {
 export class PostRoundPlayerExpScreen implements Screen {
   private scene: PostRound
   private titleText: Phaser.GameObjects.Text
+  private continueButton!: Button
   private playerExpCards: PostRoundPlayerExp[] = []
   private playerExpGrowthMapping: {
     [key: string]: {
@@ -44,6 +47,7 @@ export class PostRoundPlayerExpScreen implements Screen {
     )
     this.createPlayerExpGrowthMapping()
     this.setupPlayerExpCards()
+    this.setupContinueButton()
     this.setVisible(false)
   }
 
@@ -52,6 +56,47 @@ export class PostRoundPlayerExpScreen implements Screen {
     this.playerExpCards.forEach((card) => {
       card.setVisible(isVisible)
     })
+    this.continueButton.setVisible(isVisible)
+  }
+
+  setupContinueButton() {
+    this.continueButton = new Button({
+      scene: this.scene,
+      x: RoundConstants.WINDOW_WIDTH / 2,
+      y: RoundConstants.WINDOW_HEIGHT - 50,
+      backgroundColor: 0x444444,
+      width: 150,
+      height: 50,
+      text: 'Continue',
+      textColor: 'white',
+      fontSize: '20px',
+      onClick: () => {
+        this.setVisible(false)
+        this.goToTeamMgmtScreen()
+      },
+    })
+  }
+
+  goToTeamMgmtScreen() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as TeamConfig[]
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    playerTeam.roster.forEach((playerAgent) => {
+      const expGrowth = this.playerExpGrowthMapping[playerAgent.name]
+      const playerAttributes = playerAgent.attributes
+      const playerExp = playerAgent.experience
+
+      Object.keys(expGrowth).forEach((key: string) => {
+        const attr = key as PlayerAttributes
+        playerAttributes[attr] = expGrowth[attr]!.newRank
+        playerExp[attr] =
+          (expGrowth[attr]!.curr + expGrowth[attr]!.gain) %
+          (100 * Math.pow(2, expGrowth[attr]!.oldRank))
+      })
+      playerAgent.attributes = playerAttributes
+      playerAgent.experience = playerExp
+    })
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    this.scene.scene.start('team-mgmt')
   }
 
   createPlayerExpGrowthMapping() {
@@ -89,7 +134,11 @@ export class PostRoundPlayerExpScreen implements Screen {
     })
   }
 
-  onRender() {}
+  onRender() {
+    this.playerExpCards.forEach((card) => {
+      card.onRender()
+    })
+  }
 
   setupPlayerExpCards() {
     const padding = 15
@@ -107,9 +156,6 @@ export class PostRoundPlayerExpScreen implements Screen {
       RoundConstants.WINDOW_WIDTH / 2 -
       (cardWidth * playerConfigs.length + (padding * playerConfigs.length - 1)) / 2 +
       7
-
-    console.log(this.playerExpGrowthMapping)
-
     playerConfigs.forEach((config) => {
       const growthConfig = this.playerExpGrowthMapping[config.name]
       this.playerExpCards.push(

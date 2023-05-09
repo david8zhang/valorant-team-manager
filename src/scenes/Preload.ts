@@ -128,7 +128,7 @@ export default class Preload extends Phaser.Scene {
             texture: '',
             potential: 2,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
-            experience: { accuracy: 0, headshot: 0, reaction: 0 },
+            experience: { accuracy: 90, headshot: 90, reaction: 0 },
           },
           {
             name: 'GDT-2',
@@ -149,8 +149,8 @@ export default class Preload extends Phaser.Scene {
         ],
       },
     }
-    this.scene.start('post-round', data)
-    // this.scene.start('team-mgmt')
+    // this.scene.start('post-round', data)
+    this.scene.start('team-mgmt')
     // this.scene.start('start')
   }
 }
