@@ -5,6 +5,7 @@ import { Screen } from '../Screen'
 import { PostRound } from '~/scenes/PostRound'
 import TeamMgmt from '~/scenes/TeamMgmt'
 import { PostRoundScreenKeys } from '../ScreenKeys'
+import { Side } from '~/core/Agent'
 
 export class PostRoundPlayerStatsScreen implements Screen {
   private scene: PostRound
@@ -46,9 +47,10 @@ export class PostRoundPlayerStatsScreen implements Screen {
 
   setupPlayerStatCards() {
     const padding = 15
-    const playerConfigs = Object.keys(this.scene.playerStats).map((key) => {
+    const playerAgentStats = this.scene.playerStats[Side.PLAYER]
+    const playerConfigs = Object.keys(playerAgentStats).map((key) => {
       return {
-        ...this.scene.playerStats[key],
+        ...playerAgentStats[key],
         name: key,
       }
     })

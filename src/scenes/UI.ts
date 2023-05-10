@@ -672,7 +672,10 @@ export default class UI extends Phaser.Scene {
           totalDeaths: totalCPUDeaths,
         },
       },
-      playerStats: this.generateAgentStats(player.agents, winningSide === Side.PLAYER),
+      playerStats: {
+        [Side.PLAYER]: this.generateAgentStats(player.agents, winningSide === Side.PLAYER),
+        [Side.CPU]: this.generateAgentStats(cpu.agents, winningSide === Side.CPU),
+      },
       cpuTeamConfig: this.cpuTeamConfig,
       playerTeamConfig,
     }

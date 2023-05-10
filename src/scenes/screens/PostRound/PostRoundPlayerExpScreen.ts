@@ -1,5 +1,5 @@
 import { RoundConstants } from '~/utils/RoundConstants'
-import { PostRound } from '../../PostRound'
+import { PlayerStatConfig, PostRound } from '../../PostRound'
 import { Screen } from '../Screen'
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
 import { PostRoundPlayerExp } from '~/core/ui/PostRoundPlayerExp'
@@ -45,7 +45,11 @@ export class PostRoundPlayerExpScreen implements Screen {
       RoundConstants.WINDOW_WIDTH / 2 - this.titleText.displayWidth / 2,
       this.titleText.y + 10
     )
-    this.createPlayerExpGrowthMapping()
+    this.playerExpGrowthMapping = this.createPlayerExpGrowthMapping(
+      this.scene.playerTeamConfig,
+      this.scene.playerStats[Side.PLAYER],
+      Side.PLAYER
+    )
     this.setupPlayerExpCards()
     this.setupContinueButton()
     this.setVisible(false)
@@ -77,14 +81,14 @@ export class PostRoundPlayerExpScreen implements Screen {
     })
   }
 
-  goToTeamMgmtScreen() {
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as TeamConfig[]
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    playerTeam.roster.forEach((playerAgent) => {
-      const expGrowth = this.playerExpGrowthMapping[playerAgent.name]
-      const playerAttributes = playerAgent.attributes
-      const playerExp = playerAgent.experience
-
+  applyExpGrowth(
+    teamConfig: TeamConfig,
+    expGrowthMapping: { [key: string]: { [key in PlayerAttributes]?: PlayerStatGrowthConfig } }
+  ) {
+    teamConfig.roster.forEach((agent) => {
+      const expGrowth = expGrowthMapping[agent.name]
+      const playerAttributes = agent.attributes
+      const playerExp = agent.experience
       Object.keys(expGrowth).forEach((key: string) => {
         const attr = key as PlayerAttributes
         playerAttributes[attr] = expGrowth[attr]!.newRank
@@ -92,23 +96,44 @@ export class PostRoundPlayerExpScreen implements Screen {
           (expGrowth[attr]!.curr + expGrowth[attr]!.gain) %
           (100 * Math.pow(2, expGrowth[attr]!.oldRank))
       })
-      playerAgent.attributes = playerAttributes
-      playerAgent.experience = playerExp
+      agent.attributes = playerAttributes
+      agent.experience = playerExp
     })
+  }
+
+  goToTeamMgmtScreen() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+
+    // Add experience for player team
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    this.applyExpGrowth(playerTeam, this.playerExpGrowthMapping)
+
+    // Add experience for opponent CPU team
+    const cpuTeam = allTeams[this.scene.cpuTeamConfig.name] as TeamConfig
+    const cpuExpGrowthMapping = this.createPlayerExpGrowthMapping(
+      this.scene.cpuTeamConfig,
+      this.scene.playerStats[Side.CPU],
+      Side.CPU
+    )
+    this.applyExpGrowth(cpuTeam, cpuExpGrowthMapping)
+
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
     this.scene.scene.start('team-mgmt')
   }
 
-  createPlayerExpGrowthMapping() {
-    const playerConfigs = this.scene.playerTeamConfig.roster
-    const playerStats = this.scene.playerStats
-
+  createPlayerExpGrowthMapping(
+    teamConfig: TeamConfig,
+    playerStats: { [key: string]: PlayerStatConfig },
+    side: Side
+  ) {
+    const expGrowthMapping = {}
+    const playerConfigs = teamConfig.roster
     playerConfigs.forEach((config) => {
       const expRange = PLAYER_POTENTIAL_TO_EXP_MAPPING[config.potential]
       Object.keys(config.attributes).forEach((key) => {
         const attr = key as PlayerAttributes
         let expGainAmt = Phaser.Math.Between(expRange.low, expRange.high)
-        if (this.scene.winningSide === Side.PLAYER) {
+        if (this.scene.winningSide === side) {
           expGainAmt *= PostRoundPlayerExpScreen.ROUND_WIN_EXP_MODIFIER
         }
         if (playerStats[config.name].matchMvp || playerStats[config.name].teamMvp) {
@@ -117,10 +142,10 @@ export class PostRoundPlayerExpScreen implements Screen {
 
         // PlayerRank maps to a number (Bronze = 0, Silver = 1, etc.). EXP gain rate is log base 2
         const maxExpAmount = 100 * Math.pow(2, config.attributes[attr])
-        if (!this.playerExpGrowthMapping[config.name]) {
-          this.playerExpGrowthMapping[config.name] = {}
+        if (!expGrowthMapping[config.name]) {
+          expGrowthMapping[config.name] = {}
         }
-        this.playerExpGrowthMapping[config.name][attr] = {
+        expGrowthMapping[config.name][attr] = {
           curr: config.experience[attr],
           max: maxExpAmount,
           gain: expGainAmt,
@@ -132,6 +157,7 @@ export class PostRoundPlayerExpScreen implements Screen {
         }
       })
     })
+    return expGrowthMapping
   }
 
   onRender() {
@@ -142,9 +168,10 @@ export class PostRoundPlayerExpScreen implements Screen {
 
   setupPlayerExpCards() {
     const padding = 15
-    const playerConfigs = Object.keys(this.scene.playerStats).map((key) => {
+    const playerAgentStats = this.scene.playerStats[Side.PLAYER]
+    const playerConfigs = Object.keys(playerAgentStats).map((key) => {
       return {
-        ...this.scene.playerStats[key],
+        ...playerAgentStats[key],
         name: key,
       }
     })

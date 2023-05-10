@@ -62,26 +62,51 @@ export default class Preload extends Phaser.Scene {
         },
       },
       playerStats: {
-        'GDT-1': {
-          kills: 10,
-          deaths: 5,
-          assists: 5,
-          teamMvp: false,
-          matchMvp: true,
+        [Side.PLAYER]: {
+          'GDT-1': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: false,
+            matchMvp: true,
+          },
+          'GDT-2': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: false,
+            matchMvp: false,
+          },
+          'GDT-3': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: false,
+            matchMvp: false,
+          },
         },
-        'GDT-2': {
-          kills: 10,
-          deaths: 5,
-          assists: 5,
-          teamMvp: false,
-          matchMvp: false,
-        },
-        'GDT-3': {
-          kills: 10,
-          deaths: 5,
-          assists: 5,
-          teamMvp: false,
-          matchMvp: false,
+        [Side.CPU]: {
+          'IRO-1': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: true,
+            matchMvp: false,
+          },
+          'IRO-2': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: false,
+            matchMvp: false,
+          },
+          'IRO-3': {
+            kills: 10,
+            deaths: 5,
+            assists: 5,
+            teamMvp: false,
+            matchMvp: false,
+          },
         },
       },
       cpuTeamConfig: {
@@ -149,8 +174,8 @@ export default class Preload extends Phaser.Scene {
         ],
       },
     }
-    // this.scene.start('post-round', data)
-    this.scene.start('team-mgmt')
+    this.scene.start('post-round', data)
+    // this.scene.start('team-mgmt')
     // this.scene.start('start')
   }
 }

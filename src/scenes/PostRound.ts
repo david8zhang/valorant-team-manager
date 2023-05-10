@@ -6,22 +6,28 @@ import { PostRoundTeamStatsScreen } from './screens/PostRound/PostRoundTeamStats
 import { PostRoundPlayerStatsScreen } from './screens/PostRound/PostRoundPlayerStatsScreen'
 import { PostRoundPlayerExpScreen } from './screens/PostRound/PostRoundPlayerExpScreen'
 
+export interface TeamStatConfig {
+  totalKills: number
+  totalAssists: number
+  totalDeaths: number
+}
+
+export interface PlayerStatConfig {
+  kills: number
+  assists: number
+  deaths: number
+  teamMvp: boolean
+  matchMvp: boolean
+}
+
 export interface PostRoundConfig {
   winningSide: Side
   teamStats: {
-    [key in Side]: {
-      totalKills: number
-      totalAssists: number
-      totalDeaths: number
-    }
+    [key in Side]: TeamStatConfig
   }
   playerStats: {
-    [key: string]: {
-      kills: number
-      assists: number
-      deaths: number
-      teamMvp: boolean
-      matchMvp: boolean
+    [key in Side]: {
+      [key: string]: PlayerStatConfig
     }
   }
   cpuTeamConfig: TeamConfig
@@ -38,12 +44,14 @@ export class PostRound extends Phaser.Scene {
     }
   }
   public playerStats!: {
-    [key: string]: {
-      kills: number
-      assists: number
-      deaths: number
-      teamMvp: boolean
-      matchMvp: boolean
+    [key in Side]: {
+      [key: string]: {
+        kills: number
+        assists: number
+        deaths: number
+        teamMvp: boolean
+        matchMvp: boolean
+      }
     }
   }
   public playerTeamConfig!: TeamConfig
