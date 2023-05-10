@@ -43,7 +43,7 @@ export default class TeamMgmt extends Phaser.Scene {
   public screens!: {
     [key in ScreenKeys]: any
   }
-  public activeScreenKey: ScreenKeys = ScreenKeys.TEAM
+  public activeScreenKey: ScreenKeys = ScreenKeys.HOME
 
   constructor() {
     super('team-mgmt')

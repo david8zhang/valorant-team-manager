@@ -416,13 +416,93 @@ export default class UI extends Phaser.Scene {
         game.dropBarriers()
         break
       }
+      case RoundState.OVERTIME:
       case RoundState.MID_ROUND: {
         game.pause()
-        this.renderEndOfRoundMessage()
-        game.roundState = RoundState.POSTROUND
+        // Go to overtime if tied
+        if (this.isTied()) {
+          this.renderOvertimeMessage()
+        } else {
+          this.renderEndOfRoundMessage()
+          game.roundState = RoundState.POSTROUND
+        }
         break
       }
     }
+  }
+
+  isTied() {
+    return true
+    // const scoreMapping = Round.instance.scoreMapping
+    // return scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]
+  }
+
+  renderOvertimeMessage() {
+    const rectangle = this.add.rectangle(
+      RoundConstants.MAP_WIDTH / 2,
+      RoundConstants.WINDOW_HEIGHT / 2,
+      0,
+      0
+    )
+    rectangle.setFillStyle(0xffffff)
+    this.tweens.add({
+      targets: [rectangle],
+      width: {
+        from: 0,
+        to: 300,
+      },
+      height: {
+        from: 0,
+        to: 150,
+      },
+      duration: 200,
+      onUpdate: () => {
+        rectangle.setPosition(
+          RoundConstants.MAP_WIDTH / 2 - rectangle.width / 2,
+          RoundConstants.WINDOW_HEIGHT / 2 - rectangle.height / 2
+        )
+      },
+      onComplete: () => {
+        const titleText = 'Overtime!'
+        const textObj = this.add.text(
+          RoundConstants.MAP_WIDTH / 2,
+          RoundConstants.WINDOW_HEIGHT / 2 - 25,
+          titleText,
+          {
+            fontSize: '30px',
+            color: 'black',
+          }
+        )
+        textObj.setPosition(
+          textObj.x - textObj.displayWidth / 2,
+          textObj.y - textObj.displayHeight / 2
+        )
+
+        const buttonObj = new Button({
+          x: RoundConstants.MAP_WIDTH / 2,
+          y: textObj.y + textObj.displayHeight + 25,
+          width: 100,
+          height: 25,
+          text: 'Continue',
+          onClick: () => {
+            // Hide the window
+            rectangle.destroy()
+            textObj.destroy()
+            textObj.destroy()
+            buttonObj.destroy()
+
+            Round.instance.roundState = RoundState.OVERTIME
+            this.timer.setTime(RoundConstants.OVERTIME_ROUND_TIME_SEC)
+            this.timer.start()
+            Round.instance.dropBarriers()
+            Round.instance.startOvertime()
+          },
+          scene: this,
+          backgroundColor: 0x222222,
+          textColor: '#ffffff',
+        })
+      },
+    })
   }
 
   renderEndOfRoundMessage() {
@@ -453,12 +533,8 @@ export default class UI extends Phaser.Scene {
       onComplete: () => {
         const scoreMapping = Round.instance.scoreMapping
         let titleText = ''
-        if (scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]) {
-          titleText = "It's a tie!"
-        } else {
-          const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? 'Player' : 'CPU'
-          titleText = `${winningSide} won!`
-        }
+        const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? 'Player' : 'CPU'
+        titleText = `${winningSide} won!`
         const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
         const textObj = this.add.text(
           RoundConstants.MAP_WIDTH / 2,

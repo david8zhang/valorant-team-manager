@@ -10,6 +10,7 @@ export enum RoundState {
   PRE_PLANT_ROUND = 'PRE_PLANT_ROUND',
   POST_PLANT_ROUND = 'POST_PLANT_ROUND',
   POSTROUND = 'POSTROUND',
+  OVERTIME = 'OVERTIME',
 }
 
 export class RoundConstants {
@@ -20,7 +21,7 @@ export class RoundConstants {
   public static KILL_CREDITS_AMOUNT = 500
   public static ASSIST_CREDITS_AMOUNT = 250
 
-  public static PREROUND_TIME_SEC = 5
+  public static PREROUND_TIME_SEC = 1
   public static MID_ROUND_TIME_SEC = 100
   public static OVERTIME_ROUND_TIME_SEC = 45
 

@@ -164,6 +164,18 @@ export default class Round extends Phaser.Scene {
     this.raiseBarriers()
   }
 
+  startOvertime() {
+    this.unPause()
+    this.resetAgentPositions()
+    this.raiseBarriers()
+    const resetFn = (agent) => {
+      agent.credits = 0
+      agent.currWeapon = GunTypes.PISTOL
+    }
+    this.player.agents.forEach(resetFn)
+    this.cpu.agents.forEach(resetFn)
+  }
+
   resetAgentStatsAndWeapons() {
     const resetFn = (agent) => {
       agent.kills = 0

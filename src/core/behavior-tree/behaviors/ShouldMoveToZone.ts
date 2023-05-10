@@ -10,7 +10,8 @@ export class ShouldMoveToZone extends BehaviorTreeNode {
   }
 
   public process(trace?: boolean | undefined): BehaviorStatus {
-    return Round.instance.roundState === RoundState.MID_ROUND
+    return Round.instance.roundState === RoundState.MID_ROUND ||
+      Round.instance.roundState === RoundState.OVERTIME
       ? BehaviorStatus.SUCCESS
       : BehaviorStatus.FAILURE
   }
