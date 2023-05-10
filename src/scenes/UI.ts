@@ -432,7 +432,7 @@ export default class UI extends Phaser.Scene {
   }
 
   isTied() {
-    return true
+    return false
     // const scoreMapping = Round.instance.scoreMapping
     // return scoreMapping[Side.PLAYER] === scoreMapping[Side.CPU]
   }
@@ -587,25 +587,6 @@ export default class UI extends Phaser.Scene {
   }
 
   loadPostRoundScreen() {
-    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
-    const playerTeamConfig = allTeams[playerTeamName] as TeamConfig
-    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
-    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
-    const opponentTeam = allTeams[this.cpuTeamConfig.name]
-    const scoreMapping = Round.instance.scoreMapping
-    if (scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU]) {
-      playerTeamConfig.wins++
-      opponentTeam.losses++
-    } else if (scoreMapping[Side.PLAYER] < scoreMapping[Side.CPU]) {
-      playerTeamConfig.losses++
-      opponentTeam.wins++
-    }
-
-    allTeams[this.cpuTeamConfig.name] = opponentTeam
-    allTeams[playerTeamName] = { ...allTeams[playerTeamName], ...playerTeamConfig }
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
-    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length - 1))
     const postRoundConfig = this.generatePostRoundData()
     this.scene.bringToTop('team-mgmt')
     this.scene.bringToTop('post-round')
@@ -615,7 +596,7 @@ export default class UI extends Phaser.Scene {
   generateAgentStats(agents: Agent[], didWin: boolean) {
     const statMapping = {}
     let mostPlayerKills = 0
-    let nameOfAgentWithMostKills = ''
+    let nameOfAgentWithMostKills = agents[0].name
 
     agents.forEach((agent) => {
       if (agent.kills > mostPlayerKills) {

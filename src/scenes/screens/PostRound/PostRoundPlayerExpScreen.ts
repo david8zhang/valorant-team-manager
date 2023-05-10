@@ -1,7 +1,7 @@
 import { RoundConstants } from '~/utils/RoundConstants'
 import { PlayerStatConfig, PostRound } from '../../PostRound'
 import { Screen } from '../Screen'
-import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { PostRoundPlayerExp } from '~/core/ui/PostRoundPlayerExp'
 import {
   PLAYER_POTENTIAL_TO_EXP_MAPPING,
@@ -11,6 +11,8 @@ import {
 import { Side } from '~/core/Agent'
 import { Button } from '~/core/ui/Button'
 import { Save, SaveKeys } from '~/utils/Save'
+import { Utilities } from '~/utils/Utilities'
+import { RANK_DIFF_UPSET_PROBABILITIES } from '~/utils/TeamConstants'
 
 export interface PlayerStatGrowthConfig {
   curr: number
@@ -48,7 +50,7 @@ export class PostRoundPlayerExpScreen implements Screen {
     this.playerExpGrowthMapping = this.createPlayerExpGrowthMapping(
       this.scene.playerTeamConfig,
       this.scene.playerStats[Side.PLAYER],
-      Side.PLAYER
+      this.scene.winningSide === Side.PLAYER
     )
     this.setupPlayerExpCards()
     this.setupContinueButton()
@@ -103,7 +105,6 @@ export class PostRoundPlayerExpScreen implements Screen {
 
   goToTeamMgmtScreen() {
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-
     // Add experience for player team
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
     this.applyExpGrowth(playerTeam, this.playerExpGrowthMapping)
@@ -113,18 +114,145 @@ export class PostRoundPlayerExpScreen implements Screen {
     const cpuExpGrowthMapping = this.createPlayerExpGrowthMapping(
       this.scene.cpuTeamConfig,
       this.scene.playerStats[Side.CPU],
-      Side.CPU
+      this.scene.winningSide === Side.CPU
     )
     this.applyExpGrowth(cpuTeam, cpuExpGrowthMapping)
 
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    if (this.scene.winningSide === Side.PLAYER) {
+      playerTeam.wins++
+      cpuTeam.losses++
+    } else {
+      playerTeam.losses++
+      cpuTeam.wins++
+    }
+
+    const otherTeams = this.simulateOtherTeamMatches()
+    const newAllTeams = otherTeams
+      .concat(cpuTeam)
+      .concat(playerTeam)
+      .reduce((acc, curr) => {
+        acc[curr.name] = curr
+        return acc
+      }, {})
+
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, newAllTeams)
+
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length - 1))
     this.scene.scene.start('team-mgmt')
+  }
+
+  simulateOtherTeamMatches() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const teamsToSimulate = Object.values(allTeams).filter((team: TeamConfig) => {
+      return (
+        team.name !== this.scene.cpuTeamConfig.name &&
+        team.name !== this.scene.playerTeamConfig.name
+      )
+    })
+    const shuffledTeams = Utilities.shuffle([...teamsToSimulate])
+    const matchups: TeamConfig[][] = []
+    for (let i = 0; i <= shuffledTeams.length - 2; i += 2) {
+      const matchup = [shuffledTeams[i], shuffledTeams[i + 1]]
+      matchups.push(matchup)
+    }
+    const getAgentOverallRank = (agent: PlayerAgentConfig) => {
+      return Math.round(
+        Object.values(agent.attributes).reduce((acc, curr) => {
+          return acc + curr
+        }, 0) / Object.keys(agent.attributes).length
+      )
+    }
+
+    const getOverallRank = (teamConfig: TeamConfig) => {
+      return Math.round(
+        teamConfig.roster.reduce((acc, curr) => {
+          return acc + getAgentOverallRank(curr)
+        }, 0) / teamConfig.roster.length
+      )
+    }
+
+    const getMvp = (teamConfig: TeamConfig) => {
+      const sortedByRank = teamConfig.roster.sort((a, b) => {
+        return getAgentOverallRank(b) - getAgentOverallRank(a)
+      })
+      let mvpName = sortedByRank[sortedByRank.length - 1].name
+      for (let i = 0; i < sortedByRank.length; i++) {
+        const isMvp = Phaser.Math.Between(0, 1) == 1
+        if (isMvp) {
+          return sortedByRank[i].name
+        }
+      }
+      return mvpName
+    }
+
+    const matchResults: {
+      winningTeam: TeamConfig
+      losingTeam: TeamConfig
+      teamMvpPlayerName: string
+      matchMvpPlayerName: string
+    }[] = []
+    matchups.forEach((teams: TeamConfig[]) => {
+      const team1OvrRank = getOverallRank(teams[0])
+      const team2OvrRank = getOverallRank(teams[1])
+      const rankDiff = Math.abs(team2OvrRank - team1OvrRank)
+      const winProbabilities = RANK_DIFF_UPSET_PROBABILITIES[rankDiff]
+      const didUpset = Phaser.Math.Between(1, 100) <= winProbabilities.probability
+      const lowerRankTeam = team1OvrRank > team2OvrRank ? teams[1] : teams[0]
+      const higherRankTeam = team1OvrRank > team2OvrRank ? teams[0] : teams[1]
+      matchResults.push({
+        winningTeam: didUpset ? lowerRankTeam : higherRankTeam,
+        losingTeam: didUpset ? higherRankTeam : lowerRankTeam,
+        matchMvpPlayerName: didUpset ? getMvp(lowerRankTeam) : getMvp(higherRankTeam),
+        teamMvpPlayerName: didUpset ? getMvp(higherRankTeam) : getMvp(lowerRankTeam),
+      })
+    })
+
+    // Apply all matchup results
+    matchResults.forEach((matchup) => {
+      const winningTeamPlayerStats = {}
+      matchup.winningTeam.roster.forEach((playerConfig) => {
+        winningTeamPlayerStats[playerConfig.name] = {
+          matchMvp: matchup.matchMvpPlayerName === playerConfig.name,
+          teamMvp: matchup.teamMvpPlayerName === playerConfig.name,
+        }
+      })
+      const winningTeamGrowthMapping = this.createPlayerExpGrowthMapping(
+        matchup.winningTeam,
+        winningTeamPlayerStats,
+        true
+      )
+
+      const losingTeamPlayerStats = {}
+      matchup.losingTeam.roster.forEach((playerConfig) => {
+        losingTeamPlayerStats[playerConfig.name] = {
+          matchMvp: matchup.matchMvpPlayerName === playerConfig.name,
+          teamMvp: matchup.teamMvpPlayerName === playerConfig.name,
+        }
+      })
+      const losingTeamGrowthMapping = this.createPlayerExpGrowthMapping(
+        matchup.losingTeam,
+        losingTeamPlayerStats,
+        true
+      )
+      this.applyExpGrowth(matchup.winningTeam, winningTeamGrowthMapping)
+      this.applyExpGrowth(matchup.losingTeam, losingTeamGrowthMapping)
+      matchup.winningTeam.wins++
+      matchup.losingTeam.losses++
+    })
+    const teamConfigWithAppliedExp: TeamConfig[] = []
+    matchResults.forEach((result) => {
+      teamConfigWithAppliedExp.push(result.winningTeam)
+      teamConfigWithAppliedExp.push(result.losingTeam)
+    })
+    return teamConfigWithAppliedExp
   }
 
   createPlayerExpGrowthMapping(
     teamConfig: TeamConfig,
-    playerStats: { [key: string]: PlayerStatConfig },
-    side: Side
+    playerStats: { [key: string]: { matchMvp: boolean; teamMvp: boolean } },
+    didWin: boolean
   ) {
     const expGrowthMapping = {}
     const playerConfigs = teamConfig.roster
@@ -133,7 +261,7 @@ export class PostRoundPlayerExpScreen implements Screen {
       Object.keys(config.attributes).forEach((key) => {
         const attr = key as PlayerAttributes
         let expGainAmt = Phaser.Math.Between(expRange.low, expRange.high)
-        if (this.scene.winningSide === side) {
+        if (didWin) {
           expGainAmt *= PostRoundPlayerExpScreen.ROUND_WIN_EXP_MODIFIER
         }
         if (playerStats[config.name].matchMvp || playerStats[config.name].teamMvp) {

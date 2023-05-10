@@ -84,7 +84,7 @@ export class PostRound extends Phaser.Scene {
       [PostRoundScreenKeys.PLAYER_STATS]: new PostRoundPlayerStatsScreen(this),
       [PostRoundScreenKeys.PLAYER_EXP]: new PostRoundPlayerExpScreen(this),
     }
-    this.renderActiveScreen(this.activeScreenKey)
+    this.renderActiveScreen(PostRoundScreenKeys.TEAM_STATS)
   }
 
   renderActiveScreen(newActiveScreenKey: PostRoundScreenKeys) {

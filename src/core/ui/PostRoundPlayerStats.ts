@@ -66,7 +66,7 @@ export class PostRoundPlayerStats {
     } else if (config.stats.teamMvp) {
       this.matchMVPText = this.scene.add.text(
         this.playerNameText.x,
-        this.playerNameText.y,
+        this.playerNameText.y - this.rectangle.displayHeight / 2 + 15,
         'Team MVP',
         {
           fontSize: '15px',

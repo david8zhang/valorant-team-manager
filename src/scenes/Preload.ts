@@ -174,8 +174,8 @@ export default class Preload extends Phaser.Scene {
         ],
       },
     }
-    this.scene.start('post-round', data)
-    // this.scene.start('team-mgmt')
+    // this.scene.start('post-round', data)
+    this.scene.start('team-mgmt')
     // this.scene.start('start')
   }
 }
