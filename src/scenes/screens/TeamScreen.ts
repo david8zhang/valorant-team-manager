@@ -4,6 +4,7 @@ import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
 import { Button } from '~/core/ui/Button'
+import { ScreenKeys } from './ScreenKeys'
 
 export class TeamScreen implements Screen {
   private scene: TeamMgmt
@@ -36,7 +37,9 @@ export class TeamScreen implements Screen {
       y: this.titleText.y + 20,
       text: 'View Roster',
       backgroundColor: 0x444444,
-      onClick: () => {},
+      onClick: () => {
+        this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER)
+      },
       fontSize: '15px',
       textColor: 'white',
       strokeColor: 0x000000,

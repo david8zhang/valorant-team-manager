@@ -1,4 +1,4 @@
 export interface Screen {
   setVisible(isVisible: boolean): void
-  onRender(): void
+  onRender(data?: any): void
 }

@@ -2,6 +2,7 @@ export enum ScreenKeys {
   HOME = 'HOME',
   SEASON = 'SEASON',
   TEAM = 'TEAM',
+  TEAM_ROSTER = 'TEAM_ROSTER',
 }
 
 export enum PostRoundScreenKeys {

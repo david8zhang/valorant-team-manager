@@ -8,6 +8,7 @@ import { ScreenKeys } from './screens/ScreenKeys'
 import { HomeScreen } from './screens/HomeScreen'
 import { SeasonScreen } from './screens/SeasonScreen'
 import { TeamScreen } from './screens/TeamScreen'
+import { RosterScreen } from './screens/RosterScreen'
 
 export interface PlayerAgentConfig {
   name: string
@@ -154,6 +155,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.HOME]: new HomeScreen(this),
       [ScreenKeys.SEASON]: new SeasonScreen(this),
       [ScreenKeys.TEAM]: new TeamScreen(this),
+      [ScreenKeys.TEAM_ROSTER]: new RosterScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)
@@ -190,14 +192,14 @@ export default class TeamMgmt extends Phaser.Scene {
     this.renderActiveScreen(this.activeScreenKey)
   }
 
-  renderActiveScreen(newActiveScreenKey: ScreenKeys) {
+  renderActiveScreen(newActiveScreenKey: ScreenKeys, data?: any) {
     if (this.activeScreenKey) {
       const prevActiveScreen = this.screens[this.activeScreenKey]
       prevActiveScreen.setVisible(false)
     }
     this.activeScreenKey = newActiveScreenKey
     const newActiveScreen = this.screens[this.activeScreenKey]
-    newActiveScreen.onRender()
+    newActiveScreen.onRender(data)
     newActiveScreen.setVisible(true)
   }
 }
