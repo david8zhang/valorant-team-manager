@@ -24,6 +24,7 @@ export class PlayerDrilldownAttrRow {
   private valueText!: Phaser.GameObjects.Text
   private rankText!: Phaser.GameObjects.Text
   private expBar!: UIValueBar
+  private expText!: Phaser.GameObjects.Text
 
   constructor(scene: TeamMgmt, config: PlayerDrilldownAttrRowConfig) {
     this.scene = scene
@@ -37,9 +38,18 @@ export class PlayerDrilldownAttrRow {
   }
 
   updateConfig(config: PlayerDrilldownAttrRowConfig) {
+    const startOfColumnsX = 150
+    const totalWidth = TeamMgmt.BODY_WIDTH - startOfColumnsX
+    const columnWidth = Math.floor(totalWidth / 3)
     this.valueText.setText(config.value)
     this.expBar.setCurrValue(config.exp.currValue)
     this.expBar.setMaxValue(config.exp.maxValue)
+
+    this.expText.setText(`${config.exp.currValue}/${config.exp.maxValue}`)
+    this.expText.setPosition(
+      this.expBar.x + columnWidth / 2 - 10 - this.expText.displayWidth / 2,
+      this.expText.y
+    )
 
     const rankTextStr = Utilities.getRankNameForEnum(config.rank)
     this.rankText.setText(rankTextStr)
@@ -66,10 +76,22 @@ export class PlayerDrilldownAttrRow {
       height: 10,
       maxValue: config.exp.maxValue,
       x: xPos,
-      y: this.valueText.y + 5,
+      y: this.valueText.y + 10,
       borderWidth: 0,
     })
     this.expBar.setCurrValue(config.exp.currValue)
+    this.expText = this.scene.add
+      .text(
+        this.expBar.x + columnWidth / 2 - 10,
+        this.expBar.y - 20,
+        `${config.exp.currValue}/${config.exp.maxValue}`,
+        {
+          fontSize: '15px',
+          color: 'black',
+        }
+      )
+      .setOrigin(0)
+    this.expText.setPosition(this.expText.x - this.expText.displayWidth / 2, this.expText.y)
 
     xPos += columnWidth
     const rankTextStr = Utilities.getRankNameForEnum(config.rank)
@@ -87,6 +109,7 @@ export class PlayerDrilldownAttrRow {
 
   setVisible(isVisible: boolean) {
     this.expBar.setVisible(isVisible)
+    this.expText.setVisible(isVisible)
     this.rankText.setVisible(isVisible)
     this.playerNameText.setVisible(isVisible)
     this.valueText.setVisible(isVisible)
