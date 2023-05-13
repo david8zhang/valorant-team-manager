@@ -9,6 +9,7 @@ import { ScreenKeys } from './ScreenKeys'
 export class TeamScreen implements Screen {
   private scene: TeamMgmt
   private startingLineup: HomePlayerInfo[] = []
+  private playerStatButtons: Button[] = []
   private titleText: Phaser.GameObjects.Text
   private goToRosterButton!: Button
 
@@ -55,6 +56,9 @@ export class TeamScreen implements Screen {
       card.setVisible(isVisible)
     })
     this.goToRosterButton.setVisible(isVisible)
+    this.playerStatButtons.forEach((button) => {
+      button.setVisible(isVisible)
+    })
   }
 
   setupStartingLineupCards() {
@@ -67,17 +71,30 @@ export class TeamScreen implements Screen {
       padding * ((playerConfigs.length + 1) / playerConfigs.length)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     playerConfigs.forEach((config) => {
-      this.startingLineup.push(
-        new HomePlayerInfo(this.scene, {
-          name: config.name,
-          position: {
-            x: xPos,
-            y: padding + 75,
-          },
-          height: RoundConstants.WINDOW_HEIGHT - 240,
-          width: cardWidth,
-        })
-      )
+      const homePlayerInfo = new HomePlayerInfo(this.scene, {
+        name: config.name,
+        position: {
+          x: xPos,
+          y: padding + 75,
+        },
+        height: RoundConstants.WINDOW_HEIGHT - 240,
+        width: cardWidth,
+      })
+      this.startingLineup.push(homePlayerInfo)
+      const statButton = new Button({
+        text: 'Show Stats',
+        onClick: () => {
+          this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+        },
+        x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
+        y: homePlayerInfo.rectangle.y + homePlayerInfo.rectangle.displayHeight + 35,
+        width: homePlayerInfo.rectangle.displayWidth,
+        height: 50,
+        scene: this.scene,
+        strokeColor: 0x000000,
+        strokeWidth: 1,
+      })
+      this.playerStatButtons.push(statButton)
       xPos += cardWidth + padding
     })
   }

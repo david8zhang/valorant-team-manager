@@ -79,17 +79,16 @@ export class HomeScreen implements Screen {
       padding * ((playerConfigs.length + 1) / playerConfigs.length)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     playerConfigs.forEach((config) => {
-      this.playerCards.push(
-        new HomePlayerInfo(this.scene, {
-          name: config.name,
-          position: {
-            x: xPos,
-            y: padding + 90,
-          },
-          height: RoundConstants.WINDOW_HEIGHT - 240,
-          width: cardWidth,
-        })
-      )
+      const homePlayerInfo = new HomePlayerInfo(this.scene, {
+        name: config.name,
+        position: {
+          x: xPos,
+          y: padding + 90,
+        },
+        height: RoundConstants.WINDOW_HEIGHT - 240,
+        width: cardWidth,
+      })
+      this.playerCards.push(homePlayerInfo)
       xPos += cardWidth + padding
     })
   }

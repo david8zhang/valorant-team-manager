@@ -1,14 +1,14 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../TeamMgmt'
 import { Screen } from './Screen'
-import { AgentTableRowStats } from '~/core/ui/AgentTableRowStats'
+import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
 
 export class RosterScreen implements Screen {
   private scene: TeamMgmt
-  private agentTableRowStats: AgentTableRowStats[] = []
+  private agentTableRowStats: PlayerAttrRow[] = []
   private titleText: Phaser.GameObjects.Text
   private goToTeamButton!: Button
 
@@ -52,7 +52,7 @@ export class RosterScreen implements Screen {
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
     let yPos = 125
     playerTeam.roster.forEach((config: PlayerAgentConfig, index: number) => {
-      const agentTableRowStat = new AgentTableRowStats(this.scene, {
+      const agentTableRowStat = new PlayerAttrRow(this.scene, {
         name: config.name,
         attributes: config.attributes,
         isHeader: index === 0,
@@ -68,7 +68,7 @@ export class RosterScreen implements Screen {
 
   setVisible(isVisible: boolean): void {
     this.titleText.setVisible(isVisible)
-    this.agentTableRowStats.forEach((stats: AgentTableRowStats) => {
+    this.agentTableRowStats.forEach((stats: PlayerAttrRow) => {
       stats.setVisible(isVisible)
     })
     this.goToTeamButton.setVisible(isVisible)

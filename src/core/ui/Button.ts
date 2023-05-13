@@ -40,18 +40,22 @@ export class Button {
       .setInteractive()
       .on(Phaser.Input.Events.POINTER_DOWN, () => {
         this.rectangle.setAlpha(0.5)
+        this.text.setAlpha(0.5)
       })
       .on(Phaser.Input.Events.POINTER_DOWN_OUTSIDE, () => {
         config.onClick()
         this.rectangle.setAlpha(0.85)
+        this.text.setAlpha(1)
       })
       .on(Phaser.Input.Events.POINTER_UP, () => {
         config.onClick()
         this.rectangle.setAlpha(0.85)
+        this.text.setAlpha(1)
       })
       .on(Phaser.Input.Events.POINTER_UP_OUTSIDE, () => {
         config.onClick()
         this.rectangle.setAlpha(0.85)
+        this.text.setAlpha(1)
       })
   }
 

@@ -9,6 +9,7 @@ import { HomeScreen } from './screens/HomeScreen'
 import { SeasonScreen } from './screens/SeasonScreen'
 import { TeamScreen } from './screens/TeamScreen'
 import { RosterScreen } from './screens/RosterScreen'
+import { PlayerDrilldownScreen } from './screens/PlayerDrilldown/PlayerDrilldownScreen'
 
 export interface PlayerAgentConfig {
   name: string
@@ -150,12 +151,12 @@ export default class TeamMgmt extends Phaser.Scene {
     if (!Save.getData(SaveKeys.ALL_TEAM_CONFIGS)) {
       this.initializeNewGameData()
     }
-
     this.screens = {
       [ScreenKeys.HOME]: new HomeScreen(this),
       [ScreenKeys.SEASON]: new SeasonScreen(this),
       [ScreenKeys.TEAM]: new TeamScreen(this),
       [ScreenKeys.TEAM_ROSTER]: new RosterScreen(this),
+      [ScreenKeys.PLAYER_DRILLDOWN]: new PlayerDrilldownScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)

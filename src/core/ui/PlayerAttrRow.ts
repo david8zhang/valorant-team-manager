@@ -15,7 +15,7 @@ export interface AgentTableRowStatsConfig {
   }
 }
 
-export class AgentTableRowStats {
+export class PlayerAttrRow {
   private scene: Scene
   private nameText: Phaser.GameObjects.Text
   private columnGroup: Phaser.GameObjects.Group

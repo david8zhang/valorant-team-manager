@@ -13,7 +13,7 @@ export interface HomePlayerInfoConfig {
 
 export class HomePlayerInfo {
   private scene: Scene
-  private rectangle: Phaser.GameObjects.Rectangle
+  public rectangle: Phaser.GameObjects.Rectangle
   private playerNameText: Phaser.GameObjects.Text
 
   constructor(scene: Scene, config: HomePlayerInfoConfig) {

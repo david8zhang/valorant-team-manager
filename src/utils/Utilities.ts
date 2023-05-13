@@ -1,3 +1,6 @@
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerRank } from './PlayerConstants'
+
 export class Utilities {
   public static shuffle(array: any[]) {
     let currentIndex = array.length,
@@ -14,5 +17,18 @@ export class Utilities {
     }
 
     return array
+  }
+
+  public static getRankNameForEnum(rank: PlayerRank) {
+    const ranks = ['BRONZE', 'SILVER', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER']
+    return ranks[rank]
+  }
+
+  public static getOverallRank(player: PlayerAgentConfig) {
+    return Math.round(
+      Object.values(player.attributes).reduce((acc, curr) => {
+        return acc + curr
+      }, 0) / Object.keys(player.attributes).length
+    )
   }
 }
