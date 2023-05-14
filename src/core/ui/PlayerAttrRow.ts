@@ -32,6 +32,12 @@ export class PlayerAttrRow {
     this.setupAttributes(config)
   }
 
+  destroy() {
+    this.nameText.destroy()
+    this.columnGroup.clear(true, true)
+    this.columnGroup.destroy()
+  }
+
   setVisible(isVisible: boolean) {
     this.nameText.setVisible(isVisible)
     this.columnGroup.setVisible(isVisible)

@@ -6,6 +6,8 @@ import { TeamRankings } from '~/core/ui/TeamRankings'
 import { UpcomingMatch } from '~/core/ui/UpcomingMatch'
 import { SeasonSchedule } from '~/core/ui/SeasonSchedule'
 import { Button } from '~/core/ui/Button'
+import { LinkText } from '~/core/ui/LinkText'
+import { ScreenKeys } from './ScreenKeys'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -14,6 +16,7 @@ export class SeasonScreen implements Screen {
   private seasonSchedule!: SeasonSchedule
   private rankingsList!: TeamRankings
   private startMatchButton!: Button
+  private viewStartingLineupsLink!: LinkText
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -21,14 +24,37 @@ export class SeasonScreen implements Screen {
     this.setupRankings()
     this.setupSchedule()
     this.setupStartMatchButton()
+    this.setupViewStartingLineupsLink()
     this.setVisible(false)
+  }
+
+  setupViewStartingLineupsLink() {
+    this.viewStartingLineupsLink = new LinkText(this.scene, {
+      text: 'View Starting Lineups',
+      onClick: () => {
+        const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+        const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+        const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
+          [key: string]: TeamConfig
+        }
+        const currMatch = seasonSchedule[currMatchIndex]
+        const opponentTeamConfig = allTeamMapping[currMatch.opponent]
+        this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, {
+          opponentTeam: opponentTeamConfig,
+        })
+      },
+      position: {
+        x: this.startMatchButton.x,
+        y: this.startMatchButton.y + 50,
+      },
+    })
   }
 
   setupStartMatchButton() {
     this.startMatchButton = new Button({
       scene: this.scene,
       x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + TeamRankings.START_X) / 2,
-      y: RoundConstants.WINDOW_HEIGHT - 100,
+      y: RoundConstants.WINDOW_HEIGHT - 125,
       width: 200,
       height: 50,
       text: 'Start Match',
@@ -117,5 +143,6 @@ export class SeasonScreen implements Screen {
     this.rankingsList.setVisible(isVisible)
     this.upcomingMatch.setVisible(isVisible)
     this.startMatchButton.setVisible(isVisible)
+    this.viewStartingLineupsLink.setVisible(isVisible)
   }
 }

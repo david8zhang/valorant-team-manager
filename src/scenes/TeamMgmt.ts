@@ -10,6 +10,7 @@ import { SeasonScreen } from './screens/SeasonScreen'
 import { TeamScreen } from './screens/TeamScreen'
 import { RosterScreen } from './screens/RosterScreen'
 import { PlayerDrilldownScreen } from './screens/PlayerDrilldown/PlayerDrilldownScreen'
+import { ViewLineupsScreen } from './screens/ViewLineupsScreen'
 
 export interface PlayerAgentConfig {
   name: string
@@ -77,6 +78,7 @@ export default class TeamMgmt extends Phaser.Scene {
     const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [teamName: string]: TeamConfig
     }
+    this.renderActiveScreen(ScreenKeys.SEASON)
     const currMatch = schedule[currMatchIndex]
     this.scene.start('round', {
       cpuTeamConfig: allTeamMapping[currMatch.opponent],
@@ -157,6 +159,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.TEAM]: new TeamScreen(this),
       [ScreenKeys.TEAM_ROSTER]: new RosterScreen(this),
       [ScreenKeys.PLAYER_DRILLDOWN]: new PlayerDrilldownScreen(this),
+      [ScreenKeys.VIEW_LINEUPS]: new ViewLineupsScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)

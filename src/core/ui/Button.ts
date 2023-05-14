@@ -59,6 +59,14 @@ export class Button {
       })
   }
 
+  public get x() {
+    return this.rectangle.x
+  }
+
+  public get y() {
+    return this.rectangle.y
+  }
+
   destroy() {
     this.rectangle.destroy()
     this.text.destroy()
