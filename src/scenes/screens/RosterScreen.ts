@@ -60,9 +60,15 @@ export class RosterScreen implements Screen {
           x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
           y: yPos,
         },
+        buttonConfig: {
+          shouldShow: true,
+          onClick: () => {
+            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+          },
+        },
       })
       this.agentTableRowStats.push(agentTableRowStat)
-      yPos += 30
+      yPos += 40
     })
   }
 

@@ -22,7 +22,7 @@ export class PlayerDrilldownScreen implements Screen {
       scene: this.scene,
       text: 'Back',
       onClick: () => {
-        this.scene.renderActiveScreen(ScreenKeys.TEAM)
+        this.scene.goBackToPreviousScreen()
       },
       fontSize: '15px',
       x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 40,

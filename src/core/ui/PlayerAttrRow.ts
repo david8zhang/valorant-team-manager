@@ -2,6 +2,7 @@ import { Scene } from 'phaser'
 import TeamMgmt from '~/scenes/TeamMgmt'
 import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
+import { Button } from './Button'
 
 export interface AgentTableRowStatsConfig {
   isHeader: boolean
@@ -13,12 +14,17 @@ export interface AgentTableRowStatsConfig {
   attributes: {
     [key in PlayerAttributes]: PlayerRank
   }
+  buttonConfig: {
+    shouldShow: boolean
+    onClick: Function
+  }
 }
 
 export class PlayerAttrRow {
   private scene: Scene
   private nameText: Phaser.GameObjects.Text
   private columnGroup: Phaser.GameObjects.Group
+  private showStatsButton!: Button
 
   constructor(scene: Scene, config: AgentTableRowStatsConfig) {
     this.scene = scene
@@ -30,6 +36,27 @@ export class PlayerAttrRow {
       .setOrigin(0, 0)
     this.columnGroup = this.scene.add.group()
     this.setupAttributes(config)
+    this.setupShowStatDrilldownButton(config)
+  }
+
+  setupShowStatDrilldownButton(config: AgentTableRowStatsConfig) {
+    const xPos = RoundConstants.WINDOW_WIDTH - 50
+    if (config.buttonConfig.shouldShow) {
+      this.showStatsButton = new Button({
+        scene: this.scene,
+        width: 75,
+        height: 25,
+        text: 'Show Stats',
+        fontSize: '10px',
+        onClick: () => {
+          config.buttonConfig.onClick()
+        },
+        strokeColor: 0x000000,
+        strokeWidth: 1,
+        x: xPos,
+        y: config.position.y + 5,
+      })
+    }
   }
 
   destroy() {
@@ -41,6 +68,7 @@ export class PlayerAttrRow {
   setVisible(isVisible: boolean) {
     this.nameText.setVisible(isVisible)
     this.columnGroup.setVisible(isVisible)
+    this.showStatsButton.setVisible(isVisible)
   }
 
   setupAttributes(config: AgentTableRowStatsConfig) {
@@ -77,5 +105,6 @@ export class PlayerAttrRow {
       this.columnGroup.add(rankIcon)
       xPos += columnWidth + 15
     })
+    console.log(xPos)
   }
 }

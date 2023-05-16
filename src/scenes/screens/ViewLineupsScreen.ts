@@ -6,6 +6,7 @@ import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { Scene } from 'phaser'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
+import { ScreenKeys } from './ScreenKeys'
 
 export class ViewLineupsScreen implements Screen {
   public currTeam: Side = Side.CPU
@@ -76,7 +77,9 @@ export class ViewLineupsScreen implements Screen {
   }
 
   onRender(data?: any): void {
-    this.cpuTeamConfig = data.opponentTeam
+    if (data) {
+      this.cpuTeamConfig = data.opponentTeam
+    }
     this.displayCurrTeam()
   }
 
@@ -100,9 +103,15 @@ export class ViewLineupsScreen implements Screen {
           },
           name: player.name,
           attributes: player.attributes,
+          buttonConfig: {
+            shouldShow: true,
+            onClick: () => {
+              this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, player)
+            },
+          },
         })
         this.playerAttrRows.push(row)
-        yPos += 30
+        yPos += 35
       })
     }
   }

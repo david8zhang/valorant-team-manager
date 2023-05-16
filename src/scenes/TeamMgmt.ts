@@ -47,6 +47,7 @@ export default class TeamMgmt extends Phaser.Scene {
     [key in ScreenKeys]: any
   }
   public activeScreenKey: ScreenKeys = ScreenKeys.HOME
+  public prevScreenKey: ScreenKeys = ScreenKeys.HOME
 
   constructor() {
     super('team-mgmt')
@@ -196,8 +197,13 @@ export default class TeamMgmt extends Phaser.Scene {
     this.renderActiveScreen(this.activeScreenKey)
   }
 
+  goBackToPreviousScreen() {
+    this.renderActiveScreen(this.prevScreenKey)
+  }
+
   renderActiveScreen(newActiveScreenKey: ScreenKeys, data?: any) {
     if (this.activeScreenKey) {
+      this.prevScreenKey = this.activeScreenKey
       const prevActiveScreen = this.screens[this.activeScreenKey]
       prevActiveScreen.setVisible(false)
     }

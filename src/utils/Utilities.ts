@@ -20,7 +20,16 @@ export class Utilities {
   }
 
   public static getRankNameForEnum(rank: PlayerRank) {
-    const ranks = ['BRONZE', 'SILVER', 'PLATINUM', 'DIAMOND', 'MASTER', 'GRANDMASTER', 'CHALLENGER']
+    const ranks = [
+      'BRONZE',
+      'SILVER',
+      'GOLD',
+      'PLATINUM',
+      'DIAMOND',
+      'MASTER',
+      'GRANDMASTER',
+      'CHALLENGER',
+    ]
     return ranks[rank]
   }
 
