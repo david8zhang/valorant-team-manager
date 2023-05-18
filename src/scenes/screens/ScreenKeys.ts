@@ -5,6 +5,7 @@ export enum ScreenKeys {
   TEAM_ROSTER = 'TEAM_ROSTER',
   PLAYER_DRILLDOWN = 'PLAYER_DRILLDOWN',
   VIEW_LINEUPS = 'VIEW_LINEUPS',
+  DRAFT = 'DRAFT',
 }
 
 export enum PostRoundScreenKeys {

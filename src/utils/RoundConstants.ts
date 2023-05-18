@@ -17,6 +17,7 @@ export class RoundConstants {
   public static TEAM_MGMT_SIDEBAR_WIDTH = 200
   public static TEAM_NAME_PLACEHOLDER = 'Guangdong Tigers'
   public static TEAM_SHORT_NAME = 'GDT'
+  public static DEFAULT_SCOUT_POINTS = 3
 
   public static KILL_CREDITS_AMOUNT = 500
   public static ASSIST_CREDITS_AMOUNT = 250

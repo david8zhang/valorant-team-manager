@@ -139,7 +139,7 @@ export class PostRoundPlayerExpScreen implements Screen {
 
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
-    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length - 1))
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length))
     this.scene.scene.start('team-mgmt')
   }
 

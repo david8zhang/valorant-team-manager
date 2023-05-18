@@ -11,6 +11,7 @@ import { TeamScreen } from './screens/TeamScreen'
 import { RosterScreen } from './screens/RosterScreen'
 import { PlayerDrilldownScreen } from './screens/PlayerDrilldown/PlayerDrilldownScreen'
 import { ViewLineupsScreen } from './screens/ViewLineupsScreen'
+import { DraftScreen } from './screens/DraftScreen'
 
 export interface PlayerAgentConfig {
   name: string
@@ -71,6 +72,7 @@ export default class TeamMgmt extends Phaser.Scene {
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, teamConfigMapping)
     Save.setData(SaveKeys.SEASON_SCHEDULE, seasonSchedule)
     Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
+    Save.setData(SaveKeys.SCOUT_POINTS, RoundConstants.DEFAULT_SCOUT_POINTS)
   }
 
   startGame() {
@@ -161,6 +163,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.TEAM_ROSTER]: new RosterScreen(this),
       [ScreenKeys.PLAYER_DRILLDOWN]: new PlayerDrilldownScreen(this),
       [ScreenKeys.VIEW_LINEUPS]: new ViewLineupsScreen(this),
+      [ScreenKeys.DRAFT]: new DraftScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)
@@ -209,7 +212,7 @@ export default class TeamMgmt extends Phaser.Scene {
     }
     this.activeScreenKey = newActiveScreenKey
     const newActiveScreen = this.screens[this.activeScreenKey]
-    newActiveScreen.onRender(data)
     newActiveScreen.setVisible(true)
+    newActiveScreen.onRender(data)
   }
 }

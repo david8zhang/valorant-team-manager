@@ -6,14 +6,18 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ### Management Sim
 
-- Sidebar menu w/ screens
-  - Season games
-  - Players
-  - Free agents
+- Draft order
+- Trades in free agency
+- First time user screen
+  - Allow user to pick a team name
+  - Initial team draft
+- Real player names
+- Player ages, degredation after a certain age
+- "Mental" stat
 
 ### In-Round Gameplay
 
-- Hot/cold streaks
+- Hot/cold streaks (based on mental stat)
 - Utility:
   - Molotov cocktail
   - Flashbang grenade

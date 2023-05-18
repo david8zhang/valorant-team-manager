@@ -8,6 +8,7 @@ import { SeasonSchedule } from '~/core/ui/SeasonSchedule'
 import { Button } from '~/core/ui/Button'
 import { LinkText } from '~/core/ui/LinkText'
 import { ScreenKeys } from './ScreenKeys'
+import { SeasonOver } from '~/core/ui/SeasonOver'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -18,14 +19,30 @@ export class SeasonScreen implements Screen {
   private startMatchButton!: Button
   private viewStartingLineupsLink!: LinkText
 
+  private seasonOverText!: SeasonOver
+
   constructor(scene: TeamMgmt) {
     this.scene = scene
-    this.setupCurrentMatch()
+    this.setupStartMatchButton()
     this.setupRankings()
     this.setupSchedule()
-    this.setupStartMatchButton()
     this.setupViewStartingLineupsLink()
+    this.setupSeasonOverText()
+    this.setupCurrentMatch()
     this.setVisible(false)
+  }
+
+  setupSeasonOverText() {
+    const xPos = (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + TeamRankings.START_X) / 2
+    this.seasonOverText = new SeasonOver(this.scene, {
+      position: {
+        x: xPos,
+        y: RoundConstants.WINDOW_HEIGHT / 2 - 25,
+      },
+      onContinue: () => {
+        this.scene.renderActiveScreen(ScreenKeys.DRAFT)
+      },
+    })
   }
 
   setupViewStartingLineupsLink() {
@@ -84,19 +101,22 @@ export class SeasonScreen implements Screen {
     const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [key: string]: TeamConfig
     }
-    const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-    const currMatch = seasonSchedule[currMatchIndex]
-    const homeTeam: TeamConfig = currMatch.isHome
-      ? allTeamMapping[teamName]
-      : allTeamMapping[currMatch.opponent]
-    const awayTeam: TeamConfig = currMatch.isHome
-      ? allTeamMapping[currMatch.opponent]
-      : allTeamMapping[teamName]
 
-    this.upcomingMatch = new UpcomingMatch(this.scene, {
-      homeTeam,
-      awayTeam,
-    })
+    // If the last season game has been played
+    if (currMatchIndex < seasonSchedule.length) {
+      const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+      const currMatch = seasonSchedule[currMatchIndex]
+      const homeTeam: TeamConfig = currMatch.isHome
+        ? allTeamMapping[teamName]
+        : allTeamMapping[currMatch.opponent]
+      const awayTeam: TeamConfig = currMatch.isHome
+        ? allTeamMapping[currMatch.opponent]
+        : allTeamMapping[teamName]
+      this.upcomingMatch = new UpcomingMatch(this.scene, {
+        homeTeam,
+        awayTeam,
+      })
+    }
   }
 
   setupSchedule() {
@@ -108,6 +128,12 @@ export class SeasonScreen implements Screen {
     })
   }
 
+  displaySeasonOverText() {
+    this.seasonOverText.display()
+    this.viewStartingLineupsLink.setVisible(false)
+    this.startMatchButton.setVisible(false)
+  }
+
   updateUpcomingMatch() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
@@ -115,14 +141,18 @@ export class SeasonScreen implements Screen {
       [key: string]: TeamConfig
     }
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-    const currMatch = seasonSchedule[currMatchIndex]
-    const homeTeam: TeamConfig = currMatch.isHome
-      ? allTeamMapping[teamName]
-      : allTeamMapping[currMatch.opponent]
-    const awayTeam: TeamConfig = currMatch.isHome
-      ? allTeamMapping[currMatch.opponent]
-      : allTeamMapping[teamName]
-    this.upcomingMatch.updateTeams(homeTeam, awayTeam)
+    if (currMatchIndex < seasonSchedule.length) {
+      const currMatch = seasonSchedule[currMatchIndex]
+      const homeTeam: TeamConfig = currMatch.isHome
+        ? allTeamMapping[teamName]
+        : allTeamMapping[currMatch.opponent]
+      const awayTeam: TeamConfig = currMatch.isHome
+        ? allTeamMapping[currMatch.opponent]
+        : allTeamMapping[teamName]
+      if (this.upcomingMatch) {
+        this.upcomingMatch.updateTeams(homeTeam, awayTeam)
+      }
+    }
   }
 
   updateTeamRankings() {
@@ -133,7 +163,13 @@ export class SeasonScreen implements Screen {
   }
 
   onRender() {
-    this.updateUpcomingMatch()
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+    if (currMatchIndex === seasonSchedule.length) {
+      this.displaySeasonOverText()
+    } else {
+      this.updateUpcomingMatch()
+    }
     this.updateTeamRankings()
     this.seasonSchedule.updateSchedulePage(0)
   }
@@ -141,8 +177,13 @@ export class SeasonScreen implements Screen {
   setVisible(isVisible: boolean) {
     this.seasonSchedule.setVisible(isVisible)
     this.rankingsList.setVisible(isVisible)
-    this.upcomingMatch.setVisible(isVisible)
+    if (this.upcomingMatch) {
+      this.upcomingMatch.setVisible(isVisible)
+    }
     this.startMatchButton.setVisible(isVisible)
     this.viewStartingLineupsLink.setVisible(isVisible)
+    if (this.seasonOverText) {
+      this.seasonOverText.setVisible(isVisible)
+    }
   }
 }

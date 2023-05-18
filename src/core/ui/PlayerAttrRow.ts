@@ -105,6 +105,5 @@ export class PlayerAttrRow {
       this.columnGroup.add(rankIcon)
       xPos += columnWidth + 15
     })
-    console.log(xPos)
   }
 }
