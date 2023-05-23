@@ -7,6 +7,7 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 ### Management Sim
 
 - Draft order
+  - Draft picks for each team
 - Trades in free agency
 - First time user screen
   - Allow user to pick a team name

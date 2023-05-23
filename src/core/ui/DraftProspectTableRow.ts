@@ -12,7 +12,9 @@ export interface DraftProspectTableRowConfig {
   }
   playerConfig: PlayerAgentConfig
   isHeader: boolean
-  onClick: Function
+  onDraft: Function
+  onScout: Function
+  isScouted: boolean
 }
 
 export class DraftProspectTableRow {
@@ -20,7 +22,9 @@ export class DraftProspectTableRow {
   private columnGroup: Phaser.GameObjects.Group
   private nameText: Phaser.GameObjects.Text
   private scoutButton!: Button
+  private draftButton!: Button
   private potentialText!: Phaser.GameObjects.Text
+  private isScouted: boolean = false
 
   constructor(scene: Scene, config: DraftProspectTableRowConfig) {
     this.scene = scene
@@ -31,6 +35,7 @@ export class DraftProspectTableRow {
       })
       .setOrigin(0, 0)
     this.columnGroup = this.scene.add.group()
+    this.isScouted = config.isScouted
     this.setupAttributes(config)
   }
 
@@ -39,6 +44,7 @@ export class DraftProspectTableRow {
     this.columnGroup.setVisible(isVisible)
     this.scoutButton.setVisible(isVisible)
     this.potentialText.setVisible(isVisible)
+    this.draftButton.setVisible(isVisible)
   }
 
   destroy() {
@@ -46,14 +52,15 @@ export class DraftProspectTableRow {
     this.columnGroup.clear(true, true)
     this.scoutButton.destroy()
     this.potentialText.destroy()
+    this.draftButton.destroy()
   }
 
   setupAttributes(config: DraftProspectTableRowConfig) {
-    let xPos = 355
+    let xPos = 330
     let yPos = 0
     const columnWidth =
-      (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH)) /
-      (Object.keys(config.playerConfig.attributes).length + 2)
+      (TeamMgmt.BODY_WIDTH - (350 - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH)) /
+      (Object.keys(config.playerConfig.attributes).length + 3)
     Object.keys(config.playerConfig.attributes).forEach((key: string) => {
       const attr = key as PlayerAttributes
 
@@ -111,7 +118,7 @@ export class DraftProspectTableRow {
     this.scoutButton = new Button({
       scene: this.scene,
       onClick: () => {
-        config.onClick()
+        config.onScout()
       },
       text: 'Scout',
       width: 75,
@@ -123,13 +130,14 @@ export class DraftProspectTableRow {
       x: xPos,
       y: config.position.y + 8,
     })
+    this.scoutButton.setVisible(!this.isScouted)
     this.potentialText = this.scene.add
       .text(xPos, this.nameText.y, `${config.playerConfig.potential}`, {
         fontSize: '15px',
         color: 'black',
       })
       .setOrigin(0)
-      .setVisible(false)
+      .setVisible(this.isScouted)
     if (config.isHeader) {
       const potentialHeader = this.scene.add.text(xPos, yPos, 'POTENTIAL', {
         fontSize: '12px',
@@ -140,9 +148,26 @@ export class DraftProspectTableRow {
         .setOrigin(0)
       this.columnGroup.add(potentialHeader)
     }
+    xPos += columnWidth
+    this.draftButton = new Button({
+      scene: this.scene,
+      onClick: () => {
+        config.onDraft()
+      },
+      text: 'Draft',
+      width: 75,
+      height: 25,
+      fontSize: '12px',
+      textColor: 'black',
+      strokeColor: 0x000000,
+      strokeWidth: 1,
+      x: xPos,
+      y: config.position.y + 8,
+    })
   }
 
   revealPotential() {
+    this.isScouted = true
     this.scoutButton.setVisible(false)
     this.potentialText.setVisible(true)
   }

@@ -11,9 +11,11 @@ import { TeamScreen } from './screens/TeamScreen'
 import { RosterScreen } from './screens/RosterScreen'
 import { PlayerDrilldownScreen } from './screens/PlayerDrilldown/PlayerDrilldownScreen'
 import { ViewLineupsScreen } from './screens/ViewLineupsScreen'
-import { DraftScreen } from './screens/DraftScreen'
+import { DraftProspectsScreen } from './screens/Draft/DraftProspectsScreen'
+import { DraftScreen } from './screens/Draft/DraftScreen'
 
 export interface PlayerAgentConfig {
+  id: string
   name: string
   texture: string
   isStarting: boolean
@@ -133,6 +135,7 @@ export default class TeamMgmt extends Phaser.Scene {
     const prefix = SHORT_NAMES[teamName]
     for (let i = 1; i <= 3; i++) {
       newPlayers.push({
+        id: `${teamName}-player-${i}`,
         name: `${prefix}-${i}`,
         isStarting: true,
         texture: '',
@@ -163,6 +166,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.TEAM_ROSTER]: new RosterScreen(this),
       [ScreenKeys.PLAYER_DRILLDOWN]: new PlayerDrilldownScreen(this),
       [ScreenKeys.VIEW_LINEUPS]: new ViewLineupsScreen(this),
+      [ScreenKeys.DRAFT_PROSPECTS]: new DraftProspectsScreen(this),
       [ScreenKeys.DRAFT]: new DraftScreen(this),
     }
     this.add
@@ -182,7 +186,7 @@ export default class TeamMgmt extends Phaser.Scene {
         {
           text: 'Season',
           onClick: () => {
-            this.renderActiveScreen(ScreenKeys.SEASON)
+            this.renderActiveScreen(ScreenKeys.DRAFT)
           },
         },
         {

@@ -1,17 +1,18 @@
-import { Scene } from 'phaser'
-import { Screen } from './Screen'
-import { PlayerAgentConfig } from '../TeamMgmt'
+import { Screen } from '../Screen'
+import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../../TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
 import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { DraftProspectTableRow } from '~/core/ui/DraftProspectTableRow'
 import { Utilities } from '~/utils/Utilities'
+import { Button } from '~/core/ui/Button'
+import { ScreenKeys } from '../ScreenKeys'
 
-export class DraftScreen implements Screen {
+export class DraftProspectsScreen implements Screen {
   public static PAGE_SIZE = 10
   public static NUM_DRAFT_PROSPECTS = 20
 
-  private scene: Scene
+  private scene: TeamMgmt
   private titleText: Phaser.GameObjects.Text
   private currPageIndex: number = 0
   public draftProspectRows: DraftProspectTableRow[] = []
@@ -19,7 +20,7 @@ export class DraftScreen implements Screen {
   private rightButton!: Phaser.GameObjects.Image
   private scoutPointsText!: Phaser.GameObjects.Text
 
-  constructor(scene: Scene) {
+  constructor(scene: TeamMgmt) {
     this.scene = scene
     this.titleText = this.scene.add
       .text(RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15, 15, 'Draft Prospects', {
@@ -34,7 +35,7 @@ export class DraftScreen implements Screen {
 
   setupScoutPointsText() {
     let scoutPoints = Save.getData(SaveKeys.SCOUT_POINTS) as number
-    if (!scoutPoints) {
+    if (scoutPoints === undefined) {
       Save.setData(SaveKeys.SCOUT_POINTS, RoundConstants.DEFAULT_SCOUT_POINTS)
       scoutPoints = RoundConstants.DEFAULT_SCOUT_POINTS
     }
@@ -54,7 +55,7 @@ export class DraftScreen implements Screen {
   loadSavedDraftProspects() {
     let savedDraftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS) as PlayerAgentConfig[]
     if (!savedDraftProspects) {
-      let savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
+      savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
         return Utilities.getOverallRank(b) - Utilities.getOverallRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
@@ -113,7 +114,7 @@ export class DraftScreen implements Screen {
     this.currPageIndex += diff
     this.currPageIndex = Math.max(0, this.currPageIndex)
     this.currPageIndex = Math.min(
-      draftProspects.length / DraftScreen.PAGE_SIZE - 1,
+      draftProspects.length / DraftProspectsScreen.PAGE_SIZE - 1,
       this.currPageIndex
     )
 
@@ -123,7 +124,7 @@ export class DraftScreen implements Screen {
       if (this.currPageIndex === 0) {
         this.leftButton.setVisible(false)
       }
-      const lastPageIndex = draftProspects.length / DraftScreen.PAGE_SIZE - 1
+      const lastPageIndex = draftProspects.length / DraftProspectsScreen.PAGE_SIZE - 1
       if (this.currPageIndex === lastPageIndex) {
         this.rightButton.setVisible(false)
       }
@@ -138,23 +139,28 @@ export class DraftScreen implements Screen {
 
     let yPos = this.titleText.y + this.titleText.displayHeight + 100
     const draftProspectsPage = draftProspects.slice(
-      this.currPageIndex * DraftScreen.PAGE_SIZE,
-      this.currPageIndex * DraftScreen.PAGE_SIZE + DraftScreen.PAGE_SIZE
+      this.currPageIndex * DraftProspectsScreen.PAGE_SIZE,
+      this.currPageIndex * DraftProspectsScreen.PAGE_SIZE + DraftProspectsScreen.PAGE_SIZE
     )
+    const scoutedDraftIds = Save.getData(SaveKeys.SCOUTED_PROSPECT_IDS) as string[]
     draftProspectsPage.forEach((prospectConfig: PlayerAgentConfig, index: number) => {
       const newProspectRow = new DraftProspectTableRow(this.scene, {
+        isScouted: scoutedDraftIds ? scoutedDraftIds.includes(prospectConfig.id) : false,
         playerConfig: prospectConfig,
         position: {
           x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
           y: yPos,
         },
         isHeader: index == 0,
-        onClick: () => {
+        onScout: () => {
           const numScoutPoints = Save.getData(SaveKeys.SCOUT_POINTS)
           if (numScoutPoints > 0) {
-            this.onScout()
+            this.onScout(prospectConfig.id)
             newProspectRow.revealPotential()
           }
+        },
+        onDraft: () => {
+          this.onDraft(prospectConfig)
         },
       })
       this.draftProspectRows.push(newProspectRow)
@@ -162,10 +168,37 @@ export class DraftScreen implements Screen {
     })
   }
 
-  onScout() {
+  onScout(playerId: string) {
     const numScoutPoints = Save.getData(SaveKeys.SCOUT_POINTS)
     Save.setData(SaveKeys.SCOUT_POINTS, numScoutPoints - 1)
     this.scoutPointsText.setText(`Scout Points: ${numScoutPoints - 1}`)
+    let scoutedIds = Save.getData(SaveKeys.SCOUTED_PROSPECT_IDS) as string[]
+    if (!scoutedIds) {
+      scoutedIds = []
+    }
+    scoutedIds.push(playerId)
+    Save.setData(SaveKeys.SCOUTED_PROSPECT_IDS, [...new Set(scoutedIds)])
+  }
+
+  onDraft(prospectConfig: PlayerAgentConfig) {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    playerTeam.roster.push(prospectConfig)
+    const draftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS).filter(
+      (prospect: PlayerAgentConfig) => {
+        return prospect.id !== prospectConfig.id
+      }
+    )
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, {
+      [playerTeam.name]: playerTeam,
+      ...allTeams,
+    })
+    Save.setData(SaveKeys.DRAFT_PROSPECTS, draftProspects)
+
+    this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
+      playerPick: true,
+      pickedProspect: prospectConfig,
+    })
   }
 
   onRender(data?: any): void {
@@ -185,8 +218,9 @@ export class DraftScreen implements Screen {
   generateDraftProspects() {
     const newPlayers: PlayerAgentConfig[] = []
     const playerRanks = [PlayerRank.BRONZE, PlayerRank.SILVER, PlayerRank.GOLD]
-    for (let i = 1; i <= DraftScreen.NUM_DRAFT_PROSPECTS; i++) {
+    for (let i = 1; i <= DraftProspectsScreen.NUM_DRAFT_PROSPECTS; i++) {
       newPlayers.push({
+        id: `draft-prospect-${i}`,
         name: `draft-${i}`,
         isStarting: true,
         texture: '',

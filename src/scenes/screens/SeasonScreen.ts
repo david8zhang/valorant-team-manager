@@ -18,7 +18,6 @@ export class SeasonScreen implements Screen {
   private rankingsList!: TeamRankings
   private startMatchButton!: Button
   private viewStartingLineupsLink!: LinkText
-
   private seasonOverText!: SeasonOver
 
   constructor(scene: TeamMgmt) {
@@ -174,6 +173,12 @@ export class SeasonScreen implements Screen {
     this.seasonSchedule.updateSchedulePage(0)
   }
 
+  shouldShowSeasonOver() {
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+    return currMatchIndex === seasonSchedule.length
+  }
+
   setVisible(isVisible: boolean) {
     this.seasonSchedule.setVisible(isVisible)
     this.rankingsList.setVisible(isVisible)
@@ -182,7 +187,7 @@ export class SeasonScreen implements Screen {
     }
     this.startMatchButton.setVisible(isVisible)
     this.viewStartingLineupsLink.setVisible(isVisible)
-    if (this.seasonOverText) {
+    if (this.seasonOverText && this.shouldShowSeasonOver()) {
       this.seasonOverText.setVisible(isVisible)
     }
   }

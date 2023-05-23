@@ -116,6 +116,7 @@ export default class Preload extends Phaser.Scene {
         losses: 0,
         roster: [
           {
+            id: 'IRO-1',
             name: 'IRO-1',
             isStarting: true,
             texture: '',
@@ -124,6 +125,7 @@ export default class Preload extends Phaser.Scene {
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
           },
           {
+            id: 'IRO-2',
             name: 'IRO-2',
             isStarting: true,
             texture: '',
@@ -132,6 +134,7 @@ export default class Preload extends Phaser.Scene {
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
           },
           {
+            id: 'IRO-3',
             name: 'IRO-3',
             isStarting: true,
             texture: '',
@@ -148,6 +151,7 @@ export default class Preload extends Phaser.Scene {
         losses: 0,
         roster: [
           {
+            id: 'GDT-1',
             name: 'GDT-1',
             isStarting: true,
             texture: '',
@@ -156,6 +160,7 @@ export default class Preload extends Phaser.Scene {
             experience: { accuracy: 90, headshot: 90, reaction: 0 },
           },
           {
+            id: 'GDT-2',
             name: 'GDT-2',
             isStarting: true,
             texture: '',
@@ -164,6 +169,7 @@ export default class Preload extends Phaser.Scene {
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
           },
           {
+            id: 'GDT-3',
             name: 'GDT-3',
             isStarting: true,
             texture: '',

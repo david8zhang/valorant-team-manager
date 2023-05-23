@@ -43,6 +43,7 @@ export class SeasonOver {
       strokeColor: 0x000000,
       strokeWidth: 1,
     })
+    this.goToPostSeasonButton.setVisible(false)
   }
 
   display() {
