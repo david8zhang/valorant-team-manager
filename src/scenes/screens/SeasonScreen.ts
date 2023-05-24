@@ -39,7 +39,9 @@ export class SeasonScreen implements Screen {
         y: RoundConstants.WINDOW_HEIGHT / 2 - 25,
       },
       onContinue: () => {
-        this.scene.renderActiveScreen(ScreenKeys.DRAFT)
+        this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
+          isNewDraft: true,
+        })
       },
     })
   }

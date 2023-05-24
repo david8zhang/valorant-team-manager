@@ -87,7 +87,10 @@ export class PostRoundPlayerExpScreen implements Screen {
     teamConfig: TeamConfig,
     expGrowthMapping: { [key: string]: { [key in PlayerAttributes]?: PlayerStatGrowthConfig } }
   ) {
-    teamConfig.roster.forEach((agent) => {
+    const startingLineup = teamConfig.roster.filter(
+      (config: PlayerAgentConfig) => config.isStarting
+    )
+    startingLineup.forEach((agent) => {
       const expGrowth = expGrowthMapping[agent.name]
       const playerAttributes = agent.attributes
       const playerExp = agent.experience
@@ -255,7 +258,7 @@ export class PostRoundPlayerExpScreen implements Screen {
     didWin: boolean
   ) {
     const expGrowthMapping = {}
-    const playerConfigs = teamConfig.roster
+    const playerConfigs = teamConfig.roster.filter((config: PlayerAgentConfig) => config.isStarting)
     playerConfigs.forEach((config) => {
       const expRange = PLAYER_POTENTIAL_TO_EXP_MAPPING[config.potential]
       Object.keys(config.attributes).forEach((key) => {

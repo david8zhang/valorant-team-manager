@@ -186,7 +186,7 @@ export default class TeamMgmt extends Phaser.Scene {
         {
           text: 'Season',
           onClick: () => {
-            this.renderActiveScreen(ScreenKeys.DRAFT)
+            this.renderActiveScreen(ScreenKeys.SEASON)
           },
         },
         {

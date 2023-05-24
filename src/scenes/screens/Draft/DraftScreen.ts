@@ -1,4 +1,4 @@
-import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { MatchConfig, PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { Screen } from '../Screen'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Save, SaveKeys } from '~/utils/Save'
@@ -8,6 +8,7 @@ import { ScreenKeys } from '../ScreenKeys'
 import { Utilities } from '~/utils/Utilities'
 import { DraftProspectsScreen } from './DraftProspectsScreen'
 import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
+import { SHORT_NAMES } from '~/utils/TeamConstants'
 
 export class DraftScreen implements Screen {
   private scene: TeamMgmt
@@ -20,6 +21,9 @@ export class DraftScreen implements Screen {
   private draftPromptButton!: Button
   private continueDraftButton!: Button
   private currPickIndex: number = 0
+
+  private draftCompletedText!: Phaser.GameObjects.Text
+  private draftCompletedButton!: Button
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -52,11 +56,69 @@ export class DraftScreen implements Screen {
     this.sectionDivider.setStrokeStyle(1, 0x000000)
 
     this.teamNamesGroup = this.scene.add.group()
-    this.setupDraftOrder()
     this.setupDraftPrompt()
     this.setupContinueDraftButton()
     this.setupDraftAnnouncement()
+    this.setupDraftCompletedPrompt()
     this.setVisible(false)
+  }
+
+  generateSchedule(otherTeamConfigs: TeamConfig[]): MatchConfig[] {
+    const result: MatchConfig[] = []
+    otherTeamConfigs.forEach((team) => {
+      result.push({
+        isHome: true,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
+      result.push({
+        isHome: false,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
+    })
+    return Utilities.shuffle([...result])
+  }
+
+  startNewSeason() {
+    const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const schedule = this.generateSchedule(Object.values(allTeamConfigs))
+    Save.setData(SaveKeys.SEASON_SCHEDULE, schedule)
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
+    this.scene.renderActiveScreen(ScreenKeys.SEASON)
+  }
+
+  setupDraftCompletedPrompt() {
+    this.draftCompletedText = this.scene.add.text(
+      (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 350 + RoundConstants.WINDOW_WIDTH) / 2,
+      RoundConstants.WINDOW_HEIGHT / 3,
+      'Draft Complete!',
+      {
+        fontSize: '18px',
+        color: 'black',
+      }
+    )
+    this.draftCompletedButton = new Button({
+      scene: this.scene,
+      x: this.draftCompletedText.x,
+      y: this.draftCompletedText.y + this.draftCompletedText.displayHeight + 50,
+      width: 150,
+      height: 50,
+      fontSize: '18px',
+      strokeColor: 0x000000,
+      strokeWidth: 1,
+      text: 'Continue',
+      onClick: () => {
+        this.startNewSeason()
+      },
+    })
+    this.draftCompletedText.setVisible(false)
+    this.draftCompletedButton.setVisible(false)
+
+    this.draftCompletedText.setPosition(
+      this.draftCompletedText.x - this.draftCompletedText.displayWidth / 2,
+      this.draftCompletedText.y
+    )
   }
 
   setupContinueDraftButton() {
@@ -65,7 +127,7 @@ export class DraftScreen implements Screen {
       onClick: () => {
         this.processPickAndRenderResult()
       },
-      width: 150,
+      width: 175,
       height: 50,
       strokeWidth: 1,
       strokeColor: 0x000000,
@@ -122,12 +184,12 @@ export class DraftScreen implements Screen {
 
   setupDraftOrder() {
     let draftOrder = Save.getData(SaveKeys.DRAFT_ORDER) as string[]
-    let currPickIndex = Save.getData(SaveKeys.CURR_PICK_INDEX)
-    if (currPickIndex == undefined) {
+    this.currPickIndex = Save.getData(SaveKeys.CURR_PICK_INDEX)
+    if (this.currPickIndex == undefined) {
       Save.setData(SaveKeys.CURR_PICK_INDEX, 0)
-      currPickIndex = 0
+      this.currPickIndex = 0
     }
-
+    this.teamNamesGroup.clear(true, true)
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     let yPos = this.titleText.y + this.titleText.displayHeight + 25
     const xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15
@@ -161,24 +223,48 @@ export class DraftScreen implements Screen {
     return teamConfig.wins / teamConfig.losses
   }
 
+  showDraftCompletedPrompt() {
+    this.draftAnnouncement.hide()
+    this.draftPromptButton.setVisible(false)
+    this.draftPromptText.setVisible(false)
+    this.continueDraftButton.setVisible(false)
+    this.draftCompletedText.setVisible(true)
+    this.draftCompletedButton.setVisible(true)
+  }
+
+  announcePlayerPick(data?: any) {
+    const currPickIndex = Save.getData(SaveKeys.CURR_PICK_INDEX)
+    const draftOrder = Save.getData(SaveKeys.DRAFT_ORDER) as string[]
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const pickingTeam = allTeams[draftOrder[currPickIndex]] as TeamConfig
+    this.draftPromptButton.setVisible(false)
+    this.draftPromptText.setVisible(false)
+    this.continueDraftButton.setVisible(false)
+    this.draftAnnouncement.announceDraftPick({
+      teamConfig: pickingTeam,
+      draftProspect: data.pickedProspect,
+      pickNum: currPickIndex,
+    })
+    this.goToNextPick()
+  }
+
   onRender(data?: any): void {
+    if (data.isNewDraft) {
+      this.setupDraftOrder()
+    }
     const currPickIndex = Save.getData(SaveKeys.CURR_PICK_INDEX)
     const draftOrder = Save.getData(SaveKeys.DRAFT_ORDER) as string[]
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const pickingTeam = allTeams[draftOrder[currPickIndex]] as TeamConfig
     const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME) as string
 
-    // If the player is coming from the player's draft pick
-    if (data && data.playerPick) {
-      this.draftPromptButton.setVisible(false)
-      this.draftPromptText.setVisible(false)
-      this.continueDraftButton.setVisible(false)
-      this.draftAnnouncement.announceDraftPick({
-        teamConfig: pickingTeam,
-        draftProspect: data.pickedProspect,
-        pickNum: currPickIndex,
-      })
-      this.goToNextPick()
+    this.draftCompletedText.setVisible(false)
+    this.draftCompletedButton.setVisible(false)
+
+    if (currPickIndex === draftOrder.length - 1) {
+      this.showDraftCompletedPrompt()
+    } else if (data && data.playerPick) {
+      this.announcePlayerPick(data)
     } else {
       this.draftAnnouncement.hide()
       if (pickingTeam.name === playerTeamName) {
@@ -211,7 +297,7 @@ export class DraftScreen implements Screen {
       newPlayers.push({
         id: `draft-prospect-${i}`,
         name: `draft-${i}`,
-        isStarting: true,
+        isStarting: false,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
         attributes: {
@@ -242,6 +328,8 @@ export class DraftScreen implements Screen {
         this.draftAnnouncement.announceDraftPick(config)
         this.goToNextPick()
       }
+    } else {
+      this.showDraftCompletedPrompt()
     }
   }
 
@@ -298,5 +386,7 @@ export class DraftScreen implements Screen {
     this.draftPromptButton.setVisible(isVisible)
     this.draftPromptText.setVisible(isVisible)
     this.continueDraftButton.setVisible(isVisible)
+    this.draftCompletedButton.setVisible(isVisible)
+    this.draftCompletedText.setVisible(isVisible)
   }
 }

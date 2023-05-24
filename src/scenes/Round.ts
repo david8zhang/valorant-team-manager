@@ -127,7 +127,7 @@ export default class Round extends Phaser.Scene {
   initPlayerAndCPU() {
     this.player = new Player()
     this.cpu = new CPU({
-      teamRoster: this.cpuTeamConfig.roster,
+      teamRoster: this.cpuTeamConfig.roster.filter((agent: PlayerAgentConfig) => agent.isStarting),
     })
     this.cpu.agents.forEach((agent) => {
       this.playerAgentsGroup.add(agent.sprite)

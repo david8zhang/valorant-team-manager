@@ -61,6 +61,7 @@ export class PlayerAttrRow {
 
   destroy() {
     this.nameText.destroy()
+    this.showStatsButton.destroy()
     this.columnGroup.clear(true, true)
     this.columnGroup.destroy()
   }
@@ -72,7 +73,7 @@ export class PlayerAttrRow {
   }
 
   setupAttributes(config: AgentTableRowStatsConfig) {
-    let xPos = this.nameText.x + this.nameText.displayWidth + 75
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 150
     const columnWidth =
       (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH)) /
       Object.keys(config.attributes).length

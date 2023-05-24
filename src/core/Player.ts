@@ -231,7 +231,9 @@ export class Player implements Team {
   createAgents() {
     const teamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeamConfig = teamConfigs[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const playerAgentConfigs = playerTeamConfig.roster
+    const playerAgentConfigs = playerTeamConfig.roster.filter(
+      (agent: PlayerAgentConfig) => agent.isStarting
+    )
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
       const config = playerAgentConfigs[i] as PlayerAgentConfig

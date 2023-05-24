@@ -1,6 +1,6 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
-import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from './ScreenKeys'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
@@ -71,14 +71,16 @@ export class HomeScreen implements Screen {
   setupPlayerCards() {
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const playerConfigs = playerTeam.roster
+    const starterConfigs = playerTeam.roster.filter((config: PlayerAgentConfig) => {
+      return config.isStarting
+    })
 
     const padding = 15
     const cardWidth =
-      TeamMgmt.BODY_WIDTH / playerConfigs.length -
-      padding * ((playerConfigs.length + 1) / playerConfigs.length)
+      TeamMgmt.BODY_WIDTH / starterConfigs.length -
+      padding * ((starterConfigs.length + 1) / starterConfigs.length)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
-    playerConfigs.forEach((config) => {
+    starterConfigs.forEach((config) => {
       const homePlayerInfo = new HomePlayerInfo(this.scene, {
         name: config.name,
         position: {
