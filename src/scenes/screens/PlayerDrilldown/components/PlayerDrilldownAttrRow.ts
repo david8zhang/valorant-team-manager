@@ -53,6 +53,9 @@ export class PlayerDrilldownAttrRow {
 
     const rankTextStr = Utilities.getRankNameForEnum(config.rank)
     this.rankText.setText(rankTextStr)
+    const xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + startOfColumnsX + columnWidth * 2
+    this.rankText.setPosition(xPos + columnWidth / 2, this.rankText.y)
+    this.rankText.setPosition(this.rankText.x - this.rankText.displayWidth / 2, this.rankText.y)
   }
 
   setupColumns(config: PlayerDrilldownAttrRowConfig) {
@@ -95,7 +98,6 @@ export class PlayerDrilldownAttrRow {
 
     xPos += columnWidth
     const rankTextStr = Utilities.getRankNameForEnum(config.rank)
-    console.log(columnWidth)
     this.rankText = this.scene.add.text(
       xPos + columnWidth / 2,
       this.valueText.y,

@@ -13,6 +13,7 @@ import { PlayerDrilldownScreen } from './screens/PlayerDrilldown/PlayerDrilldown
 import { ViewLineupsScreen } from './screens/ViewLineupsScreen'
 import { DraftProspectsScreen } from './screens/Draft/DraftProspectsScreen'
 import { DraftScreen } from './screens/Draft/DraftScreen'
+import { SubstitutePlayerScreen } from './screens/SubstitutePlayerScreen'
 
 export interface PlayerAgentConfig {
   id: string
@@ -168,6 +169,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.VIEW_LINEUPS]: new ViewLineupsScreen(this),
       [ScreenKeys.DRAFT_PROSPECTS]: new DraftProspectsScreen(this),
       [ScreenKeys.DRAFT]: new DraftScreen(this),
+      [ScreenKeys.SUBSTITUTE_PLAYER]: new SubstitutePlayerScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)

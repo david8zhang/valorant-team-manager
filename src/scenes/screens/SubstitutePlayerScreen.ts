@@ -1,53 +1,69 @@
-import { Save, SaveKeys } from '~/utils/Save'
-import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../TeamMgmt'
+import { Scene } from 'phaser'
 import { Screen } from './Screen'
 import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
+import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../TeamMgmt'
+import { Save, SaveKeys } from '~/utils/Save'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+import { Button } from '~/core/ui/Button'
 
-export class RosterScreen implements Screen {
+export class SubstitutePlayerScreen implements Screen {
   private scene: TeamMgmt
   private agentTableRowStats: PlayerAttrRow[] = []
   private titleText: Phaser.GameObjects.Text
-  private goToTeamButton!: Button
+  private playerToReplace!: PlayerAgentConfig
+  private cancelButton!: Button
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
-    this.setupPlayerStats()
     this.titleText = this.scene.add.text(
       RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
       20,
-      'Your Roster',
+      'Select New Starter',
       {
         fontSize: '35px',
         color: 'black',
       }
     )
-    this.setupGoToTeamButton()
+    this.setupCancelButton()
     this.setVisible(false)
   }
 
-  setupGoToTeamButton() {
-    this.goToTeamButton = new Button({
+  setupCancelButton() {
+    this.cancelButton = new Button({
       scene: this.scene,
-      width: 200,
-      height: 40,
-      x: RoundConstants.WINDOW_WIDTH - 115,
+      width: 150,
+      height: 30,
+      x: RoundConstants.WINDOW_WIDTH - 85,
       y: this.titleText.y + 20,
-      text: 'View Starters',
-      backgroundColor: 0x444444,
+      text: 'Cancel',
       onClick: () => {
         this.scene.renderActiveScreen(ScreenKeys.TEAM)
       },
       fontSize: '15px',
-      textColor: 'white',
+      textColor: 'black',
       strokeColor: 0x000000,
       strokeWidth: 1,
     })
   }
 
-  setupPlayerStats() {
+  replaceStarter(newStarterConfig: PlayerAgentConfig) {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    playerTeam.roster.forEach((p: PlayerAgentConfig) => {
+      if (p.id === this.playerToReplace.id) {
+        p.isStarting = false
+      }
+      if (p.id === newStarterConfig.id) {
+        p.isStarting = true
+      }
+    })
+    allTeams[playerTeam.name] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    this.scene.renderActiveScreen(ScreenKeys.TEAM)
+  }
+
+  setupPlayerRows() {
     if (this.agentTableRowStats.length > 0) {
       this.agentTableRowStats.forEach((row: PlayerAttrRow) => {
         row.destroy()
@@ -68,10 +84,10 @@ export class RosterScreen implements Screen {
           y: yPos,
         },
         buttonConfig: {
-          text: 'Show Stats',
-          shouldShow: true,
+          text: 'Start',
+          shouldShow: this.playerToReplace.id !== config.id && !config.isStarting,
           onClick: () => {
-            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+            this.replaceStarter(config)
           },
         },
       })
@@ -80,15 +96,17 @@ export class RosterScreen implements Screen {
     })
   }
 
-  setVisible(isVisible: boolean): void {
-    this.titleText.setVisible(isVisible)
-    this.agentTableRowStats.forEach((stats: PlayerAttrRow) => {
-      stats.setVisible(isVisible)
-    })
-    this.goToTeamButton.setVisible(isVisible)
+  onRender(data?: any): void {
+    if (data && data.playerToReplace) {
+      this.playerToReplace = data.playerToReplace
+      this.setupPlayerRows()
+    }
   }
-
-  onRender(): void {
-    this.setupPlayerStats()
+  setVisible(isVisible: boolean): void {
+    this.agentTableRowStats.forEach((row: PlayerAttrRow) => {
+      row.setVisible(isVisible)
+    })
+    this.cancelButton.setVisible(isVisible)
+    this.titleText.setVisible(isVisible)
   }
 }

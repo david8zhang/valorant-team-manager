@@ -95,7 +95,9 @@ export class DraftScreen implements Screen {
     Save.setData(SaveKeys.SEASON_SCHEDULE, schedule)
     Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
     this.resetDraft()
-    this.scene.renderActiveScreen(ScreenKeys.SEASON)
+    this.scene.renderActiveScreen(ScreenKeys.SEASON, {
+      isNewSeason: true,
+    })
   }
 
   resetDraft() {

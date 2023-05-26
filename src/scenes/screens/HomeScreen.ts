@@ -97,11 +97,11 @@ export class HomeScreen implements Screen {
   onRender() {
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const players = playerTeam.roster
+    const starters = playerTeam.roster.filter((p) => p.isStarting)
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
 
     this.playerCards.forEach((playerCard, index) => {
-      playerCard.updateInfo(players[index])
+      playerCard.updateInfo(starters[index])
     })
     this.teamNameText.setText(teamName)
     this.teamNameText.setPosition(

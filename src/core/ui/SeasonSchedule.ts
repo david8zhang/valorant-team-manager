@@ -82,9 +82,10 @@ export class SeasonSchedule {
     this.updateSchedulePage(0)
   }
 
-  resetSeasonSchedule() {
+  resetSeasonSchedule(schedule: MatchConfig[]) {
     this.currMatchIndex = 0
     this.pageIndex = 0
+    this.schedule = schedule
     this.updateSchedulePage(0)
   }
 

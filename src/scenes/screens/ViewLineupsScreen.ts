@@ -94,7 +94,8 @@ export class ViewLineupsScreen implements Screen {
         this.playerAttrRows = []
       }
       let yPos = 150
-      teamToShow.roster.forEach((player: PlayerAgentConfig, index: number) => {
+      const starters = teamToShow.roster.filter((p) => p.isStarting)
+      starters.forEach((player: PlayerAgentConfig, index: number) => {
         const row = new PlayerAttrRow(this.scene, {
           isHeader: index === 0,
           position: {
@@ -104,6 +105,7 @@ export class ViewLineupsScreen implements Screen {
           name: player.name,
           attributes: player.attributes,
           buttonConfig: {
+            text: 'Show Stats',
             shouldShow: true,
             onClick: () => {
               this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, player)

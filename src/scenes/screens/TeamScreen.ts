@@ -10,6 +10,7 @@ export class TeamScreen implements Screen {
   private scene: TeamMgmt
   private startingLineup: HomePlayerInfo[] = []
   private playerStatButtons: Button[] = []
+  private substituteButtons: Button[] = []
   private titleText: Phaser.GameObjects.Text
   private goToRosterButton!: Button
 
@@ -48,7 +49,25 @@ export class TeamScreen implements Screen {
     })
   }
 
-  onRender() {}
+  onRender() {
+    this.updateStartingLineups()
+  }
+
+  updateStartingLineups() {
+    this.startingLineup.forEach((card) => {
+      card.destroy()
+    })
+    this.playerStatButtons.forEach((button) => {
+      button.destroy()
+    })
+    this.substituteButtons.forEach((button) => {
+      button.destroy()
+    })
+    this.startingLineup = []
+    this.playerStatButtons = []
+    this.substituteButtons = []
+    this.setupStartingLineupCards()
+  }
 
   setVisible(isVisible: boolean) {
     this.titleText.setVisible(isVisible)
@@ -57,6 +76,9 @@ export class TeamScreen implements Screen {
     })
     this.goToRosterButton.setVisible(isVisible)
     this.playerStatButtons.forEach((button) => {
+      button.setVisible(isVisible)
+    })
+    this.substituteButtons.forEach((button) => {
       button.setVisible(isVisible)
     })
   }
@@ -97,6 +119,23 @@ export class TeamScreen implements Screen {
         strokeWidth: 1,
       })
       this.playerStatButtons.push(statButton)
+
+      const substituteButton = new Button({
+        text: 'Substitute',
+        onClick: () => {
+          this.scene.renderActiveScreen(ScreenKeys.SUBSTITUTE_PLAYER, {
+            playerToReplace: config,
+          })
+        },
+        x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
+        y: statButton.y + 60,
+        height: 50,
+        width: homePlayerInfo.rectangle.displayWidth,
+        scene: this.scene,
+        strokeColor: 0x000000,
+        strokeWidth: 1,
+      })
+      this.substituteButtons.push(substituteButton)
       xPos += cardWidth + padding
     })
   }

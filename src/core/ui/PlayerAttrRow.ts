@@ -17,14 +17,17 @@ export interface AgentTableRowStatsConfig {
   buttonConfig: {
     shouldShow: boolean
     onClick: Function
+    text: string
   }
+  numColumns?: number
 }
 
 export class PlayerAttrRow {
   private scene: Scene
   private nameText: Phaser.GameObjects.Text
   private columnGroup: Phaser.GameObjects.Group
-  private showStatsButton!: Button
+  private showStatsButton: Button | null = null
+  private numColumns: number = 3
 
   constructor(scene: Scene, config: AgentTableRowStatsConfig) {
     this.scene = scene
@@ -34,6 +37,9 @@ export class PlayerAttrRow {
         fontSize: '15px',
       })
       .setOrigin(0, 0)
+    if (config.numColumns) {
+      this.numColumns = config.numColumns
+    }
     this.columnGroup = this.scene.add.group()
     this.setupAttributes(config)
     this.setupShowStatDrilldownButton(config)
@@ -46,7 +52,7 @@ export class PlayerAttrRow {
         scene: this.scene,
         width: 75,
         height: 25,
-        text: 'Show Stats',
+        text: config.buttonConfig.text,
         fontSize: '10px',
         onClick: () => {
           config.buttonConfig.onClick()
@@ -61,7 +67,9 @@ export class PlayerAttrRow {
 
   destroy() {
     this.nameText.destroy()
-    this.showStatsButton.destroy()
+    if (this.showStatsButton) {
+      this.showStatsButton.destroy()
+    }
     this.columnGroup.clear(true, true)
     this.columnGroup.destroy()
   }
@@ -69,14 +77,16 @@ export class PlayerAttrRow {
   setVisible(isVisible: boolean) {
     this.nameText.setVisible(isVisible)
     this.columnGroup.setVisible(isVisible)
-    this.showStatsButton.setVisible(isVisible)
+    if (this.showStatsButton) {
+      this.showStatsButton.setVisible(isVisible)
+    }
   }
 
   setupAttributes(config: AgentTableRowStatsConfig) {
-    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 150
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 200
     const columnWidth =
-      (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH)) /
-      Object.keys(config.attributes).length
+      (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 100) /
+      this.numColumns
     Object.keys(config.attributes).forEach((key: string) => {
       const attr = key as PlayerAttributes
 

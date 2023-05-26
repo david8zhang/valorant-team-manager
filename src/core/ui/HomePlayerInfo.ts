@@ -32,6 +32,11 @@ export class HomePlayerInfo {
     )
   }
 
+  destroy() {
+    this.rectangle.destroy()
+    this.playerNameText.destroy()
+  }
+
   setVisible(isVisible: boolean) {
     this.rectangle.setVisible(isVisible)
     this.playerNameText.setVisible(isVisible)
