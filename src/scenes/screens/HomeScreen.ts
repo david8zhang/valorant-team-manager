@@ -74,7 +74,6 @@ export class HomeScreen implements Screen {
     const starterConfigs = playerTeam.roster.filter((config: PlayerAgentConfig) => {
       return config.isStarting
     })
-
     const padding = 15
     const cardWidth =
       TeamMgmt.BODY_WIDTH / starterConfigs.length -

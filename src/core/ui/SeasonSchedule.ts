@@ -82,6 +82,12 @@ export class SeasonSchedule {
     this.updateSchedulePage(0)
   }
 
+  resetSeasonSchedule() {
+    this.currMatchIndex = 0
+    this.pageIndex = 0
+    this.updateSchedulePage(0)
+  }
+
   updateSchedulePage(amt: number) {
     this.matchText.forEach((text) => {
       text.destroy()
@@ -91,6 +97,15 @@ export class SeasonSchedule {
     this.pageIndex += amt
     this.pageIndex = Math.max(0, this.pageIndex)
     this.pageIndex = Math.min(this.pageIndex, this.schedule.length / this.pageSize - 1)
+
+    if (this.pageIndex === 0) {
+      this.leftCarat.setVisible(false)
+      this.rightCarat.setVisible(true)
+    }
+    if (this.pageIndex === this.schedule.length / this.pageSize - 1) {
+      this.leftCarat.setVisible(true)
+      this.rightCarat.setVisible(false)
+    }
 
     const matches = this.schedule.slice(
       this.pageIndex * this.pageSize,

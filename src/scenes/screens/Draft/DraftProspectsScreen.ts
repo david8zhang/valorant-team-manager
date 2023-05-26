@@ -222,7 +222,7 @@ export class DraftProspectsScreen implements Screen {
       newPlayers.push({
         id: `draft-prospect-${i}`,
         name: `draft-${i}`,
-        isStarting: true,
+        isStarting: false,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
         attributes: {

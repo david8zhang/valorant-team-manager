@@ -48,6 +48,13 @@ export class RosterScreen implements Screen {
   }
 
   setupPlayerStats() {
+    if (this.agentTableRowStats.length > 0) {
+      this.agentTableRowStats.forEach((row: PlayerAttrRow) => {
+        row.destroy()
+      })
+      this.agentTableRowStats = []
+    }
+
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
     let yPos = 125
@@ -79,5 +86,8 @@ export class RosterScreen implements Screen {
     })
     this.goToTeamButton.setVisible(isVisible)
   }
-  onRender(): void {}
+
+  onRender(): void {
+    this.setupPlayerStats()
+  }
 }

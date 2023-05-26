@@ -95,6 +95,7 @@ export class PlayerDrilldownAttrRow {
 
     xPos += columnWidth
     const rankTextStr = Utilities.getRankNameForEnum(config.rank)
+    console.log(columnWidth)
     this.rankText = this.scene.add.text(
       xPos + columnWidth / 2,
       this.valueText.y,
