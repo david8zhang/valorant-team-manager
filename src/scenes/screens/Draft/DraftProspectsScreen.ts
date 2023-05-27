@@ -1,7 +1,7 @@
 import { Screen } from '../Screen'
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../../TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
-import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
+import { DEFAULT_CONTRACT, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { DraftProspectTableRow } from '~/core/ui/DraftProspectTableRow'
 import { Utilities } from '~/utils/Utilities'
@@ -230,6 +230,7 @@ export class DraftProspectsScreen implements Screen {
           [PlayerAttributes.HEADSHOT]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
           [PlayerAttributes.REACTION]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
         },
+        contract: { ...DEFAULT_CONTRACT },
         experience: {
           [PlayerAttributes.ACCURACY]: 0,
           [PlayerAttributes.HEADSHOT]: 0,

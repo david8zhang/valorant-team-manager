@@ -18,6 +18,7 @@ export class RoundConstants {
   public static TEAM_NAME_PLACEHOLDER = 'Guangdong Tigers'
   public static TEAM_SHORT_NAME = 'GDT'
   public static DEFAULT_SCOUT_POINTS = 3
+  public static SALARY_CAP = 100
 
   public static KILL_CREDITS_AMOUNT = 500
   public static ASSIST_CREDITS_AMOUNT = 250

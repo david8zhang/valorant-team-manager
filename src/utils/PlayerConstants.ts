@@ -74,3 +74,8 @@ export const PLAYER_POTENTIAL_TO_EXP_MAPPING = {
     high: 25,
   },
 }
+
+export const DEFAULT_CONTRACT = {
+  duration: 3,
+  salary: 5,
+}

@@ -1,6 +1,11 @@
 import { Sidebar } from '~/core/ui/Sidebar'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { PlayerAttributes, PlayerPotential, PlayerRank } from '~/utils/PlayerConstants'
+import {
+  DEFAULT_CONTRACT,
+  PlayerAttributes,
+  PlayerPotential,
+  PlayerRank,
+} from '~/utils/PlayerConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { CPU_TEAM_NAMES, SHORT_NAMES } from '~/utils/TeamConstants'
 import { Utilities } from '~/utils/Utilities'
@@ -14,6 +19,9 @@ import { ViewLineupsScreen } from './screens/ViewLineupsScreen'
 import { DraftProspectsScreen } from './screens/Draft/DraftProspectsScreen'
 import { DraftScreen } from './screens/Draft/DraftScreen'
 import { SubstitutePlayerScreen } from './screens/SubstitutePlayerScreen'
+import { FrontOfficeScreen } from './screens/FrontOffice/FrontOfficeScreen'
+import { ContractsScreen } from './screens/FrontOffice/ContractsScreen'
+import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldownScreen'
 
 export interface PlayerAgentConfig {
   id: string
@@ -21,6 +29,10 @@ export interface PlayerAgentConfig {
   texture: string
   isStarting: boolean
   potential: PlayerPotential
+  contract: {
+    salary: number
+    duration: number
+  }
   attributes: {
     [key in PlayerAttributes]: PlayerRank
   }
@@ -141,6 +153,9 @@ export default class TeamMgmt extends Phaser.Scene {
         isStarting: true,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
+        contract: {
+          ...DEFAULT_CONTRACT,
+        },
         attributes: {
           [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,
           [PlayerAttributes.HEADSHOT]: PlayerRank.BRONZE,
@@ -170,6 +185,9 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.DRAFT_PROSPECTS]: new DraftProspectsScreen(this),
       [ScreenKeys.DRAFT]: new DraftScreen(this),
       [ScreenKeys.SUBSTITUTE_PLAYER]: new SubstitutePlayerScreen(this),
+      [ScreenKeys.FRONT_OFFICE]: new FrontOfficeScreen(this),
+      [ScreenKeys.CONTRACTS]: new ContractsScreen(this),
+      [ScreenKeys.CONTRACT_DRILLDOWN]: new ContractDrilldownScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)
@@ -199,7 +217,9 @@ export default class TeamMgmt extends Phaser.Scene {
         },
         {
           text: 'Front Office',
-          onClick: () => {},
+          onClick: () => {
+            this.renderActiveScreen(ScreenKeys.FRONT_OFFICE)
+          },
         },
       ],
     })

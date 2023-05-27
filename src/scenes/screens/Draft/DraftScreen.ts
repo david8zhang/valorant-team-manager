@@ -7,7 +7,7 @@ import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../ScreenKeys'
 import { Utilities } from '~/utils/Utilities'
 import { DraftProspectsScreen } from './DraftProspectsScreen'
-import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
+import { DEFAULT_CONTRACT, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { SHORT_NAMES } from '~/utils/TeamConstants'
 
 export class DraftScreen implements Screen {
@@ -325,6 +325,7 @@ export class DraftScreen implements Screen {
         isStarting: false,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
+        contract: { ...DEFAULT_CONTRACT },
         attributes: {
           [PlayerAttributes.ACCURACY]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
           [PlayerAttributes.HEADSHOT]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
