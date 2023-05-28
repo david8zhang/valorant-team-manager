@@ -6,12 +6,14 @@ import { Utilities } from '~/utils/Utilities'
 import { PlayerAttributes } from '~/utils/PlayerConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../ScreenKeys'
+import { ContractConfigModal } from './ContractConfigModal'
 
 export class ContractDrilldownScreen implements Screen {
   private scene: TeamMgmt
   private playerConfig: PlayerAgentConfig | null = null
   private playerNameText: Phaser.GameObjects.Text | null = null
   private attributeRow: GenericPlayerAttrRow | null = null
+  private contractConfigModal: ContractConfigModal | null = null
   private cancelButton!: Button
   private extendButton!: Button
   private releaseButton!: Button
@@ -24,13 +26,35 @@ export class ContractDrilldownScreen implements Screen {
     this.setVisible(false)
   }
 
+  setupContractConfigModal() {
+    if (!this.playerConfig) {
+      return
+    }
+    const xPos = (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2
+    const yPos = RoundConstants.WINDOW_HEIGHT / 2
+    this.contractConfigModal = new ContractConfigModal(this.scene, {
+      position: {
+        x: xPos,
+        y: yPos,
+      },
+      playerConfig: this.playerConfig,
+      width: 500,
+      height: 350,
+    })
+    this.contractConfigModal.hide()
+  }
+
   setupExtendButton() {
     this.extendButton = new Button({
       scene: this.scene,
       width: 150,
       height: 30,
       text: 'Extend',
-      onClick: () => {},
+      onClick: () => {
+        if (this.contractConfigModal) {
+          this.contractConfigModal.display()
+        }
+      },
       x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90,
       y: 200,
       textColor: 'black',
@@ -41,19 +65,24 @@ export class ContractDrilldownScreen implements Screen {
   }
 
   setupReleaseButton() {
-    this.releaseButton = new Button({
-      scene: this.scene,
-      width: 150,
-      height: 30,
-      text: 'Release',
-      onClick: () => {},
-      x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90 + 150 + 15,
-      y: 200,
-      textColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 0x000000,
-      fontSize: '15px',
-    })
+    if (!this.playerConfig) {
+      return
+    }
+    if (this.playerConfig.contract.duration == 1) {
+      this.releaseButton = new Button({
+        scene: this.scene,
+        width: 150,
+        height: 30,
+        text: 'Release',
+        onClick: () => {},
+        x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90 + 150 + 15,
+        y: 200,
+        textColor: 'black',
+        strokeWidth: 1,
+        strokeColor: 0x000000,
+        fontSize: '15px',
+      })
+    }
   }
 
   setVisible(isVisible: boolean): void {
@@ -64,7 +93,12 @@ export class ContractDrilldownScreen implements Screen {
       this.attributeRow.setVisible(isVisible)
     }
     this.cancelButton.setVisible(isVisible)
-    this.releaseButton.setVisible(isVisible)
+    if (this.releaseButton) {
+      this.releaseButton.setVisible(isVisible)
+    }
+    if (this.contractConfigModal) {
+      this.contractConfigModal.setVisible(isVisible)
+    }
     this.extendButton.setVisible(isVisible)
   }
 
@@ -155,6 +189,7 @@ export class ContractDrilldownScreen implements Screen {
       this.playerConfig = data.playerConfig
       this.setupPlayerName()
       this.setupPlayerAttributes()
+      this.setupContractConfigModal()
     }
   }
 }
