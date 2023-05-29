@@ -30,6 +30,9 @@ export class ContractDrilldownScreen implements Screen {
     if (!this.playerConfig) {
       return
     }
+    if (this.contractConfigModal) {
+      this.contractConfigModal.destroy()
+    }
     const xPos = (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2
     const yPos = RoundConstants.WINDOW_HEIGHT / 2
     this.contractConfigModal = new ContractConfigModal(this.scene, {
@@ -37,6 +40,10 @@ export class ContractDrilldownScreen implements Screen {
         x: xPos,
         y: yPos,
       },
+      onAccept: () => {
+        this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+      },
+      onDeny: () => {},
       playerConfig: this.playerConfig,
       width: 500,
       height: 350,
@@ -45,23 +52,28 @@ export class ContractDrilldownScreen implements Screen {
   }
 
   setupExtendButton() {
-    this.extendButton = new Button({
-      scene: this.scene,
-      width: 150,
-      height: 30,
-      text: 'Extend',
-      onClick: () => {
-        if (this.contractConfigModal) {
-          this.contractConfigModal.display()
-        }
-      },
-      x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90,
-      y: 200,
-      textColor: 'black',
-      strokeWidth: 1,
-      strokeColor: 0x000000,
-      fontSize: '15px',
-    })
+    if (!this.playerConfig) {
+      return
+    }
+    if (this.playerConfig.contract.duration == 1) {
+      this.extendButton = new Button({
+        scene: this.scene,
+        width: 150,
+        height: 30,
+        text: 'Extend',
+        onClick: () => {
+          if (this.contractConfigModal) {
+            this.contractConfigModal.display()
+          }
+        },
+        x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90,
+        y: 200,
+        textColor: 'black',
+        strokeWidth: 1,
+        strokeColor: 0x000000,
+        fontSize: '15px',
+      })
+    }
   }
 
   setupReleaseButton() {
@@ -99,7 +111,9 @@ export class ContractDrilldownScreen implements Screen {
     if (this.contractConfigModal) {
       this.contractConfigModal.setVisible(isVisible)
     }
-    this.extendButton.setVisible(isVisible)
+    if (this.extendButton) {
+      this.extendButton.setVisible(isVisible)
+    }
   }
 
   setupCancelButton() {

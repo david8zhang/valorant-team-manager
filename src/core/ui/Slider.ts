@@ -70,6 +70,12 @@ export class Slider {
     this.scene.input.setDraggable(this.sliderButton)
   }
 
+  destroy() {
+    this.sliderButton.destroy()
+    this.sliderRail.destroy()
+    this.sliderHighlightRail.destroy()
+  }
+
   setVisible(isVisible: boolean) {
     this.sliderButton.setVisible(isVisible)
     this.sliderRail.setVisible(isVisible)

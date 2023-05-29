@@ -323,6 +323,7 @@ export class DraftScreen implements Screen {
         id: `draft-prospect-${i}`,
         name: `draft-${i}`,
         isStarting: false,
+        isRookie: true,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
         contract: { ...DEFAULT_CONTRACT },

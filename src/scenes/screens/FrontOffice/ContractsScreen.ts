@@ -89,6 +89,13 @@ export class ContractsScreen implements Screen {
     })
   }
 
+  updateSalaryCapText() {
+    this.salaryCapText.destroy()
+    this.totalSalaryAmountText.destroy()
+    this.totalSalaryText.destroy()
+    this.setupSalaryCapText()
+  }
+
   updatePlayerContractRows() {
     this.playerContractRows.forEach((row) => {
       row.destroy()
@@ -109,5 +116,6 @@ export class ContractsScreen implements Screen {
 
   onRender(data?: any): void {
     this.updatePlayerContractRows()
+    this.updateSalaryCapText()
   }
 }

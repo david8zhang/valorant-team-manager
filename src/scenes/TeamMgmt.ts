@@ -28,6 +28,7 @@ export interface PlayerAgentConfig {
   name: string
   texture: string
   isStarting: boolean
+  isRookie: boolean
   potential: PlayerPotential
   contract: {
     salary: number
@@ -151,6 +152,7 @@ export default class TeamMgmt extends Phaser.Scene {
         id: `${teamName}-player-${i}`,
         name: `${prefix}-${i}`,
         isStarting: true,
+        isRookie: true,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
         contract: {

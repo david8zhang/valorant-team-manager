@@ -27,6 +27,17 @@ export enum PlayerRank {
   CHALLENGER,
 }
 
+export const RANK_TO_ASKING_AMOUNT_MAPPING = {
+  [PlayerRank.BRONZE]: 5,
+  [PlayerRank.SILVER]: 10,
+  [PlayerRank.GOLD]: 15,
+  [PlayerRank.PLATINUM]: 20,
+  [PlayerRank.DIAMOND]: 25,
+  [PlayerRank.MASTER]: 30,
+  [PlayerRank.GRANDMASTER]: 35,
+  [PlayerRank.CHALLENGER]: 40,
+}
+
 export const RANK_TO_ACCURACY_MAPPING = {
   [PlayerRank.BRONZE]: 25,
   [PlayerRank.SILVER]: 40,
