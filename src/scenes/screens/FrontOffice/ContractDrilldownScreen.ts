@@ -1,4 +1,4 @@
-import TeamMgmt, { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { Screen } from '../Screen'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { GenericPlayerAttrRow } from '~/core/ui/GenericPlayerAttrRow'
@@ -7,6 +7,8 @@ import { PlayerAttributes } from '~/utils/PlayerConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../ScreenKeys'
 import { ContractConfigModal } from './ContractConfigModal'
+import { Save, SaveKeys } from '~/utils/Save'
+import { ConfirmReleaseModal } from './ConfirmReleaseModal'
 
 export class ContractDrilldownScreen implements Screen {
   private scene: TeamMgmt
@@ -17,13 +19,35 @@ export class ContractDrilldownScreen implements Screen {
   private cancelButton!: Button
   private extendButton!: Button
   private releaseButton!: Button
+  private mgmtHelpText: Phaser.GameObjects.Text | null = null
+  private confirmReleaseModal: ConfirmReleaseModal | null = null
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.setupCancelButton()
-    this.setupExtendButton()
-    this.setupReleaseButton()
     this.setVisible(false)
+  }
+
+  setupConfirmReleaseModal() {
+    if (!this.playerConfig) {
+      return
+    }
+    if (this.confirmReleaseModal) {
+      this.confirmReleaseModal.destroy()
+    }
+    this.confirmReleaseModal = new ConfirmReleaseModal(this.scene, {
+      onAccept: () => {
+        this.releasePlayer()
+      },
+      onDeny: () => {
+        this.confirmReleaseModal!.hide()
+      },
+      playerAgent: this.playerConfig,
+      position: {
+        x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2,
+        y: RoundConstants.WINDOW_HEIGHT / 2,
+      },
+    })
   }
 
   setupContractConfigModal() {
@@ -40,10 +64,14 @@ export class ContractDrilldownScreen implements Screen {
         x: xPos,
         y: yPos,
       },
-      onAccept: () => {
-        this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+      onAccept: (salaryAsk: number, durationAsk: number) => {
+        this.extendPlayer(salaryAsk, durationAsk)
       },
-      onDeny: () => {},
+      onDeny: () => {
+        if (this.contractConfigModal) {
+          this.contractConfigModal.hide()
+        }
+      },
       playerConfig: this.playerConfig,
       width: 500,
       height: 350,
@@ -54,6 +82,9 @@ export class ContractDrilldownScreen implements Screen {
   setupExtendButton() {
     if (!this.playerConfig) {
       return
+    }
+    if (this.extendButton) {
+      this.extendButton.destroy()
     }
     if (this.playerConfig.contract.duration == 1) {
       this.extendButton = new Button({
@@ -76,9 +107,49 @@ export class ContractDrilldownScreen implements Screen {
     }
   }
 
+  extendPlayer(salaryAsk: number, durationAsk: number) {
+    if (!this.playerConfig) {
+      return
+    }
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const currContract = this.playerConfig.contract
+    const newContract = {
+      salary: salaryAsk,
+      duration: currContract.duration + durationAsk,
+    }
+    const newRoster = playerTeam.roster.map((player: PlayerAgentConfig) => {
+      if (player.id === this.playerConfig!.id) {
+        return { ...player, contract: newContract }
+      }
+      return player
+    })
+    playerTeam.roster = newRoster
+    allTeams[playerTeam.name] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+  }
+
+  releasePlayer() {
+    if (!this.playerConfig) {
+      return
+    }
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    playerTeam.roster = playerTeam.roster.filter((playerAgent: PlayerAgentConfig) => {
+      return playerAgent.id !== this.playerConfig!.id
+    })
+    allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+  }
+
   setupReleaseButton() {
     if (!this.playerConfig) {
       return
+    }
+    if (this.releaseButton) {
+      this.releaseButton.destroy()
     }
     if (this.playerConfig.contract.duration == 1) {
       this.releaseButton = new Button({
@@ -86,7 +157,9 @@ export class ContractDrilldownScreen implements Screen {
         width: 150,
         height: 30,
         text: 'Release',
-        onClick: () => {},
+        onClick: () => {
+          this.confirmReleaseModal?.display()
+        },
         x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 90 + 150 + 15,
         y: 200,
         textColor: 'black',
@@ -113,6 +186,32 @@ export class ContractDrilldownScreen implements Screen {
     }
     if (this.extendButton) {
       this.extendButton.setVisible(isVisible)
+    }
+    if (this.mgmtHelpText) {
+      this.mgmtHelpText.setVisible(isVisible)
+    }
+    if (this.confirmReleaseModal && this.confirmReleaseModal.shouldShow) {
+      this.confirmReleaseModal.setVisible(isVisible)
+    }
+  }
+
+  setupMgmtHelpText() {
+    if (!this.playerConfig) {
+      return
+    }
+    if (this.mgmtHelpText) {
+      this.mgmtHelpText.destroy()
+    }
+    if (this.playerConfig.contract.duration > 1) {
+      this.mgmtHelpText = this.scene.add.text(
+        RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
+        200,
+        '*Contracts can only be managed when there is 1 year left',
+        {
+          fontSize: '15px',
+          color: 'black',
+        }
+      )
     }
   }
 
@@ -203,6 +302,10 @@ export class ContractDrilldownScreen implements Screen {
       this.playerConfig = data.playerConfig
       this.setupPlayerName()
       this.setupPlayerAttributes()
+      this.setupConfirmReleaseModal()
+      this.setupMgmtHelpText()
+      this.setupExtendButton()
+      this.setupReleaseButton()
       this.setupContractConfigModal()
     }
   }

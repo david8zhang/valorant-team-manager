@@ -11,6 +11,7 @@ export interface ButtonConfig {
   fontSize?: string
   strokeWidth?: number
   strokeColor?: number
+  depth?: number
 }
 
 export class Button {
@@ -57,6 +58,11 @@ export class Button {
         this.rectangle.setAlpha(0.85)
         this.text.setAlpha(1)
       })
+
+    if (config.depth) {
+      this.rectangle.setDepth(config.depth)
+      this.text.setDepth(config.depth)
+    }
   }
 
   setText(text: string) {

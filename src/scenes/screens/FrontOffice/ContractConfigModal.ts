@@ -201,31 +201,11 @@ export class ContractConfigModal {
     this.setupSalaryCapAfterExtensionText()
   }
 
-  acceptContract() {
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const currContract = this.playerConfig.contract
-    const newContract = {
-      salary: this.salaryAsk,
-      duration: currContract.duration + this.durationAsk,
-    }
-    const newRoster = playerTeam.roster.map((player: PlayerAgentConfig) => {
-      if (player.id === this.playerConfig.id) {
-        return { ...player, contract: newContract }
-      }
-      return player
-    })
-    playerTeam.roster = newRoster
-    allTeams[playerTeam.name] = playerTeam
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
-    this.onAccept()
-  }
-
   setupButtons() {
     this.acceptButton = new Button({
       scene: this.scene,
       onClick: () => {
-        this.acceptContract()
+        this.onAccept(this.salaryAsk, this.durationAsk)
       },
       width: 100,
       height: 30,
@@ -238,7 +218,9 @@ export class ContractConfigModal {
     })
     this.denyButton = new Button({
       scene: this.scene,
-      onClick: () => {},
+      onClick: () => {
+        this.onDeny()
+      },
       width: 100,
       height: 30,
       text: 'Deny',
