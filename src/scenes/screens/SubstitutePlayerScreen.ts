@@ -6,6 +6,7 @@ import { Save, SaveKeys } from '~/utils/Save'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from './ScreenKeys'
 import { Button } from '~/core/ui/Button'
+import { Utilities } from '~/utils/Utilities'
 
 export class SubstitutePlayerScreen implements Screen {
   private scene: TeamMgmt
@@ -48,8 +49,7 @@ export class SubstitutePlayerScreen implements Screen {
   }
 
   replaceStarter(newStarterConfig: PlayerAgentConfig) {
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeam = Utilities.getPlayerTeamFromSave()
     playerTeam.roster.forEach((p: PlayerAgentConfig) => {
       if (p.id === this.playerToReplace.id) {
         p.isStarting = false
@@ -58,8 +58,7 @@ export class SubstitutePlayerScreen implements Screen {
         p.isStarting = true
       }
     })
-    allTeams[playerTeam.name] = playerTeam
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    Utilities.updatePlayerTeamInSave(playerTeam)
     this.scene.renderActiveScreen(ScreenKeys.TEAM)
   }
 
@@ -70,9 +69,7 @@ export class SubstitutePlayerScreen implements Screen {
       })
       this.agentTableRowStats = []
     }
-
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeam = Utilities.getPlayerTeamFromSave()
     let yPos = 125
     playerTeam.roster.forEach((config: PlayerAgentConfig, index: number) => {
       const agentTableRowStat = new PlayerAttrRow(this.scene, {

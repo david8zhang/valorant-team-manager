@@ -1,5 +1,6 @@
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { PlayerRank } from './PlayerConstants'
+import { Save, SaveKeys } from './Save'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -39,5 +40,16 @@ export class Utilities {
         return acc + curr
       }, 0) / Object.keys(player.attributes).length
     )
+  }
+
+  public static getPlayerTeamFromSave() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    return allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+  }
+
+  public static updatePlayerTeamInSave(newPlayerTeam: TeamConfig) {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] = newPlayerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
   }
 }

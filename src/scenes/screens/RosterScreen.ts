@@ -5,6 +5,7 @@ import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+import { Utilities } from '~/utils/Utilities'
 
 export class RosterScreen implements Screen {
   private scene: TeamMgmt
@@ -54,9 +55,7 @@ export class RosterScreen implements Screen {
       })
       this.agentTableRowStats = []
     }
-
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeam = Utilities.getPlayerTeamFromSave()
     let yPos = 125
     playerTeam.roster.forEach((config: PlayerAgentConfig, index: number) => {
       const agentTableRowStat = new PlayerAttrRow(this.scene, {

@@ -8,9 +8,9 @@ import { Team } from './Team'
 import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
-import { Save, SaveKeys } from '~/utils/Save'
-import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
+import { Utilities } from '~/utils/Utilities'
 
 export class Player implements Team {
   public game: Round
@@ -229,8 +229,7 @@ export class Player implements Team {
   }
 
   createAgents() {
-    const teamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeamConfig = teamConfigs[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeamConfig = Utilities.getPlayerTeamFromSave()
     const playerAgentConfigs = playerTeamConfig.roster.filter(
       (agent: PlayerAgentConfig) => agent.isStarting
     )

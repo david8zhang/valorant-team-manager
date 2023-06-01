@@ -9,6 +9,8 @@ import { Button } from '~/core/ui/Button'
 import { LinkText } from '~/core/ui/LinkText'
 import { ScreenKeys } from './ScreenKeys'
 import { SeasonOver } from '~/core/ui/SeasonOver'
+import { ExpiringContractsModal } from '~/core/ui/ExpiringContractsModal'
+import { Utilities } from '~/utils/Utilities'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -19,6 +21,7 @@ export class SeasonScreen implements Screen {
   private startMatchButton!: Button
   private viewStartingLineupsLink!: LinkText
   private seasonOverText!: SeasonOver
+  private expiringContractsModal!: ExpiringContractsModal
 
   private _draftOverrideIndex: number = 3
 
@@ -30,7 +33,23 @@ export class SeasonScreen implements Screen {
     this.setupViewStartingLineupsLink()
     this.setupSeasonOverText()
     this.setupCurrentMatch()
+    this.setupExpiringContractsModal()
     this.setVisible(false)
+  }
+
+  shouldShowExpiringContractsModal() {
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    return (
+      playerTeam.roster.find((config: PlayerAgentConfig) => {
+        return config.contract.duration === 0
+      }) !== undefined
+    )
+  }
+
+  setupExpiringContractsModal() {
+    this.expiringContractsModal = new ExpiringContractsModal(this.scene, () => {
+      this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+    })
   }
 
   setupSeasonOverText() {
@@ -47,8 +66,7 @@ export class SeasonScreen implements Screen {
   }
 
   decrementContractDurations() {
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeam = Utilities.getPlayerTeamFromSave()
     const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
       return {
         ...playerAgent,
@@ -59,13 +77,11 @@ export class SeasonScreen implements Screen {
       }
     })
     playerTeam.roster = newPlayerRoster
-    allTeams[playerTeam.name] = playerTeam
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    Utilities.updatePlayerTeamInSave(playerTeam)
   }
 
   convertRookies() {
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const playerTeam = Utilities.getPlayerTeamFromSave()
     const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
       if (playerAgent.isRookie) {
         return {
@@ -76,8 +92,7 @@ export class SeasonScreen implements Screen {
       return playerAgent
     })
     playerTeam.roster = newPlayerRoster
-    allTeams[playerTeam.name] = playerTeam
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    Utilities.updatePlayerTeamInSave(playerTeam)
   }
 
   endSeason() {
@@ -231,6 +246,11 @@ export class SeasonScreen implements Screen {
     } else {
       this.updateUpcomingMatch()
     }
+
+    if (this.shouldShowExpiringContractsModal()) {
+      this.expiringContractsModal.display()
+    }
+
     this.updateTeamRankings()
     this.seasonSchedule.updateSchedulePage(0)
   }
@@ -251,5 +271,6 @@ export class SeasonScreen implements Screen {
     if (this.seasonOverText && this.shouldShowSeasonOver()) {
       this.seasonOverText.setVisible(isVisible)
     }
+    if (!isVisible) this.expiringContractsModal.hide()
   }
 }
