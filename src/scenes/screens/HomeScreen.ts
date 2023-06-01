@@ -74,10 +74,10 @@ export class HomeScreen implements Screen {
     const starterConfigs = playerTeam.roster.filter((config: PlayerAgentConfig) => {
       return config.isStarting
     })
+    const numStarters = 3
     const padding = 15
     const cardWidth =
-      TeamMgmt.BODY_WIDTH / starterConfigs.length -
-      padding * ((starterConfigs.length + 1) / starterConfigs.length)
+      TeamMgmt.BODY_WIDTH / numStarters - padding * ((numStarters + 1) / numStarters)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     starterConfigs.forEach((config) => {
       const homePlayerInfo = new HomePlayerInfo(this.scene, {
@@ -97,12 +97,13 @@ export class HomeScreen implements Screen {
   onRender() {
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const starters = playerTeam.roster.filter((p) => p.isStarting)
     const teamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-
-    this.playerCards.forEach((playerCard, index) => {
-      playerCard.updateInfo(starters[index])
+    this.playerCards.forEach((card) => {
+      card.destroy()
     })
+    this.playerCards = []
+    this.setupPlayerCards()
+
     this.teamNameText.setText(teamName)
     this.teamNameText.setPosition(
       200 + TeamMgmt.BODY_WIDTH / 2 - this.teamNameText.displayWidth / 2,

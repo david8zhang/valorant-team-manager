@@ -89,10 +89,10 @@ export class TeamScreen implements Screen {
     const starterConfigs = playerTeam.roster.filter((config: PlayerAgentConfig) => {
       return config.isStarting
     })
+    const numStarters = 3
     const padding = 15
     const cardWidth =
-      TeamMgmt.BODY_WIDTH / starterConfigs.length -
-      padding * ((starterConfigs.length + 1) / starterConfigs.length)
+      TeamMgmt.BODY_WIDTH / numStarters - padding * ((numStarters + 1) / numStarters)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     starterConfigs.forEach((config) => {
       const homePlayerInfo = new HomePlayerInfo(this.scene, {

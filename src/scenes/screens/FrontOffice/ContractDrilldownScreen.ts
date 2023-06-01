@@ -86,7 +86,7 @@ export class ContractDrilldownScreen implements Screen {
     if (this.extendButton) {
       this.extendButton.destroy()
     }
-    if (this.playerConfig.contract.duration == 1) {
+    if (this.playerConfig.contract.duration <= 1) {
       this.extendButton = new Button({
         scene: this.scene,
         width: 150,
@@ -151,7 +151,7 @@ export class ContractDrilldownScreen implements Screen {
     if (this.releaseButton) {
       this.releaseButton.destroy()
     }
-    if (this.playerConfig.contract.duration == 1) {
+    if (this.playerConfig.contract.duration <= 1) {
       this.releaseButton = new Button({
         scene: this.scene,
         width: 150,

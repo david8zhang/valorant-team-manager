@@ -3,6 +3,7 @@ import TeamMgmt from '~/scenes/TeamMgmt'
 import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from './Button'
+import { Utilities } from '~/utils/Utilities'
 
 export interface AgentTableRowStatsConfig {
   isHeader: boolean
@@ -91,12 +92,14 @@ export class PlayerAttrRow {
       const attr = key as PlayerAttributes
 
       // TODO: Replace this with rank icons
+      const rankLabel = Utilities.getRankNameForEnum(config.attributes[key])
       const rankIcon = this.scene.add
-        .text(xPos, this.nameText.y, config.attributes[key], {
+        .text(xPos, this.nameText.y, rankLabel, {
           fontSize: '15px',
           color: 'black',
         })
         .setOrigin(0)
+      rankIcon.setPosition(xPos - rankIcon.displayWidth / 2, rankIcon.y)
 
       if (config.isHeader) {
         const headerText = this.scene.add.text(

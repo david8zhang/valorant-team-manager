@@ -1,6 +1,6 @@
 import { Save, SaveKeys } from '~/utils/Save'
 import { Screen } from './Screen'
-import TeamMgmt, { MatchConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { MatchConfig, PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { TeamRankings } from '~/core/ui/TeamRankings'
 import { UpcomingMatch } from '~/core/ui/UpcomingMatch'
@@ -41,10 +41,50 @@ export class SeasonScreen implements Screen {
         y: RoundConstants.WINDOW_HEIGHT / 2 - 25,
       },
       onContinue: () => {
-        this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
-          isNewDraft: true,
-        })
+        this.endSeason()
       },
+    })
+  }
+
+  decrementContractDurations() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
+      return {
+        ...playerAgent,
+        contract: {
+          ...playerAgent.contract,
+          duration: Math.max(0, playerAgent.contract.duration - 1),
+        },
+      }
+    })
+    playerTeam.roster = newPlayerRoster
+    allTeams[playerTeam.name] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+  }
+
+  convertRookies() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
+      if (playerAgent.isRookie) {
+        return {
+          ...playerAgent,
+          isRookie: false,
+        }
+      }
+      return playerAgent
+    })
+    playerTeam.roster = newPlayerRoster
+    allTeams[playerTeam.name] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+  }
+
+  endSeason() {
+    this.decrementContractDurations()
+    this.convertRookies()
+    this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
+      isNewDraft: true,
     })
   }
 

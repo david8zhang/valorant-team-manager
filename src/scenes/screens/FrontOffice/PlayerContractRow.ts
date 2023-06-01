@@ -57,6 +57,7 @@ export class PlayerContractRow {
 
   setupAttributes(config: PlayerContractConfig) {
     const overall = Utilities.getOverallRank(config.playerConfig)
+    const contract = config.playerConfig.contract
     const columnConfigs = [
       {
         key: 'Ovr.',
@@ -80,11 +81,11 @@ export class PlayerContractRow {
       },
       {
         key: 'Salary',
-        value: `$${config.playerConfig.contract.salary}M`,
+        value: `$${contract.salary}M`,
       },
       {
         key: 'Length',
-        value: `${config.playerConfig.contract.duration}Y`,
+        value: contract.duration === 0 ? 'Exp.' : `${contract.duration}Y`,
       },
       {
         buttonConfig: {
@@ -124,6 +125,9 @@ export class PlayerContractRow {
             color: 'black',
           })
           .setOrigin(0)
+        if (columnConfig.fontStyle) {
+          valueText.setStyle(columnConfig.fontStyle)
+        }
 
         if (config.isHeader) {
           const headerText = this.scene.add.text(
