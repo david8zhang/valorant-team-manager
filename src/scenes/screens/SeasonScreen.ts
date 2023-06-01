@@ -249,6 +249,7 @@ export class SeasonScreen implements Screen {
 
     if (this.shouldShowExpiringContractsModal()) {
       this.expiringContractsModal.display()
+      this.startMatchButton.setVisible(false)
     }
 
     this.updateTeamRankings()
