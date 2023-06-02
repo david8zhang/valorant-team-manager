@@ -93,50 +93,72 @@ export class TeamScreen implements Screen {
     const padding = 15
     const cardWidth =
       TeamMgmt.BODY_WIDTH / numStarters - padding * ((numStarters + 1) / numStarters)
-    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
-    starterConfigs.forEach((config) => {
-      const homePlayerInfo = new HomePlayerInfo(this.scene, {
-        name: config.name,
-        position: {
-          x: xPos,
-          y: padding + 75,
-        },
-        height: RoundConstants.WINDOW_HEIGHT - 240,
-        width: cardWidth,
-      })
-      this.startingLineup.push(homePlayerInfo)
-      const statButton = new Button({
-        text: 'Show Stats',
-        onClick: () => {
-          this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
-        },
-        x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
-        y: homePlayerInfo.rectangle.y + homePlayerInfo.rectangle.displayHeight + 35,
-        width: homePlayerInfo.rectangle.displayWidth,
-        height: 50,
-        scene: this.scene,
-        strokeColor: 0x000000,
-        strokeWidth: 1,
-      })
-      this.playerStatButtons.push(statButton)
+    const cardHeight = RoundConstants.WINDOW_HEIGHT - 240
 
-      const substituteButton = new Button({
-        text: 'Substitute',
-        onClick: () => {
-          this.scene.renderActiveScreen(ScreenKeys.SUBSTITUTE_PLAYER, {
-            playerToReplace: config,
-          })
-        },
-        x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
-        y: statButton.y + 60,
-        height: 50,
-        width: homePlayerInfo.rectangle.displayWidth,
-        scene: this.scene,
-        strokeColor: 0x000000,
-        strokeWidth: 1,
-      })
-      this.substituteButtons.push(substituteButton)
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
+    for (let i = 0; i < numStarters; i++) {
+      const config = starterConfigs[i]
+      if (config) {
+        const homePlayerInfo = new HomePlayerInfo(this.scene, {
+          name: config.name,
+          position: {
+            x: xPos,
+            y: padding + 75,
+          },
+          height: cardHeight,
+          width: cardWidth,
+        })
+        this.startingLineup.push(homePlayerInfo)
+        const statButton = new Button({
+          text: 'Show Stats',
+          onClick: () => {
+            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+          },
+          x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
+          y: homePlayerInfo.rectangle.y + homePlayerInfo.rectangle.displayHeight + 35,
+          width: homePlayerInfo.rectangle.displayWidth,
+          height: 50,
+          scene: this.scene,
+          strokeColor: 0x000000,
+          strokeWidth: 1,
+        })
+        this.playerStatButtons.push(statButton)
+        const substituteButton = new Button({
+          text: 'Substitute',
+          onClick: () => {
+            this.scene.renderActiveScreen(ScreenKeys.SUBSTITUTE_PLAYER, {
+              playerToReplace: config,
+            })
+          },
+          x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
+          y: statButton.y + 60,
+          height: 50,
+          width: homePlayerInfo.rectangle.displayWidth,
+          scene: this.scene,
+          strokeColor: 0x000000,
+          strokeWidth: 1,
+        })
+        this.substituteButtons.push(substituteButton)
+      } else {
+        const addButton = new Button({
+          text: 'Add Player',
+          fontSize: '20px',
+          onClick: () => {
+            this.scene.renderActiveScreen(ScreenKeys.SUBSTITUTE_PLAYER, {
+              playerToReplace: null,
+            })
+          },
+          x: xPos + cardWidth / 2,
+          y: RoundConstants.WINDOW_HEIGHT / 2 + 30,
+          height: cardHeight + 120,
+          width: cardWidth,
+          scene: this.scene,
+          strokeColor: 0x000000,
+          strokeWidth: 1,
+        })
+        this.substituteButtons.push(addButton)
+      }
       xPos += cardWidth + padding
-    })
+    }
   }
 }

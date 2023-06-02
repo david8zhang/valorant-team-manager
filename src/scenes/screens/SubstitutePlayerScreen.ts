@@ -1,8 +1,6 @@
-import { Scene } from 'phaser'
 import { Screen } from './Screen'
 import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
-import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../TeamMgmt'
-import { Save, SaveKeys } from '~/utils/Save'
+import TeamMgmt, { PlayerAgentConfig } from '../TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from './ScreenKeys'
 import { Button } from '~/core/ui/Button'
@@ -12,7 +10,7 @@ export class SubstitutePlayerScreen implements Screen {
   private scene: TeamMgmt
   private agentTableRowStats: PlayerAttrRow[] = []
   private titleText: Phaser.GameObjects.Text
-  private playerToReplace!: PlayerAgentConfig
+  private playerToReplace: PlayerAgentConfig | null = null
   private cancelButton!: Button
 
   constructor(scene: TeamMgmt) {
@@ -51,7 +49,7 @@ export class SubstitutePlayerScreen implements Screen {
   replaceStarter(newStarterConfig: PlayerAgentConfig) {
     const playerTeam = Utilities.getPlayerTeamFromSave()
     playerTeam.roster.forEach((p: PlayerAgentConfig) => {
-      if (p.id === this.playerToReplace.id) {
+      if (this.playerToReplace && p.id === this.playerToReplace.id) {
         p.isStarting = false
       }
       if (p.id === newStarterConfig.id) {
@@ -82,7 +80,9 @@ export class SubstitutePlayerScreen implements Screen {
         },
         buttonConfig: {
           text: 'Start',
-          shouldShow: this.playerToReplace.id !== config.id && !config.isStarting,
+          shouldShow:
+            (this.playerToReplace == null || this.playerToReplace.id !== config.id) &&
+            !config.isStarting,
           onClick: () => {
             this.replaceStarter(config)
           },
@@ -96,8 +96,8 @@ export class SubstitutePlayerScreen implements Screen {
   onRender(data?: any): void {
     if (data && data.playerToReplace) {
       this.playerToReplace = data.playerToReplace
-      this.setupPlayerRows()
     }
+    this.setupPlayerRows()
   }
   setVisible(isVisible: boolean): void {
     this.agentTableRowStats.forEach((row: PlayerAttrRow) => {

@@ -13,6 +13,7 @@ export class PlayerDrilldownScreen implements Screen {
   private playerNameText: Phaser.GameObjects.Text
   private playerImage: Phaser.GameObjects.Image
   private playerRankText: Phaser.GameObjects.Text
+  private playerPotentialText: Phaser.GameObjects.Text
 
   private playerAttributesTab: PlayerAttributesTab | null = null
 
@@ -45,6 +46,16 @@ export class PlayerDrilldownScreen implements Screen {
         }
       )
       .setOrigin(0)
+
+    this.playerPotentialText = this.scene.add.text(
+      this.playerNameText.x,
+      this.playerNameText.y + this.playerNameText.displayHeight + 15,
+      '',
+      {
+        fontSize: '15px',
+        color: 'black',
+      }
+    )
     this.playerRankText = this.scene.add
       .text(RoundConstants.WINDOW_WIDTH - 20, this.playerNameText.y, '', {
         fontSize: '20px',
@@ -57,6 +68,7 @@ export class PlayerDrilldownScreen implements Screen {
   onRender(data?: any): void {
     this.playerConfig = data
     this.playerNameText.setText(`${this.playerConfig.name}`)
+    this.playerPotentialText.setText(`Potential: ${this.playerConfig.potential}`)
     const overallRank = Utilities.getRankNameForEnum(Utilities.getOverallRank(this.playerConfig))
     if (!this.playerAttributesTab) {
       this.playerAttributesTab = new PlayerAttributesTab(this.scene, {
@@ -77,6 +89,7 @@ export class PlayerDrilldownScreen implements Screen {
     this.playerNameText.setVisible(isVisible)
     this.playerImage.setVisible(isVisible)
     this.playerRankText.setVisible(isVisible)
+    this.playerPotentialText.setVisible(isVisible)
     if (this.playerAttributesTab) {
       this.playerAttributesTab.setVisible(isVisible)
     }

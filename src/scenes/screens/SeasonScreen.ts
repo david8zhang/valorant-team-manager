@@ -11,6 +11,7 @@ import { ScreenKeys } from './ScreenKeys'
 import { SeasonOver } from '~/core/ui/SeasonOver'
 import { ExpiringContractsModal } from '~/core/ui/ExpiringContractsModal'
 import { Utilities } from '~/utils/Utilities'
+import { InvalidStartingLineupModal } from '~/core/ui/InvalidStartingLineupModal'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -22,6 +23,7 @@ export class SeasonScreen implements Screen {
   private viewStartingLineupsLink!: LinkText
   private seasonOverText!: SeasonOver
   private expiringContractsModal!: ExpiringContractsModal
+  private invalidStartingLineupModal!: InvalidStartingLineupModal
 
   private _draftOverrideIndex: number = 3
 
@@ -34,6 +36,7 @@ export class SeasonScreen implements Screen {
     this.setupSeasonOverText()
     this.setupCurrentMatch()
     this.setupExpiringContractsModal()
+    this.setupInvalidStartingLineupModal()
     this.setVisible(false)
   }
 
@@ -46,9 +49,20 @@ export class SeasonScreen implements Screen {
     )
   }
 
+  shouldShowInvalidStartingLineupModal() {
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    return playerTeam.roster.filter((p) => p.isStarting).length !== 3
+  }
+
   setupExpiringContractsModal() {
     this.expiringContractsModal = new ExpiringContractsModal(this.scene, () => {
       this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+    })
+  }
+
+  setupInvalidStartingLineupModal() {
+    this.invalidStartingLineupModal = new InvalidStartingLineupModal(this.scene, () => {
+      this.scene.renderActiveScreen(ScreenKeys.TEAM)
     })
   }
 
@@ -250,6 +264,9 @@ export class SeasonScreen implements Screen {
     if (this.shouldShowExpiringContractsModal()) {
       this.expiringContractsModal.display()
       this.startMatchButton.setVisible(false)
+    } else if (this.shouldShowInvalidStartingLineupModal()) {
+      this.invalidStartingLineupModal.display()
+      this.startMatchButton.setVisible(false)
     }
 
     this.updateTeamRankings()
@@ -272,6 +289,9 @@ export class SeasonScreen implements Screen {
     if (this.seasonOverText && this.shouldShowSeasonOver()) {
       this.seasonOverText.setVisible(isVisible)
     }
-    if (!isVisible) this.expiringContractsModal.hide()
+    if (!isVisible) {
+      this.expiringContractsModal.hide()
+      this.invalidStartingLineupModal.hide()
+    }
   }
 }
