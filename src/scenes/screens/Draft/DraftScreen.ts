@@ -226,14 +226,14 @@ export class DraftScreen implements Screen {
     draftOrder.forEach((teamName: string, index: number) => {
       const teamConfig = allTeams[teamName]
       const teamNameText = this.scene.add.text(xPos, yPos, `${index + 1}. ${teamConfig.name}`, {
-        fontSize: '20px',
+        fontSize: '15px',
         color: 'black',
       })
       if (index < this.currPickIndex) {
         teamNameText.setStyle({ color: 'gray' })
       }
       this.teamNamesGroup.add(teamNameText)
-      yPos += teamNameText.displayHeight + 20
+      yPos += teamNameText.displayHeight + 15
     })
   }
 

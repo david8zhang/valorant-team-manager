@@ -46,6 +46,11 @@ export class Utilities {
     return ranks[rank]
   }
 
+  public static getAbbrevRankNameForEnum(rank: PlayerRank) {
+    const ranks = ['BRO', 'SIL', 'GOL', 'PLA', 'DIA', 'MAS', 'GM', 'CHA']
+    return `${ranks[rank]}.`
+  }
+
   public static getOverallRank(player: PlayerAgentConfig) {
     return Math.round(
       Object.values(player.attributes).reduce((acc, curr) => {

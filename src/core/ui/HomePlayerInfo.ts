@@ -27,7 +27,7 @@ export class HomePlayerInfo {
         fontSize: '24px',
         color: 'black',
       })
-      .setWordWrapWidth(this.rectangle.displayWidth, true)
+      .setWordWrapWidth(this.rectangle.displayWidth - 30, true)
       .setAlign('center')
     this.playerNameText.setPosition(
       this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,

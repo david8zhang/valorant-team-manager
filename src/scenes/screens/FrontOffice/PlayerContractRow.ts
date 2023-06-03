@@ -58,22 +58,23 @@ export class PlayerContractRow {
   setupAttributes(config: PlayerContractConfig) {
     const overall = Utilities.getOverallRank(config.playerConfig)
     const contract = config.playerConfig.contract
+    const attributes = config.playerConfig.attributes
     const columnConfigs = [
       {
         key: 'Ovr.',
-        value: overall,
+        value: Utilities.getAbbrevRankNameForEnum(overall),
       },
       {
         key: 'Acc.',
-        value: config.playerConfig.attributes[PlayerAttributes.ACCURACY],
+        value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.ACCURACY]),
       },
       {
         key: 'React.',
-        value: config.playerConfig.attributes[PlayerAttributes.REACTION],
+        value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.REACTION]),
       },
       {
         key: 'HS',
-        value: config.playerConfig.attributes[PlayerAttributes.HEADSHOT],
+        value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.HEADSHOT]),
       },
       {
         key: 'Pot.',
@@ -96,7 +97,7 @@ export class PlayerContractRow {
         },
       },
     ]
-    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 200
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 225
     const columnWidth =
       (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 100) /
       columnConfigs.length

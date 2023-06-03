@@ -7,6 +7,14 @@ export const CPU_TEAM_NAMES = [
   'Faycoast Angels',
   'Nightland Titans',
   'Quickwater Hawks',
+  'Swamprest Jaguars',
+  'Oceanbrook Dolphins',
+  'Sandview Vipers',
+  'Everlight Wizards',
+  'Southbourne Suns',
+  'Highpost Royals',
+  'Drywood Wildcats',
+  'Rusthall Thunder',
 ]
 
 export const SHORT_NAMES = {
@@ -19,6 +27,14 @@ export const SHORT_NAMES = {
   'Nightland Titans': 'NIT',
   'Quickwater Hawks': 'QUH',
   'Guangdong Tigers': 'GDT',
+  'Swamprest Jaguars': 'SWA',
+  'Oceanbrook Dolphins': 'OBD',
+  'Sandview Vipers': 'SAN',
+  'Everlight Wizards': 'EVE',
+  'Southbourne Suns': 'SOU',
+  'Highpost Royals': 'HPR',
+  'Drywood Wildcats': 'DRY',
+  'Rusthall Thunder': 'RST',
 }
 
 export const RANK_DIFF_UPSET_PROBABILITIES = {

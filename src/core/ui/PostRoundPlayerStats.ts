@@ -43,7 +43,7 @@ export class PostRoundPlayerStats {
         fontSize: '24px',
         color: 'black',
       })
-      .setWordWrapWidth(this.rectangle.displayWidth, true)
+      .setWordWrapWidth(this.rectangle.displayWidth - 30, true)
       .setAlign('center')
 
     let yPos = this.rectangle.y + 200

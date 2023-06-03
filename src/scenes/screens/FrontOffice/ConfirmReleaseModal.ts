@@ -27,17 +27,23 @@ export class ConfirmReleaseModal {
       .rectangle(config.position.x, config.position.y, 400, 200, 0xffffff)
       .setStrokeStyle(1, 0x000000)
       .setDepth(RoundConstants.SORT_LAYERS.UI)
-    this.confirmText = this.scene.add.text(
-      config.position.x,
-      config.position.y - 50,
-      `Release ${config.playerAgent.name} into free agency?`,
-      {
-        fontSize: '18px',
-        color: 'black',
-      }
-    )
+    this.confirmText = this.scene.add
+      .text(
+        config.position.x,
+        config.position.y,
+        `Release ${config.playerAgent.name} into free agency?`,
+        {
+          fontSize: '18px',
+          color: 'black',
+        }
+      )
+      .setWordWrapWidth(this.rectangle.displayWidth - 30, true)
+      .setAlign('center')
     this.confirmText
-      .setPosition(config.position.x - this.confirmText.displayWidth / 2, config.position.y - 50)
+      .setPosition(
+        config.position.x - this.confirmText.displayWidth / 2,
+        config.position.y - this.confirmText.displayHeight / 2 - 25
+      )
       .setDepth(RoundConstants.SORT_LAYERS.UI)
     this.acceptButton = new Button({
       scene: this.scene,
@@ -48,7 +54,7 @@ export class ConfirmReleaseModal {
       height: 30,
       text: 'Accept',
       x: this.rectangle.x + 80,
-      y: this.rectangle.y + 25,
+      y: this.rectangle.y + 30,
       strokeColor: 0x000000,
       strokeWidth: 1,
       depth: RoundConstants.SORT_LAYERS.UI,
@@ -62,7 +68,7 @@ export class ConfirmReleaseModal {
       height: 30,
       text: 'Deny',
       x: this.rectangle.x - 80,
-      y: this.rectangle.y + 25,
+      y: this.rectangle.y + 30,
       strokeColor: 0x000000,
       strokeWidth: 1,
       depth: RoundConstants.SORT_LAYERS.UI,

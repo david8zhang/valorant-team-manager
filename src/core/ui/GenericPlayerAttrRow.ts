@@ -13,12 +13,16 @@ export interface GenericPlayerAttrRowConfig {
   showName?: boolean
   columnConfigs: {
     key: string
-    value: string
+    value?: string
     buttonConfig?: {
       text: string
       onClick: Function
     }
   }[]
+  columnFontStyle?: {
+    color: string
+    fontSize: string
+  }
 }
 
 export class GenericPlayerAttrRow {
@@ -34,8 +38,16 @@ export class GenericPlayerAttrRow {
   private playerNameText: Phaser.GameObjects.Text | null = null
   private columnConfigs: {
     key: string
-    value: string
+    value?: string
+    buttonConfig?: {
+      text: string
+      onClick: Function
+    }
   }[]
+  private columnFontStyle?: {
+    color: string
+    fontSize: string
+  }
 
   constructor(scene: Scene, config: GenericPlayerAttrRowConfig) {
     this.scene = scene
@@ -51,6 +63,9 @@ export class GenericPlayerAttrRow {
           color: 'black',
         })
         .setOrigin(0)
+    }
+    if (config.columnFontStyle) {
+      this.columnFontStyle = config.columnFontStyle
     }
     this.setupColumns()
   }
@@ -80,7 +95,7 @@ export class GenericPlayerAttrRow {
       xPos += 200
     }
     const columnWidth =
-      (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 100) /
+      (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 50) /
       this.columnConfigs.length
     this.columnConfigs.forEach((columnConfig: any) => {
       if (columnConfig.buttonConfig) {
@@ -101,13 +116,13 @@ export class GenericPlayerAttrRow {
       } else {
         const attr = columnConfig.key
         const value = columnConfig.value
-        const valueText = this.scene.add
-          .text(xPos, this.position.y, value, {
-            fontSize: '20px',
-            color: 'black',
-          })
-          .setOrigin(0)
-
+        const fontStyle = this.columnFontStyle
+          ? this.columnFontStyle
+          : {
+              fontSize: '20px',
+              color: 'black',
+            }
+        const valueText = this.scene.add.text(xPos, this.position.y, value, fontStyle).setOrigin(0)
         if (this.isHeader) {
           const headerText = this.scene.add.text(
             xPos,

@@ -264,9 +264,11 @@ export class SeasonScreen implements Screen {
     if (this.shouldShowExpiringContractsModal()) {
       this.expiringContractsModal.display()
       this.startMatchButton.setVisible(false)
+      this.viewStartingLineupsLink.setVisible(false)
     } else if (this.shouldShowInvalidStartingLineupModal()) {
       this.invalidStartingLineupModal.display()
       this.startMatchButton.setVisible(false)
+      this.viewStartingLineupsLink.setVisible(false)
     }
 
     this.updateTeamRankings()

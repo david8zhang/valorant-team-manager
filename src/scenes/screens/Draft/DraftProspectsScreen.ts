@@ -3,10 +3,9 @@ import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../../TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
 import { DEFAULT_CONTRACT, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { DraftProspectTableRow } from '~/core/ui/DraftProspectTableRow'
 import { Utilities } from '~/utils/Utilities'
-import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../ScreenKeys'
+import { GenericPlayerAttrRow } from '~/core/ui/GenericPlayerAttrRow'
 
 export class DraftProspectsScreen implements Screen {
   public static PAGE_SIZE = 10
@@ -15,7 +14,7 @@ export class DraftProspectsScreen implements Screen {
   private scene: TeamMgmt
   private titleText: Phaser.GameObjects.Text
   private currPageIndex: number = 0
-  public draftProspectRows: DraftProspectTableRow[] = []
+  public draftProspectRows: GenericPlayerAttrRow[] = []
   private leftButton!: Phaser.GameObjects.Image
   private rightButton!: Phaser.GameObjects.Image
   private scoutPointsText!: Phaser.GameObjects.Text
@@ -142,26 +141,65 @@ export class DraftProspectsScreen implements Screen {
       this.currPageIndex * DraftProspectsScreen.PAGE_SIZE,
       this.currPageIndex * DraftProspectsScreen.PAGE_SIZE + DraftProspectsScreen.PAGE_SIZE
     )
-    const scoutedDraftIds = Save.getData(SaveKeys.SCOUTED_PROSPECT_IDS) as string[]
+    const scoutedDraftIds = (Save.getData(SaveKeys.SCOUTED_PROSPECT_IDS) as string[]) || []
     draftProspectsPage.forEach((prospectConfig: PlayerAgentConfig, index: number) => {
-      const newProspectRow = new DraftProspectTableRow(this.scene, {
-        isScouted: scoutedDraftIds ? scoutedDraftIds.includes(prospectConfig.id) : false,
-        playerConfig: prospectConfig,
+      const attributes = prospectConfig.attributes
+      const isScouted = scoutedDraftIds.includes(prospectConfig.id)
+      const overall = Utilities.getOverallRank(prospectConfig)
+      const newProspectRow = new GenericPlayerAttrRow(this.scene, {
+        name: prospectConfig.name,
+        showName: true,
+        columnFontStyle: {
+          fontSize: '15px',
+          color: 'black',
+        },
         position: {
           x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
           y: yPos,
         },
         isHeader: index == 0,
-        onScout: () => {
-          const numScoutPoints = Save.getData(SaveKeys.SCOUT_POINTS)
-          if (numScoutPoints > 0) {
-            this.onScout(prospectConfig.id)
-            newProspectRow.revealPotential()
-          }
-        },
-        onDraft: () => {
-          this.onDraft(prospectConfig)
-        },
+        columnConfigs: [
+          {
+            key: 'Acc.',
+            value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.ACCURACY]),
+          },
+          {
+            key: 'HS.',
+            value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.HEADSHOT]),
+          },
+          {
+            key: 'React.',
+            value: Utilities.getAbbrevRankNameForEnum(attributes[PlayerAttributes.REACTION]),
+          },
+          {
+            key: 'OVR',
+            value: Utilities.getAbbrevRankNameForEnum(overall),
+          },
+          {
+            key: 'Pot.',
+            value: isScouted ? `${prospectConfig.potential}` : undefined,
+            buttonConfig: isScouted
+              ? undefined
+              : {
+                  text: 'Scout',
+                  onClick: () => {
+                    const numScoutPoints = Save.getData(SaveKeys.SCOUT_POINTS)
+                    if (numScoutPoints > 0) {
+                      this.onScout(prospectConfig.id)
+                    }
+                  },
+                },
+          },
+          {
+            key: 'Draft',
+            buttonConfig: {
+              text: 'Draft',
+              onClick: () => {
+                this.onDraft(prospectConfig)
+              },
+            },
+          },
+        ],
       })
       this.draftProspectRows.push(newProspectRow)
       yPos += 35
@@ -178,6 +216,7 @@ export class DraftProspectsScreen implements Screen {
     }
     scoutedIds.push(playerId)
     Save.setData(SaveKeys.SCOUTED_PROSPECT_IDS, [...new Set(scoutedIds)])
+    this.updateDraftPage(0)
   }
 
   onDraft(prospectConfig: PlayerAgentConfig) {

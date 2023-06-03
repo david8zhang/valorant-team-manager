@@ -10,7 +10,7 @@ export class SeasonSchedule {
   private scene: TeamMgmt
   private schedule: MatchConfig[]
   private pageIndex: number = 0
-  private pageSize: number = 7
+  private pageSize: number = 6
   private rightCarat!: Phaser.GameObjects.Image
   private leftCarat!: Phaser.GameObjects.Image
   private matchText: Phaser.GameObjects.Text[] = []
@@ -121,7 +121,7 @@ export class SeasonSchedule {
         })
         .setOrigin(0)
       this.matchText.push(text)
-      xPos += text.displayWidth + 20
+      xPos += text.displayWidth + 30
     })
   }
 
