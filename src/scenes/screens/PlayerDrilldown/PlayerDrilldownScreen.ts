@@ -41,7 +41,7 @@ export class PlayerDrilldownScreen implements Screen {
         60 + this.playerImage.displayHeight / 4,
         '',
         {
-          fontSize: '40px',
+          fontSize: '30px',
           color: 'black',
         }
       )

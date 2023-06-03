@@ -22,6 +22,7 @@ import { SubstitutePlayerScreen } from './screens/SubstitutePlayerScreen'
 import { FrontOfficeScreen } from './screens/FrontOffice/FrontOfficeScreen'
 import { ContractsScreen } from './screens/FrontOffice/ContractsScreen'
 import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldownScreen'
+import { MALE_FIRST_NAMES } from '~/utils/Names'
 
 export interface PlayerAgentConfig {
   id: string
@@ -146,11 +147,11 @@ export default class TeamMgmt extends Phaser.Scene {
 
   generateNewPlayers(teamName: string): PlayerAgentConfig[] {
     const newPlayers: PlayerAgentConfig[] = []
-    const prefix = SHORT_NAMES[teamName]
     for (let i = 1; i <= 3; i++) {
+      const randomName = Utilities.generateRandomName()
       newPlayers.push({
         id: `${teamName}-player-${i}`,
-        name: `${prefix}-${i}`,
+        name: randomName,
         isStarting: true,
         isRookie: true,
         texture: '',

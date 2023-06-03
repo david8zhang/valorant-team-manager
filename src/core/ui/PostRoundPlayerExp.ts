@@ -31,13 +31,18 @@ export class PostRoundPlayerExp {
       .rectangle(config.position.x, config.position.y, config.width, config.height)
       .setStrokeStyle(1, 0x000000)
       .setOrigin(0)
-    this.playerNameText = this.scene.add.text(this.rectangle.x, this.rectangle.y, config.name, {
-      fontSize: '24px',
-      color: 'black',
-    })
+    this.playerNameText = this.scene.add
+      .text(this.rectangle.x, this.rectangle.y, config.name, {
+        fontSize: '24px',
+        color: 'black',
+      })
+      .setWordWrapWidth(this.rectangle.displayWidth, true)
+      .setAlign('center')
+
+    let yPos = this.rectangle.y + 200
     this.playerNameText.setPosition(
       this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
-      this.rectangle.y + 200
+      yPos - this.playerNameText.displayHeight / 2
     )
     this.rankUpMessage = this.scene.add
       .text(this.rectangle.x, this.playerNameText.y + 100, 'Rank up!', {
@@ -56,7 +61,7 @@ export class PostRoundPlayerExp {
 
   setupAttributeExpBars(config: PostRoundPlayerExpConfig) {
     const expGrowthConfigs = config.exp
-    let yPos = this.playerNameText.y + 50
+    let yPos = this.rectangle.y + 250
     Object.keys(expGrowthConfigs).forEach((key, index) => {
       const attribute = key as PlayerAttributes
       const attrText = this.scene.add

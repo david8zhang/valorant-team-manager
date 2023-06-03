@@ -127,14 +127,4 @@ export class HomeScreen implements Screen {
     this.winLossRecordText.setVisible(isVisible)
     this.queueButton.setVisible(isVisible)
   }
-
-  generateNewPlayers(): any[] {
-    const newPlayers: any[] = []
-    for (let i = 1; i <= 3; i++) {
-      newPlayers.push({
-        name: `Agent-${i}`,
-      })
-    }
-    return newPlayers
-  }
 }

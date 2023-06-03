@@ -319,9 +319,10 @@ export class DraftScreen implements Screen {
     const newPlayers: PlayerAgentConfig[] = []
     const playerRanks = [PlayerRank.BRONZE, PlayerRank.SILVER, PlayerRank.GOLD]
     for (let i = 1; i <= DraftProspectsScreen.NUM_DRAFT_PROSPECTS; i++) {
+      const randomName = Utilities.generateRandomName()
       newPlayers.push({
         id: `draft-prospect-${i}`,
-        name: `draft-${i}`,
+        name: `${randomName}`,
         isStarting: false,
         isRookie: true,
         texture: '',

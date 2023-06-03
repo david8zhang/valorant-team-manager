@@ -45,7 +45,7 @@ export class AgentInfoBox {
       .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.agentNameText = this.scene.add
-      .text(this.agentProfilePic.x, this.agentProfilePic.y + 50, this.agent.name, {
+      .text(this.agentProfilePic.x, this.agentProfilePic.y + 50, this.agent.truncatedName, {
         fontSize: '14px',
         color: 'white',
       })

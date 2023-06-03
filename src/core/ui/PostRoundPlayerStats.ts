@@ -38,14 +38,20 @@ export class PostRoundPlayerStats {
       .rectangle(config.position.x, config.position.y, config.width, config.height)
       .setStrokeStyle(1, 0x000000)
       .setOrigin(0)
-    this.playerNameText = this.scene.add.text(this.rectangle.x, this.rectangle.y, config.name, {
-      fontSize: '24px',
-      color: 'black',
-    })
+    this.playerNameText = this.scene.add
+      .text(this.rectangle.x, this.rectangle.y, config.name, {
+        fontSize: '24px',
+        color: 'black',
+      })
+      .setWordWrapWidth(this.rectangle.displayWidth, true)
+      .setAlign('center')
+
+    let yPos = this.rectangle.y + 200
     this.playerNameText.setPosition(
       this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
-      this.rectangle.y + 200
+      yPos - this.playerNameText.displayHeight / 2
     )
+
     this.setupKillsStatLine(config)
     this.setupAssistsStatLine(config)
     this.setupDeathsStatLine(config)
@@ -53,25 +59,34 @@ export class PostRoundPlayerStats {
   }
 
   setupMatchMVPText(config: PostRoundPlayerStatsConfig) {
+    const yPos = this.rectangle.y + 200
     if (config.stats.matchMvp) {
       this.matchMVPText = this.scene.add.text(
-        this.playerNameText.x,
-        this.playerNameText.y - this.rectangle.displayHeight / 2 + 15,
+        this.rectangle.x + this.rectangle.displayWidth / 2,
+        yPos - this.rectangle.displayHeight / 2 + 15,
         'Match MVP',
         {
           fontSize: '15px',
           color: 'black',
         }
       )
+      this.matchMVPText.setPosition(
+        this.matchMVPText.x - this.matchMVPText.displayWidth / 2,
+        this.matchMVPText.y
+      )
     } else if (config.stats.teamMvp) {
       this.matchMVPText = this.scene.add.text(
-        this.playerNameText.x,
-        this.playerNameText.y - this.rectangle.displayHeight / 2 + 15,
+        this.rectangle.x + this.rectangle.displayWidth / 2,
+        yPos - this.rectangle.displayHeight / 2 + 15,
         'Team MVP',
         {
           fontSize: '15px',
           color: 'black',
         }
+      )
+      this.matchMVPText.setPosition(
+        this.matchMVPText.x - this.matchMVPText.displayWidth / 2,
+        this.matchMVPText.y
       )
     }
   }
@@ -104,15 +119,11 @@ export class PostRoundPlayerStats {
   }
 
   setupKillsStatLine(config: PostRoundPlayerStatsConfig) {
-    this.totalKillsText = this.scene.add.text(
-      this.rectangle.x + 15,
-      this.playerNameText.y + 50,
-      'Kills',
-      {
-        fontSize: '15px',
-        color: 'black',
-      }
-    )
+    const yPos = this.rectangle.y + 200
+    this.totalKillsText = this.scene.add.text(this.rectangle.x + 15, yPos + 50, 'Kills', {
+      fontSize: '15px',
+      color: 'black',
+    })
     this.totalKillsAmt = this.scene.add
       .text(
         this.rectangle.x + this.rectangle.displayWidth - 15,

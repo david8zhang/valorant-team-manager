@@ -22,10 +22,13 @@ export class HomePlayerInfo {
       .rectangle(config.position.x, config.position.y, config.width, config.height)
       .setStrokeStyle(1, 0x000000)
       .setOrigin(0)
-    this.playerNameText = this.scene.add.text(this.rectangle.x, this.rectangle.y, config.name, {
-      fontSize: '24px',
-      color: 'black',
-    })
+    this.playerNameText = this.scene.add
+      .text(this.rectangle.x, this.rectangle.y, config.name, {
+        fontSize: '24px',
+        color: 'black',
+      })
+      .setWordWrapWidth(this.rectangle.displayWidth, true)
+      .setAlign('center')
     this.playerNameText.setPosition(
       this.rectangle.x + this.rectangle.displayWidth / 2 - this.playerNameText.displayWidth / 2,
       this.rectangle.y + this.rectangle.displayHeight / 2 - this.playerNameText.displayHeight / 2

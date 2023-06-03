@@ -663,7 +663,7 @@ export default class UI extends Phaser.Scene {
   }
 
   renderKillMessage(killer: Agent, killed: Agent) {
-    const killedNameText = this.add.text(RoundConstants.MAP_WIDTH - 50, 50, killed.name, {
+    const killedNameText = this.add.text(RoundConstants.MAP_WIDTH - 50, 50, killed.truncatedName, {
       fontSize: '12px',
       color: 'white',
     })
@@ -680,7 +680,7 @@ export default class UI extends Phaser.Scene {
       .setVisible(false)
       .setOrigin(0, 0.5)
 
-    const killerNameText = this.add.text(gunSprite.x - 10, 50, killer.name, {
+    const killerNameText = this.add.text(gunSprite.x - 10, 50, killer.truncatedName, {
       fontSize: '12px',
       color: 'white',
     })

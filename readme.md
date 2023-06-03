@@ -6,7 +6,6 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ### Management Sim
 
-- Player Contracts
 - Real player names
 - Player ages, degredation after a certain age
 - Trades in free agency

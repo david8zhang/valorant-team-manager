@@ -64,6 +64,7 @@ export class Agent {
   public isPaused: boolean = false
   public hideSightCones: boolean = false
   public name: string
+  public truncatedName: string
 
   public graphics: Phaser.GameObjects.Graphics
   public stateMachine: StateMachine
@@ -128,7 +129,9 @@ export class Agent {
     if (config.hideSightCones) {
       this.hideSightCones = config.hideSightCones
     }
+    const tokens = config.name.split(' ')
     this.name = config.name
+    this.truncatedName = `${tokens[0]} ${tokens[1].slice(0, 1)}.`
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)

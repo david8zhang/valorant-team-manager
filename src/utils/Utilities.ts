@@ -1,6 +1,7 @@
 import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
+import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -18,6 +19,17 @@ export class Utilities {
     }
 
     return array
+  }
+
+  public static generateRandomName() {
+    const randFirstName = MALE_FIRST_NAMES[Phaser.Math.Between(0, MALE_FIRST_NAMES.length - 1)]
+    const randLastName = LAST_NAMES[Phaser.Math.Between(0, LAST_NAMES.length - 1)]
+    const convertToProperCase = (str) => {
+      return `${str.slice(0, 1)}${str.slice(1).toLowerCase()}`
+    }
+    const firstNameProperCase = convertToProperCase(randFirstName)
+    const lastNameProperCase = convertToProperCase(randLastName)
+    return `${firstNameProperCase} ${lastNameProperCase}`
   }
 
   public static getRankNameForEnum(rank: PlayerRank) {

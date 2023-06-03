@@ -84,7 +84,7 @@ export class PlayerAttrRow {
   }
 
   setupAttributes(config: AgentTableRowStatsConfig) {
-    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 200
+    let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 250
     const columnWidth =
       (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 100) /
       this.numColumns
