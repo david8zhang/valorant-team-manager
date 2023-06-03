@@ -99,6 +99,8 @@ export class SeasonSchedule {
     this.pageIndex = Math.max(0, this.pageIndex)
     this.pageIndex = Math.min(this.pageIndex, this.schedule.length / this.pageSize - 1)
 
+    this.leftCarat.setVisible(true)
+    this.rightCarat.setVisible(true)
     if (this.pageIndex === 0) {
       this.leftCarat.setVisible(false)
       this.rightCarat.setVisible(true)

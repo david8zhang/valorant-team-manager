@@ -25,7 +25,7 @@ export class SeasonScreen implements Screen {
   private expiringContractsModal!: ExpiringContractsModal
   private invalidStartingLineupModal!: InvalidStartingLineupModal
 
-  private _draftOverrideIndex: number = 3
+  private _draftOverrideIndex: number = -1
 
   constructor(scene: TeamMgmt) {
     this.scene = scene

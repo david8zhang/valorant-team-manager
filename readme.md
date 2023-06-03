@@ -7,8 +7,10 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 ### Management Sim
 
 - Playoffs bracket
-- Player ages, degredation after a certain age
-- Trades in free agency
+- Free Agents
+- Trades
+- Player ages
+  - Degredation after a certain age
 - First time user screen
   - Allow user to pick a team name
   - Initial team draft
