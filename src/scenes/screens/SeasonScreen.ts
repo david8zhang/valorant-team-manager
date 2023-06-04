@@ -25,7 +25,7 @@ export class SeasonScreen implements Screen {
   private expiringContractsModal!: ExpiringContractsModal
   private invalidStartingLineupModal!: InvalidStartingLineupModal
 
-  private _draftOverrideIndex: number = -1
+  private _draftOverrideIndex: number = 3
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -110,11 +110,12 @@ export class SeasonScreen implements Screen {
   }
 
   endSeason() {
-    this.decrementContractDurations()
-    this.convertRookies()
-    this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
-      isNewDraft: true,
-    })
+    this.scene.renderActiveScreen(ScreenKeys.PLAYOFFS)
+    // this.decrementContractDurations()
+    // this.convertRookies()
+    // this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
+    //   isNewDraft: true,
+    // })
   }
 
   setupViewStartingLineupsLink() {
@@ -255,7 +256,7 @@ export class SeasonScreen implements Screen {
         this.upcomingMatch.setVisible(true)
       }
     }
-    if (currMatchIndex === this.lastMatchIndex) {
+    if (currMatchIndex >= this.lastMatchIndex) {
       this.displaySeasonOverText()
     } else {
       this.updateUpcomingMatch()
@@ -277,7 +278,7 @@ export class SeasonScreen implements Screen {
 
   shouldShowSeasonOver() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
-    return currMatchIndex === this.lastMatchIndex
+    return currMatchIndex >= this.lastMatchIndex
   }
 
   setVisible(isVisible: boolean) {

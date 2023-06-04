@@ -213,8 +213,8 @@ export class DraftScreen implements Screen {
     const xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15
     if (!draftOrder) {
       const sortedByRecord = Object.values(allTeams).sort((a, b) => {
-        const aWinLoss = this.getWinLossRatio(a)
-        const bWinLoss = this.getWinLossRatio(b)
+        const aWinLoss = Utilities.getWinLossRatio(a)
+        const bWinLoss = Utilities.getWinLossRatio(b)
         if (aWinLoss === bWinLoss) {
           return Phaser.Math.Between(0, 1) === 1 ? 1 : -1
         }
@@ -235,13 +235,6 @@ export class DraftScreen implements Screen {
       this.teamNamesGroup.add(teamNameText)
       yPos += teamNameText.displayHeight + 15
     })
-  }
-
-  getWinLossRatio(teamConfig: TeamConfig) {
-    if (teamConfig.losses == 0) {
-      return Number.MAX_SAFE_INTEGER
-    }
-    return teamConfig.wins / teamConfig.losses
   }
 
   showDraftCompletedPrompt() {

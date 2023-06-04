@@ -23,6 +23,7 @@ import { FrontOfficeScreen } from './screens/FrontOffice/FrontOfficeScreen'
 import { ContractsScreen } from './screens/FrontOffice/ContractsScreen'
 import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldownScreen'
 import { MALE_FIRST_NAMES } from '~/utils/Names'
+import { PlayoffsScreen } from './screens/Playoffs/PlayoffsScreen'
 
 export interface PlayerAgentConfig {
   id: string
@@ -191,6 +192,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.FRONT_OFFICE]: new FrontOfficeScreen(this),
       [ScreenKeys.CONTRACTS]: new ContractsScreen(this),
       [ScreenKeys.CONTRACT_DRILLDOWN]: new ContractDrilldownScreen(this),
+      [ScreenKeys.PLAYOFFS]: new PlayoffsScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)

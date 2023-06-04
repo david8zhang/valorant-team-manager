@@ -32,6 +32,13 @@ export class Utilities {
     return `${firstNameProperCase} ${lastNameProperCase}`
   }
 
+  public static getWinLossRatio(teamConfig: TeamConfig) {
+    if (teamConfig.losses == 0) {
+      return Number.MAX_SAFE_INTEGER
+    }
+    return teamConfig.wins / teamConfig.losses
+  }
+
   public static getRankNameForEnum(rank: PlayerRank) {
     const ranks = [
       'BRONZE',

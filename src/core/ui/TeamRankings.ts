@@ -1,5 +1,6 @@
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
+import { Utilities } from '~/utils/Utilities'
 
 export interface TeamRankingsConfig {
   allTeams: TeamConfig[]
@@ -42,17 +43,10 @@ export class TeamRankings {
     this.setupRankings(config)
   }
 
-  getWinLossRatio(teamConfig: TeamConfig) {
-    if (teamConfig.losses == 0) {
-      return Number.MAX_SAFE_INTEGER
-    }
-    return teamConfig.wins / teamConfig.losses
-  }
-
   setupRankings(config: TeamRankingsConfig) {
     let yPos = 125
     const sortedByRanking = config.allTeams.sort((a, b) => {
-      return this.getWinLossRatio(b) - this.getWinLossRatio(a)
+      return Utilities.getWinLossRatio(b) - Utilities.getWinLossRatio(a)
     })
 
     sortedByRanking.forEach((team: TeamConfig) => {
