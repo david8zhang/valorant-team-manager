@@ -34,8 +34,8 @@ export class PostRoundPlayerExpScreen implements Screen {
   } = {}
 
   // Static constants
-  private static ROUND_WIN_EXP_MODIFIER = 2
-  private static MVP_EXP_MODIFIER = 1.5
+  public static ROUND_WIN_EXP_MODIFIER = 2
+  public static MVP_EXP_MODIFIER = 1.5
 
   constructor(scene: PostRound) {
     this.scene = scene

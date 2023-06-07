@@ -55,7 +55,7 @@ export class DraftProspectsScreen implements Screen {
     let savedDraftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS) as PlayerAgentConfig[]
     if (!savedDraftProspects) {
       savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
-        return Utilities.getOverallRank(b) - Utilities.getOverallRank(a)
+        return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
     }
@@ -145,7 +145,7 @@ export class DraftProspectsScreen implements Screen {
     draftProspectsPage.forEach((prospectConfig: PlayerAgentConfig, index: number) => {
       const attributes = prospectConfig.attributes
       const isScouted = scoutedDraftIds.includes(prospectConfig.id)
-      const overall = Utilities.getOverallRank(prospectConfig)
+      const overall = Utilities.getOverallPlayerRank(prospectConfig)
       const newProspectRow = new GenericPlayerAttrRow(this.scene, {
         name: prospectConfig.name,
         showName: true,

@@ -267,7 +267,7 @@ export class ContractDrilldownScreen implements Screen {
       columnConfigs: [
         {
           key: 'Ovr.',
-          value: `${Utilities.getOverallRank(this.playerConfig)}`,
+          value: `${Utilities.getOverallPlayerRank(this.playerConfig)}`,
         },
         {
           key: 'Acc.',

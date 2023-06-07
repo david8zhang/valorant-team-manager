@@ -69,7 +69,9 @@ export class PlayerDrilldownScreen implements Screen {
     this.playerConfig = data
     this.playerNameText.setText(`${this.playerConfig.name}`)
     this.playerPotentialText.setText(`Potential: ${this.playerConfig.potential}`)
-    const overallRank = Utilities.getRankNameForEnum(Utilities.getOverallRank(this.playerConfig))
+    const overallRank = Utilities.getRankNameForEnum(
+      Utilities.getOverallPlayerRank(this.playerConfig)
+    )
     if (!this.playerAttributesTab) {
       this.playerAttributesTab = new PlayerAttributesTab(this.scene, {
         playerConfig: this.playerConfig,

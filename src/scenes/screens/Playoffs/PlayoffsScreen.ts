@@ -5,6 +5,7 @@ import { Save, SaveKeys } from '~/utils/Save'
 import { Utilities } from '~/utils/Utilities'
 import { Matchup } from './Matchup'
 import { FinalsMatchup } from './FinalsMatchup'
+import { Button } from '~/core/ui/Button'
 
 export interface PlayoffMatchup {
   team1: {
@@ -15,7 +16,7 @@ export interface PlayoffMatchup {
     teamName: string
     score: string | number
   }
-  isPending: boolean
+  hasStarted: boolean
 }
 
 export interface PlayoffBracket {
@@ -30,12 +31,56 @@ export class PlayoffsScreen implements Screen {
   private round1Matchups: Matchup[] = []
   private round2Matchups: Matchup[] = []
   private finalsMatchup: FinalsMatchup | null = null
+  private continueButton!: Button
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
+    this.setupContinueButton()
+    this.setVisible(false)
   }
 
-  updatePlayoffBracket() {}
+  setupContinueButton() {
+    this.continueButton = new Button({
+      scene: this.scene,
+      x: RoundConstants.WINDOW_WIDTH - 60,
+      y: 30,
+      width: 100,
+      height: 40,
+      text: 'Continue',
+      onClick: () => {
+        this.updatePlayoffBracket()
+      },
+      fontSize: '14px',
+      textColor: 'black',
+      strokeWidth: 1,
+      strokeColor: 0x000,
+    })
+  }
+
+  getCurrRound() {
+    const rounds = ['round1', 'round2', 'final']
+    for (let i = 0; i < rounds.length; i++) {
+      const round = rounds[i]
+      const matchup = this.playoffBracket[round] as PlayoffMatchup
+      if (!matchup.hasStarted) {
+        return rounds[i - 1]
+      }
+    }
+    return 'final'
+  }
+
+  simulatePlayoffGame() {
+    const currRound = this.getCurrRound()
+    const matchups = this.playoffBracket[currRound] as PlayoffMatchup[]
+    matchups.forEach((matchup: PlayoffMatchup) => {})
+  }
+
+  updatePlayoffBracket() {
+    this.simulatePlayoffGame()
+    this.setupFirstRoundMatchups()
+    this.setupSecondRoundMatchups()
+    this.setupFinalsMatchup()
+  }
 
   setupPlayoffBracket() {
     const savedPlayoffBracket = Save.getData(SaveKeys.PLAYOFF_BRACKET) as PlayoffBracket
@@ -58,7 +103,7 @@ export class PlayoffsScreen implements Screen {
             teamName: 'TBD',
             score: 'N/A',
           },
-          isPending: true,
+          hasStarted: false,
         },
       }
       for (let i = 0; i < 4; i++) {
@@ -73,7 +118,7 @@ export class PlayoffsScreen implements Screen {
             teamName: lowerSeed.shortName,
             score: 0,
           },
-          isPending: false,
+          hasStarted: true,
         })
       }
       for (let i = 0; i < 2; i++) {
@@ -86,7 +131,7 @@ export class PlayoffsScreen implements Screen {
             teamName: 'TBD',
             score: 'N/A',
           },
-          isPending: true,
+          hasStarted: false,
         })
       }
       this.playoffBracket = newPlayoffBracket
@@ -113,7 +158,7 @@ export class PlayoffsScreen implements Screen {
     const yPos = RoundConstants.WINDOW_HEIGHT - matchupRectHeight / 2 - 15
     this.playoffBracket.round1.forEach((matchup: PlayoffMatchup) => {
       const newMatchup = new Matchup(this.scene, {
-        isPending: matchup.isPending,
+        hasStarted: matchup.hasStarted,
         width: matchupRectWidth,
         height: matchupRectHeight,
         position: {
@@ -149,7 +194,7 @@ export class PlayoffsScreen implements Screen {
     const yPos = RoundConstants.WINDOW_HEIGHT - matchupRectHeight * 2
     this.playoffBracket.round2.forEach((matchup: PlayoffMatchup) => {
       const newMatchup = new Matchup(this.scene, {
-        isPending: matchup.isPending,
+        hasStarted: matchup.hasStarted,
         width: matchupRectWidth,
         height: matchupRectHeight,
         position: {
@@ -174,7 +219,7 @@ export class PlayoffsScreen implements Screen {
       const team1 = this.playoffBracket.final.team1
       const team2 = this.playoffBracket.final.team2
       this.finalsMatchup = new FinalsMatchup(this.scene, {
-        isPending: this.playoffBracket.final.isPending,
+        hasStarted: this.playoffBracket.final.hasStarted,
         team1,
         team2,
         position: {
@@ -195,8 +240,9 @@ export class PlayoffsScreen implements Screen {
       matchup.setVisible(isVisible)
     })
     if (this.finalsMatchup) {
-      this.finalsMatchup.setVisible(false)
+      this.finalsMatchup.setVisible(isVisible)
     }
+    this.continueButton.setVisible(isVisible)
   }
 
   onRender(data?: any): void {

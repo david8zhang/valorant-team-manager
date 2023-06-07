@@ -5,7 +5,7 @@ export interface FinalsMatchupConfig {
     x: number
     y: number
   }
-  isPending: boolean
+  hasStarted: boolean
   width: number
   height: number
   team1: {
@@ -32,7 +32,7 @@ export class FinalsMatchup {
     this.scene = scene
     this.team1Rect = this.scene.add
       .rectangle(config.position.x - config.width / 2 - 5, config.position.y, 200, 100, 0xffffff)
-      .setStrokeStyle(1, config.isPending ? 0xbbbbbb : 0x000000)
+      .setStrokeStyle(1, config.hasStarted ? 0x000000 : 0xbbbbbb)
     this.team1Name = this.scene.add
       .text(
         this.team1Rect.x - this.team1Rect.displayWidth / 2 + 15,
@@ -40,7 +40,7 @@ export class FinalsMatchup {
         `${config.team1.teamName}`,
         {
           fontSize: '30px',
-          color: config.isPending ? '#bbb' : 'black',
+          color: config.hasStarted ? 'black' : '#bbb',
         }
       )
       .setOrigin(0, 0.5)
@@ -51,14 +51,14 @@ export class FinalsMatchup {
         `${config.team1.score}`,
         {
           fontSize: '30px',
-          color: config.isPending ? '#bbb' : 'black',
+          color: config.hasStarted ? 'black' : '#bbb',
         }
       )
       .setOrigin(1, 0.5)
 
     this.team2Rect = this.scene.add
       .rectangle(config.position.x + config.width / 2 + 5, config.position.y, 200, 100, 0xffffff)
-      .setStrokeStyle(1, config.isPending ? 0xbbbbbb : 0x000000)
+      .setStrokeStyle(1, config.hasStarted ? 0x000000 : 0xbbbbbb)
     this.team2Name = this.scene.add
       .text(
         this.team2Rect.x + this.team2Rect.displayWidth / 2 - 15,
@@ -66,7 +66,7 @@ export class FinalsMatchup {
         `${config.team2.teamName}`,
         {
           fontSize: '30px',
-          color: config.isPending ? '#bbb' : 'black',
+          color: config.hasStarted ? 'black' : '#bbb',
         }
       )
       .setOrigin(1, 0.5)
@@ -77,7 +77,7 @@ export class FinalsMatchup {
         `${config.team1.score}`,
         {
           fontSize: '30px',
-          color: config.isPending ? '#bbb' : 'black',
+          color: config.hasStarted ? 'black' : '#bbb',
         }
       )
       .setOrigin(0, 0.5)

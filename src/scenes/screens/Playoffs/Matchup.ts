@@ -1,7 +1,7 @@
 import { Scene } from 'phaser'
 
 export interface MatchupConfig {
-  isPending: boolean
+  hasStarted: boolean
   position: {
     x: number
     y: number
@@ -34,7 +34,7 @@ export class Matchup {
     this.matchupRect = this.scene.add
       .rectangle(config.position.x, config.position.y, config.width, config.height)
       .setOrigin(0, 0.5)
-    this.matchupRect.setStrokeStyle(1, config.isPending ? 0xbbbbbb : 0x000)
+    this.matchupRect.setStrokeStyle(1, config.hasStarted ? 0x000 : 0xbbbbbb)
 
     this.matchupDivider = this.scene.add.line(
       0,
@@ -43,9 +43,9 @@ export class Matchup {
       config.position.y,
       config.position.x + this.matchupRect.displayWidth,
       config.position.y,
-      config.isPending ? 0xbbbbbb : 0x000
+      config.hasStarted ? 0x000 : 0xbbbbbb
     )
-    this.matchupDivider.setStrokeStyle(1, config.isPending ? 0xbbbbbb : 0x000).setOrigin(0)
+    this.matchupDivider.setStrokeStyle(1, config.hasStarted ? 0x000 : 0xbbbbbb).setOrigin(0)
 
     const res1 = this.createTeamNameScoreRow(
       {
@@ -81,14 +81,14 @@ export class Matchup {
     const teamShortNameText = this.scene.add
       .text(position.x, position.y, `${team.teamName}`, {
         fontSize: config.fontSize ? config.fontSize : '20px',
-        color: config.isPending ? '#bbb' : 'black',
+        color: config.hasStarted ? 'black' : '#bbb',
       })
       .setOrigin(0, 1)
     teamShortNameText.setPosition(position.x + 15, position.y - teamShortNameText.displayHeight / 2)
     const teamScoreText = this.scene.add
       .text(position.x + this.matchupRect.displayWidth - 15, position.y, `${team.score}`, {
         fontSize: config.fontSize ? config.fontSize : '20px',
-        color: config.isPending ? '#bbb' : 'black',
+        color: config.hasStarted ? 'black' : '#bbb',
       })
       .setOrigin(1, 1)
     teamScoreText.setPosition(teamScoreText.x, teamScoreText.y - teamScoreText.displayHeight / 2)

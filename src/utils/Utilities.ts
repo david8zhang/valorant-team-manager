@@ -58,7 +58,7 @@ export class Utilities {
     return `${ranks[rank]}.`
   }
 
-  public static getOverallRank(player: PlayerAgentConfig) {
+  public static getOverallPlayerRank(player: PlayerAgentConfig) {
     return Math.round(
       Object.values(player.attributes).reduce((acc, curr) => {
         return acc + curr

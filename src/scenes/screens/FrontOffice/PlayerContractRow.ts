@@ -56,7 +56,7 @@ export class PlayerContractRow {
   }
 
   setupAttributes(config: PlayerContractConfig) {
-    const overall = Utilities.getOverallRank(config.playerConfig)
+    const overall = Utilities.getOverallPlayerRank(config.playerConfig)
     const contract = config.playerConfig.contract
     const attributes = config.playerConfig.attributes
     const columnConfigs = [

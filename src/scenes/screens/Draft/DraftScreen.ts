@@ -265,7 +265,7 @@ export class DraftScreen implements Screen {
   onRender(data?: any): void {
     if (data.isNewDraft) {
       const savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
-        return Utilities.getOverallRank(b) - Utilities.getOverallRank(a)
+        return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
       this.setupDraftOrder()
@@ -301,7 +301,7 @@ export class DraftScreen implements Screen {
     let savedDraftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS) as PlayerAgentConfig[]
     if (!savedDraftProspects) {
       savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
-        return Utilities.getOverallRank(b) - Utilities.getOverallRank(a)
+        return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
     }
@@ -389,7 +389,7 @@ export class DraftScreen implements Screen {
     const pickingTeam = allTeams[draftOrder[currPickIndex]] as TeamConfig
     const prospects = this.loadSavedDraftProspects()
     const sortedByOverallDesc = prospects.sort((a, b) => {
-      return Utilities.getOverallRank(b) - Utilities.getOverallRank(a)
+      return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
     })
     pickingTeam.roster.push(sortedByOverallDesc[0])
     const newAllTeams = {

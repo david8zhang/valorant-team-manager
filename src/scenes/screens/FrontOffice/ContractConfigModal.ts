@@ -158,7 +158,7 @@ export class ContractConfigModal {
   }
 
   getAskingAmount(player: PlayerAgentConfig) {
-    const overall = Utilities.getOverallRank(player) as PlayerRank
+    const overall = Utilities.getOverallPlayerRank(player) as PlayerRank
     return RANK_TO_ASKING_AMOUNT_MAPPING[overall]
   }
 
