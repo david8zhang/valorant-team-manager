@@ -1,4 +1,5 @@
 import { Scene } from 'phaser'
+import { PlayoffMatchupTeam } from './PlayoffsScreen'
 
 export interface MatchupConfig {
   hasStarted: boolean
@@ -8,14 +9,8 @@ export interface MatchupConfig {
   }
   width: number
   height: number
-  team1: {
-    teamName: string
-    score: number | string
-  }
-  team2: {
-    teamName: string
-    score: number | string
-  }
+  team1: PlayoffMatchupTeam
+  team2: PlayoffMatchupTeam
   fontSize?: string
 }
 
@@ -72,24 +67,26 @@ export class Matchup {
 
   createTeamNameScoreRow(
     position: { x: number; y: number },
-    team: {
-      teamName: string
-      score: number | string
-    },
+    team: PlayoffMatchupTeam,
     config: MatchupConfig
   ) {
     const teamShortNameText = this.scene.add
-      .text(position.x, position.y, `${team.teamName}`, {
+      .text(position.x, position.y, `${team.shortTeamName}`, {
         fontSize: config.fontSize ? config.fontSize : '20px',
         color: config.hasStarted ? 'black' : '#bbb',
       })
       .setOrigin(0, 1)
     teamShortNameText.setPosition(position.x + 15, position.y - teamShortNameText.displayHeight / 2)
     const teamScoreText = this.scene.add
-      .text(position.x + this.matchupRect.displayWidth - 15, position.y, `${team.score}`, {
-        fontSize: config.fontSize ? config.fontSize : '20px',
-        color: config.hasStarted ? 'black' : '#bbb',
-      })
+      .text(
+        position.x + this.matchupRect.displayWidth - 15,
+        position.y,
+        `${team.score === -1 ? 'N/A' : team.score}`,
+        {
+          fontSize: config.fontSize ? config.fontSize : '20px',
+          color: config.hasStarted ? 'black' : '#bbb',
+        }
+      )
       .setOrigin(1, 1)
     teamScoreText.setPosition(teamScoreText.x, teamScoreText.y - teamScoreText.displayHeight / 2)
     return {

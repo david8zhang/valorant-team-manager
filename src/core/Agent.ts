@@ -130,8 +130,8 @@ export class Agent {
       this.hideSightCones = config.hideSightCones
     }
     const tokens = config.name.split(' ')
+    this.truncatedName = tokens.length > 1 ? `${tokens[0]} ${tokens[1].slice(0, 1)}.` : tokens[0]
     this.name = config.name
-    this.truncatedName = `${tokens[0]} ${tokens[1].slice(0, 1)}.`
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)

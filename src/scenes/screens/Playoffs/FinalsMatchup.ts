@@ -1,4 +1,5 @@
 import { Scene } from 'phaser'
+import { PlayoffMatchupTeam } from './PlayoffsScreen'
 
 export interface FinalsMatchupConfig {
   position: {
@@ -8,14 +9,8 @@ export interface FinalsMatchupConfig {
   hasStarted: boolean
   width: number
   height: number
-  team1: {
-    teamName: string
-    score: number | string
-  }
-  team2: {
-    teamName: string
-    score: number | string
-  }
+  team1: PlayoffMatchupTeam
+  team2: PlayoffMatchupTeam
 }
 
 export class FinalsMatchup {
@@ -37,7 +32,7 @@ export class FinalsMatchup {
       .text(
         this.team1Rect.x - this.team1Rect.displayWidth / 2 + 15,
         config.position.y,
-        `${config.team1.teamName}`,
+        `${config.team1.shortTeamName}`,
         {
           fontSize: '30px',
           color: config.hasStarted ? 'black' : '#bbb',
@@ -48,7 +43,7 @@ export class FinalsMatchup {
       .text(
         this.team1Rect.x + this.team1Rect.displayWidth / 2 - 15,
         config.position.y,
-        `${config.team1.score}`,
+        `${config.team1.score == -1 ? 'N/A' : config.team1.score}`,
         {
           fontSize: '30px',
           color: config.hasStarted ? 'black' : '#bbb',
@@ -63,7 +58,7 @@ export class FinalsMatchup {
       .text(
         this.team2Rect.x + this.team2Rect.displayWidth / 2 - 15,
         config.position.y,
-        `${config.team2.teamName}`,
+        `${config.team2.shortTeamName}`,
         {
           fontSize: '30px',
           color: config.hasStarted ? 'black' : '#bbb',
@@ -74,7 +69,7 @@ export class FinalsMatchup {
       .text(
         this.team2Rect.x - this.team2Rect.displayWidth / 2 + 12,
         config.position.y,
-        `${config.team1.score}`,
+        `${config.team2.score === -1 ? 'N/A' : config.team2.score}`,
         {
           fontSize: '30px',
           color: config.hasStarted ? 'black' : '#bbb',

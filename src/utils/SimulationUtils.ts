@@ -95,8 +95,6 @@ export class SimulationUtils {
       )
       SimulationUtils.applyExpGrowth(matchup.winningTeam, winningTeamGrowthMapping)
       SimulationUtils.applyExpGrowth(matchup.losingTeam, losingTeamGrowthMapping)
-      matchup.winningTeam.wins++
-      matchup.losingTeam.losses++
     })
     const teamConfigWithAppliedExp: TeamConfig[] = []
     matchResults.forEach((result) => {
