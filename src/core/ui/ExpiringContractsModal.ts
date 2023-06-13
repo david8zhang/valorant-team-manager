@@ -20,7 +20,7 @@ export class ExpiringContractsModal {
     this.modalRect
       .setStrokeStyle(1, 0x000000)
       .setFillStyle(0xffffff)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.contractsExpiringText = this.scene.add
       .text(this.modalRect.x, this.modalRect.y, 'You have expiring contracts!', {
         fontSize: '15px',
@@ -28,7 +28,7 @@ export class ExpiringContractsModal {
       })
       .setAlign('center')
       .setWordWrapWidth(this.modalRect.displayWidth - 50)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.contractsExpiringSubtext = this.scene.add
       .text(
         this.modalRect.x,
@@ -41,7 +41,7 @@ export class ExpiringContractsModal {
       )
       .setAlign('center')
       .setWordWrapWidth(this.modalRect.displayWidth - 50)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.contractsExpiringText.setPosition(
       this.modalRect.x - this.contractsExpiringText.displayWidth / 2,
       this.modalRect.y - this.contractsExpiringText.displayHeight / 2 - 50
@@ -63,7 +63,7 @@ export class ExpiringContractsModal {
       height: 40,
       x: this.modalRect.x,
       y: this.contractsExpiringSubtext.y + this.contractsExpiringSubtext.displayHeight + 40,
-      depth: RoundConstants.SORT_LAYERS.UI,
+      depth: RoundConstants.SORT_LAYERS.Modal,
     })
     this.hide()
   }

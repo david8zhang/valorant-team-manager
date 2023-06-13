@@ -84,6 +84,7 @@ export default class TeamMgmt extends Phaser.Scene {
     teamConfigMapping[RoundConstants.TEAM_NAME_PLACEHOLDER] = {
       name: RoundConstants.TEAM_NAME_PLACEHOLDER,
       ...winLossRecord,
+      shortName: RoundConstants.TEAM_SHORT_NAME,
       roster: newPlayers,
     }
     Save.setData(SaveKeys.PLAYER_TEAM_NAME, RoundConstants.TEAM_NAME_PLACEHOLDER)
@@ -99,13 +100,28 @@ export default class TeamMgmt extends Phaser.Scene {
     const allTeamMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
       [teamName: string]: TeamConfig
     }
+    const playerTeamConfig = allTeamMapping[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
     this.renderActiveScreen(ScreenKeys.SEASON)
     const currMatch = schedule[currMatchIndex]
     this.scene.start('round', {
       cpuTeamConfig: allTeamMapping[currMatch.opponent],
+      playerTeamConfig: playerTeamConfig,
     })
     this.scene.start('ui', {
       cpuTeamConfig: allTeamMapping[currMatch.opponent],
+      playerTeamConfig: playerTeamConfig,
+    })
+  }
+
+  startPlayoffGame(opponent: TeamConfig) {
+    const playerTeamConfig = Utilities.getPlayerTeamFromSave()
+    this.scene.start('round', {
+      cpuTeamConfig: opponent,
+      playerTeamConfig: playerTeamConfig,
+    })
+    this.scene.start('ui', {
+      cpuTeamConfig: opponent,
+      playerTeamConfig: playerTeamConfig,
     })
   }
 

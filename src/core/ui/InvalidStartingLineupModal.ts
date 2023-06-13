@@ -20,7 +20,7 @@ export class InvalidStartingLineupModal {
     this.modalRect
       .setStrokeStyle(1, 0x000000)
       .setFillStyle(0xffffff)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.invalidStartingLineupText = this.scene.add
       .text(this.modalRect.x, this.modalRect.y, 'Invalid starting lineup!', {
         fontSize: '15px',
@@ -28,7 +28,7 @@ export class InvalidStartingLineupModal {
       })
       .setAlign('center')
       .setWordWrapWidth(this.modalRect.displayWidth - 50)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.invalidStartingLineupSubtitle = this.scene.add
       .text(
         this.modalRect.x,
@@ -41,7 +41,7 @@ export class InvalidStartingLineupModal {
       )
       .setAlign('center')
       .setWordWrapWidth(this.modalRect.displayWidth - 50)
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setDepth(RoundConstants.SORT_LAYERS.Modal)
     this.invalidStartingLineupText.setPosition(
       this.modalRect.x - this.invalidStartingLineupText.displayWidth / 2,
       this.modalRect.y - this.invalidStartingLineupText.displayHeight / 2 - 50
@@ -66,7 +66,7 @@ export class InvalidStartingLineupModal {
         this.invalidStartingLineupSubtitle.y +
         this.invalidStartingLineupSubtitle.displayHeight +
         40,
-      depth: RoundConstants.SORT_LAYERS.UI,
+      depth: RoundConstants.SORT_LAYERS.Modal,
     })
     this.hide()
   }

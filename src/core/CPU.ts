@@ -34,8 +34,8 @@ export class CPU implements Team {
   public teamBlackboard!: Blackboard
   public intel: Intel
 
-  constructor(config: CPUConfig) {
-    this.game = Round.instance
+  constructor(game: Round, config: CPUConfig) {
+    this.game = game
     this.createAgents(config.teamRoster)
     this.setupDebugListener()
     this.intel = new Intel()

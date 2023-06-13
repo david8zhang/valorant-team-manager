@@ -39,6 +39,7 @@ export class RoundConstants {
     RoundConstants.MAP_HEIGHT + RoundConstants.TOP_BAR_HEIGHT + RoundConstants.BOTTOM_BAR_HEIGHT
 
   public static SORT_LAYERS = {
+    Modal: 40,
     UI: 30,
     Player: 20,
     TopLayer: 10,

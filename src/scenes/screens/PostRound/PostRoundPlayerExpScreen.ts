@@ -1,5 +1,5 @@
 import { RoundConstants } from '~/utils/RoundConstants'
-import { PlayerStatConfig, PostRound } from '../../PostRound'
+import { PostRound } from '../../PostRound'
 import { Screen } from '../Screen'
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { PostRoundPlayerExp } from '~/core/ui/PostRoundPlayerExp'

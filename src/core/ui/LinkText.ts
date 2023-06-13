@@ -9,6 +9,7 @@ export interface LinkTextConfig {
   fontSize?: string
   textColor?: string
   onClick: Function
+  depth?: number
 }
 
 export class LinkText {
@@ -32,6 +33,13 @@ export class LinkText {
         config.onClick()
       })
     this.linkText.setPosition(config.position.x - this.linkText.displayWidth / 2, this.linkText.y)
+    if (config.depth) {
+      this.linkText.setDepth(config.depth)
+    }
+  }
+
+  destroy() {
+    this.linkText.destroy()
   }
 
   setVisible(isVisible: boolean) {

@@ -90,15 +90,15 @@ export class PostRoundTeamStatsScreen implements Screen {
         y: RoundConstants.WINDOW_HEIGHT / 2 - 50,
       },
       totalKills: {
-        [Side.PLAYER]: this.scene.teamStats.PLAYER.totalKills,
+        [Side.PLAYER]: this.scene.teamStats[Side.PLAYER].totalKills,
         [Side.CPU]: this.scene.teamStats.CPU.totalKills,
       },
       totalDeaths: {
-        [Side.PLAYER]: this.scene.teamStats.PLAYER.totalDeaths,
+        [Side.PLAYER]: this.scene.teamStats[Side.PLAYER].totalDeaths,
         [Side.CPU]: this.scene.teamStats.CPU.totalDeaths,
       },
       totalAssists: {
-        [Side.PLAYER]: this.scene.teamStats.PLAYER.totalAssists,
+        [Side.PLAYER]: this.scene.teamStats[Side.PLAYER].totalAssists,
         [Side.CPU]: this.scene.teamStats.CPU.totalAssists,
       },
     })

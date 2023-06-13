@@ -12,6 +12,10 @@ import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Utilities } from '~/utils/Utilities'
 
+export interface PlayerConfig {
+  teamRoster: PlayerAgentConfig[]
+}
+
 export class Player implements Team {
   public game: Round
   public cursorRect!: Phaser.GameObjects.Rectangle
@@ -25,9 +29,9 @@ export class Player implements Team {
     tree: BehaviorTreeNode
   }[] = []
 
-  constructor() {
-    this.game = Round.instance
-    this.createAgents()
+  constructor(game: Round, config: PlayerConfig) {
+    this.game = game
+    this.createAgents(config.teamRoster)
   }
 
   setupInputListeners() {
@@ -228,14 +232,10 @@ export class Player implements Team {
     return { startX, startY }
   }
 
-  createAgents() {
-    const playerTeamConfig = Utilities.getPlayerTeamFromSave()
-    const playerAgentConfigs = playerTeamConfig.roster.filter(
-      (agent: PlayerAgentConfig) => agent.isStarting
-    )
+  createAgents(teamRoster: PlayerAgentConfig[]) {
     let { startX, startY } = this.getStartPosition()
     for (let i = 0; i < 3; i++) {
-      const config = playerAgentConfigs[i] as PlayerAgentConfig
+      const config = teamRoster[i] as PlayerAgentConfig
       const newAgent = new Agent({
         position: {
           x: startX,

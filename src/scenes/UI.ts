@@ -75,6 +75,7 @@ export default class UI extends Phaser.Scene {
   }[] = []
 
   public cpuTeamConfig!: TeamConfig
+  public playerTeamConfig!: TeamConfig
   public calledCreate: boolean = false
 
   constructor() {
@@ -90,9 +91,10 @@ export default class UI extends Phaser.Scene {
     return UI._instance
   }
 
-  init(data: { cpuTeamConfig: TeamConfig }) {
+  init(data: { cpuTeamConfig: TeamConfig; playerTeamConfig: TeamConfig }) {
     this.agentInfoBoxMapping = {}
     this.cpuTeamConfig = data.cpuTeamConfig
+    this.playerTeamConfig = data.playerTeamConfig
   }
 
   createCommandIcon(
@@ -248,7 +250,7 @@ export default class UI extends Phaser.Scene {
       .setDepth(RoundConstants.SORT_LAYERS.UI)
 
     this.playerSidebarTeamLabel = this.add
-      .text(RoundConstants.MAP_WIDTH + 10, 10, RoundConstants.TEAM_SHORT_NAME, {
+      .text(RoundConstants.MAP_WIDTH + 10, 10, this.playerTeamConfig.shortName, {
         fontSize: '16px',
         color: 'white',
       })
@@ -304,7 +306,7 @@ export default class UI extends Phaser.Scene {
       this.timer.clockText.y - 5
     )
     this.playerTeamLabel = this.add
-      .text(this.playerScoreText.x, this.playerScoreText.y, RoundConstants.TEAM_SHORT_NAME, {
+      .text(this.playerScoreText.x, this.playerScoreText.y, this.playerTeamConfig.shortName, {
         fontSize: '15px',
         align: 'center',
       })
@@ -533,7 +535,7 @@ export default class UI extends Phaser.Scene {
       onComplete: () => {
         const scoreMapping = Round.instance.scoreMapping
         let titleText = ''
-        const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? 'Player' : 'CPU'
+        const winningSide = this.getWinningSide()
         titleText = `${winningSide} won!`
         const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
         const textObj = this.add.text(
@@ -619,14 +621,18 @@ export default class UI extends Phaser.Scene {
     return statMapping
   }
 
-  generatePostRoundData(): PostRoundConfig {
+  getWinningSide() {
     const scoreMapping = Round.instance.scoreMapping
+    return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
+  }
+
+  generatePostRoundData(): PostRoundConfig {
     const accumulateStat = (key: string) => {
       return (acc, curr) => {
         return acc + curr[key]
       }
     }
-    const winningSide = scoreMapping[Side.PLAYER] > scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
+    const winningSide = this.getWinningSide()
     const player = Round.instance.player
     const cpu = Round.instance.cpu
 

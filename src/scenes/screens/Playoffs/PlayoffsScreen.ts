@@ -7,6 +7,7 @@ import { Matchup } from './Matchup'
 import { FinalsMatchup } from './FinalsMatchup'
 import { Button } from '~/core/ui/Button'
 import { SimulationUtils } from '~/utils/SimulationUtils'
+import { PlayoffMatchPreview } from '~/core/ui/PlayoffMatchPreview'
 
 export interface PlayoffMatchupTeam {
   fullTeamName: string
@@ -43,14 +44,41 @@ export class PlayoffsScreen implements Screen {
   private finalsMatchup: FinalsMatchup | null = null
   private continueButton!: Button
   private currRound: PlayoffRound = PlayoffRound.ROUND_1
+  private playoffMatchPreview: PlayoffMatchPreview | null = null
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
-    this.setupContinueButton()
     this.setVisible(false)
   }
 
+  setupPlayoffMatchPreview() {
+    const matchups = this.playoffBracket[this.currRound] as PlayoffMatchup[]
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerMatchup = matchups.find((matchup) => {
+      return (
+        matchup.team1.fullTeamName === playerTeamName ||
+        matchup.team1.fullTeamName === playerTeamName
+      )
+    })
+
+    if (playerMatchup) {
+      this.playoffMatchPreview = new PlayoffMatchPreview(this.scene, {
+        x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2,
+        y: RoundConstants.WINDOW_HEIGHT / 2,
+        width: 550,
+        height: RoundConstants.WINDOW_HEIGHT - 50,
+        homeTeam: allTeamConfigs[playerMatchup.team1.fullTeamName],
+        awayTeam: allTeamConfigs[playerMatchup.team2.fullTeamName],
+      })
+      this.playoffMatchPreview.setVisible(false)
+    }
+  }
+
   setupContinueButton() {
+    if (this.continueButton) {
+      this.continueButton.destroy()
+    }
     this.continueButton = new Button({
       scene: this.scene,
       x: RoundConstants.WINDOW_WIDTH - 60,
@@ -70,11 +98,17 @@ export class PlayoffsScreen implements Screen {
 
   simulatePlayoffGame() {
     const matchups = this.playoffBracket[this.currRound] as PlayoffMatchup[]
-    console.log(matchups, this.currRound)
     const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const isPlayerTeamInMatchup = (matchup: PlayoffMatchup) => {
+      return (
+        matchup.team1.fullTeamName === playerTeamName ||
+        matchup.team2.fullTeamName === playerTeamName
+      )
+    }
     const matchupsForSimulation = matchups
       .filter((matchup) => {
-        return matchup.team1.score < 3 && matchup.team2.score < 3 // Only simulate rounds that haven't ended yet
+        return matchup.team1.score < 3 && matchup.team2.score < 3 && !isPlayerTeamInMatchup(matchup)
       })
       .map((matchup: PlayoffMatchup) => {
         const team1Config = allTeamConfigs[matchup.team1.fullTeamName]
@@ -151,6 +185,13 @@ export class PlayoffsScreen implements Screen {
     this.setupFirstRoundMatchups()
     this.setupSecondRoundMatchups()
     this.setupFinalsMatchup()
+    this.showPlayoffMatchPreview()
+  }
+
+  showPlayoffMatchPreview() {
+    if (this.playoffMatchPreview) {
+      this.playoffMatchPreview.setVisible(true)
+    }
   }
 
   setupPlayoffBracket() {
@@ -325,7 +366,12 @@ export class PlayoffsScreen implements Screen {
     if (this.finalsMatchup) {
       this.finalsMatchup.setVisible(isVisible)
     }
-    this.continueButton.setVisible(isVisible)
+    if (this.continueButton) {
+      this.continueButton.setVisible(isVisible)
+    }
+    if (!isVisible && this.playoffMatchPreview) {
+      this.playoffMatchPreview.setVisible(isVisible)
+    }
   }
 
   onRender(data?: any): void {
@@ -333,5 +379,7 @@ export class PlayoffsScreen implements Screen {
     this.setupFirstRoundMatchups()
     this.setupSecondRoundMatchups()
     this.setupFinalsMatchup()
+    this.setupPlayoffMatchPreview()
+    this.setupContinueButton()
   }
 }

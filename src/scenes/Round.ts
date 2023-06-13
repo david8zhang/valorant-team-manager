@@ -48,6 +48,7 @@ export default class Round extends Phaser.Scene {
   public map!: Map
 
   public cpuTeamConfig!: TeamConfig
+  public playerTeamConfig!: TeamConfig
 
   constructor() {
     super('round')
@@ -56,8 +57,9 @@ export default class Round extends Phaser.Scene {
     }
   }
 
-  public init(data: { cpuTeamConfig: TeamConfig }) {
+  public init(data: { cpuTeamConfig: TeamConfig; playerTeamConfig: TeamConfig }) {
     this.cpuTeamConfig = data.cpuTeamConfig
+    this.playerTeamConfig = data.playerTeamConfig
   }
 
   public static get instance() {
@@ -125,8 +127,12 @@ export default class Round extends Phaser.Scene {
   }
 
   initPlayerAndCPU() {
-    this.player = new Player()
-    this.cpu = new CPU({
+    this.player = new Player(this, {
+      teamRoster: this.playerTeamConfig.roster.filter(
+        (agent: PlayerAgentConfig) => agent.isStarting
+      ),
+    })
+    this.cpu = new CPU(this, {
       teamRoster: this.cpuTeamConfig.roster.filter((agent: PlayerAgentConfig) => agent.isStarting),
     })
     this.cpu.agents.forEach((agent) => {

@@ -73,7 +73,7 @@ export class PostRoundTeamStats {
     this.playerDeathsText = this.scene.add.text(
       PostRoundTeamStats.LEFT_START_X,
       this.deathsText.y,
-      `${config.totalDeaths.PLAYER}`,
+      `${config.totalDeaths[Side.PLAYER]}`,
       {
         fontSize: '25px',
         color: 'black',
@@ -116,7 +116,7 @@ export class PostRoundTeamStats {
     this.playerAssistsText = this.scene.add.text(
       PostRoundTeamStats.LEFT_START_X,
       this.assistsText.y,
-      `${config.totalAssists.PLAYER}`,
+      `${config.totalAssists[Side.PLAYER]}`,
       {
         fontSize: '25px',
         color: 'black',
@@ -154,7 +154,7 @@ export class PostRoundTeamStats {
     this.playerKillsText = this.scene.add.text(
       PostRoundTeamStats.LEFT_START_X,
       this.killsText.y,
-      `${config.totalKills.PLAYER}`,
+      `${config.totalKills[Side.PLAYER]}`,
       {
         fontSize: '25px',
         color: 'black',

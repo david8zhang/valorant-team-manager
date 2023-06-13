@@ -24,7 +24,7 @@ import {
 } from '~/utils/PlayerConstants'
 
 export enum Side {
-  PLAYER = 'PLAYER',
+  PLAYER = 'Player',
   CPU = 'CPU',
 }
 
