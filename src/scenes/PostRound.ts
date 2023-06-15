@@ -5,6 +5,9 @@ import { PostRoundScreenKeys } from './screens/ScreenKeys'
 import { PostRoundTeamStatsScreen } from './screens/PostRound/PostRoundTeamStatsScreen'
 import { PostRoundPlayerStatsScreen } from './screens/PostRound/PostRoundPlayerStatsScreen'
 import { PostRoundPlayerExpScreen } from './screens/PostRound/PostRoundPlayerExpScreen'
+import { ExpGrowthMapping, SimulationUtils } from '~/utils/SimulationUtils'
+import { Utilities } from '~/utils/Utilities'
+import { Save, SaveKeys } from '~/utils/Save'
 
 export interface TeamStatConfig {
   totalKills: number
@@ -32,6 +35,7 @@ export interface PostRoundConfig {
   }
   cpuTeamConfig: TeamConfig
   playerTeamConfig: TeamConfig
+  isPlayoffGame: boolean
 }
 
 export class PostRound extends Phaser.Scene {
@@ -96,5 +100,66 @@ export class PostRound extends Phaser.Scene {
     const newActiveScreen = this.screens[this.activeScreenKey]
     newActiveScreen.onRender()
     newActiveScreen.setVisible(true)
+  }
+
+  simulateOtherTeamMatches() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const teamsToSimulate = Object.values(allTeams).filter((team: TeamConfig) => {
+      return team.name !== this.cpuTeamConfig.name && team.name !== this.playerTeamConfig.name
+    })
+    const shuffledTeams = Utilities.shuffle([...teamsToSimulate])
+    const matchups: TeamConfig[][] = []
+    for (let i = 0; i <= shuffledTeams.length - 2; i += 2) {
+      const matchup = [shuffledTeams[i], shuffledTeams[i + 1]]
+      matchups.push(matchup)
+    }
+    const matchResults = SimulationUtils.simulateMatches(matchups)
+    return SimulationUtils.applyMatchResults(matchResults, true)
+  }
+
+  applyExpGrowthForTeams(playerTeam: TeamConfig, cpuTeam: TeamConfig, playerExpGrowthMapping: any) {
+    SimulationUtils.applyExpGrowth(playerTeam, playerExpGrowthMapping)
+    const cpuExpGrowthMapping = SimulationUtils.createPlayerExpGrowthMapping(
+      cpuTeam,
+      this.playerStats[Side.CPU],
+      this.winningSide === Side.CPU
+    )
+    SimulationUtils.applyExpGrowth(cpuTeam, cpuExpGrowthMapping)
+  }
+
+  simulateOtherTeamsAndProgressSeason(playerTeam: TeamConfig, cpuTeam: TeamConfig) {
+    const otherTeams = this.simulateOtherTeamMatches()
+    const newAllTeams = otherTeams
+      .concat(cpuTeam)
+      .concat(playerTeam)
+      .reduce((acc, curr) => {
+        acc[curr.name] = curr
+        return acc
+      }, {})
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, newAllTeams)
+    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE)
+    Save.setData(SaveKeys.CURR_MATCH_INDEX, Math.min(currMatchIndex + 1, seasonSchedule.length))
+  }
+
+  goToTeamMgmtScreen() {
+    this.scene.start('team-mgmt')
+  }
+
+  updateTeamWinLossRecord(playerTeam: TeamConfig, cpuTeam: TeamConfig) {
+    if (this.winningSide === Side.PLAYER) {
+      playerTeam.wins++
+      cpuTeam.losses++
+    } else {
+      playerTeam.losses++
+      cpuTeam.wins++
+    }
+  }
+
+  handlePostRoundFinished(playerExpGrowthMapping: ExpGrowthMapping) {
+    this.applyExpGrowthForTeams(this.playerTeamConfig, this.cpuTeamConfig, playerExpGrowthMapping)
+    this.updateTeamWinLossRecord(this.playerTeamConfig, this.cpuTeamConfig)
+    this.simulateOtherTeamsAndProgressSeason(this.playerTeamConfig, this.cpuTeamConfig)
+    this.goToTeamMgmtScreen()
   }
 }

@@ -118,10 +118,12 @@ export default class TeamMgmt extends Phaser.Scene {
     this.scene.start('round', {
       cpuTeamConfig: opponent,
       playerTeamConfig: playerTeamConfig,
+      isPlayoffGame: true,
     })
     this.scene.start('ui', {
       cpuTeamConfig: opponent,
       playerTeamConfig: playerTeamConfig,
+      isPlayoffGame: true,
     })
   }
 

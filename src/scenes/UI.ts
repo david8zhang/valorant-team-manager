@@ -7,8 +7,6 @@ import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Round from './Round'
 import { TeamConfig } from './TeamMgmt'
-import { Save, SaveKeys } from '~/utils/Save'
-import { PostRoundConfig } from './PostRound'
 
 export enum CommandState {
   MOVE = 'MOVE',
@@ -374,14 +372,16 @@ export default class UI extends Phaser.Scene {
 
   initialPlayerSetup() {
     if (!this.didInitialSetup) {
+      const game = Round.instance
       if (
-        Round.instance.player &&
-        Round.instance.cpu &&
-        Round.instance.cpu.agents &&
-        Round.instance.player.selectedAgent
+        game.player &&
+        game.cpu &&
+        game.cpu.agents &&
+        game.player.selectedAgent &&
+        game.roundState != RoundState.POSTROUND
       ) {
-        this.renderAgentsInfoBoxes(Round.instance.player.agents, 30)
-        this.renderAgentsInfoBoxes(Round.instance.cpu.agents, RoundConstants.WINDOW_HEIGHT / 2 + 30)
+        this.renderAgentsInfoBoxes(game.player.agents, 30)
+        this.renderAgentsInfoBoxes(game.cpu.agents, RoundConstants.WINDOW_HEIGHT / 2 + 30)
         this.didInitialSetup = true
       }
     }
@@ -578,7 +578,7 @@ export default class UI extends Phaser.Scene {
             subtitleTextObj.destroy()
             buttonObj.destroy()
             this.didInitialSetup = false
-            this.loadPostRoundScreen()
+            Round.instance.handleRoundFinished()
           },
           scene: this,
           backgroundColor: 0x222222,
@@ -588,84 +588,9 @@ export default class UI extends Phaser.Scene {
     })
   }
 
-  loadPostRoundScreen() {
-    const postRoundConfig = this.generatePostRoundData()
-    this.scene.bringToTop('team-mgmt')
-    this.scene.bringToTop('post-round')
-    this.scene.start('post-round', postRoundConfig)
-  }
-
-  generateAgentStats(agents: Agent[], didWin: boolean) {
-    const statMapping = {}
-    let mostPlayerKills = 0
-    let nameOfAgentWithMostKills = agents[0].name
-
-    agents.forEach((agent) => {
-      if (agent.kills > mostPlayerKills) {
-        mostPlayerKills = agent.kills
-        nameOfAgentWithMostKills = agent.name
-      }
-      statMapping[agent.name] = {
-        kills: agent.kills,
-        assists: agent.assists,
-        deaths: agent.deaths,
-        teamMvp: false,
-        matchMvp: false,
-      }
-    })
-    if (didWin) {
-      statMapping[nameOfAgentWithMostKills].matchMvp = true
-    } else {
-      statMapping[nameOfAgentWithMostKills].teamMvp = true
-    }
-    return statMapping
-  }
-
   getWinningSide() {
     const scoreMapping = Round.instance.scoreMapping
     return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
-  }
-
-  generatePostRoundData(): PostRoundConfig {
-    const accumulateStat = (key: string) => {
-      return (acc, curr) => {
-        return acc + curr[key]
-      }
-    }
-    const winningSide = this.getWinningSide()
-    const player = Round.instance.player
-    const cpu = Round.instance.cpu
-
-    const totalPlayerKills = player.agents.reduce(accumulateStat('kills'), 0)
-    const totalPlayerAssists = player.agents.reduce(accumulateStat('assists'), 0)
-    const totalPlayerDeaths = player.agents.reduce(accumulateStat('deaths'), 0)
-    const totalCPUKills = cpu.agents.reduce(accumulateStat('kills'), 0)
-    const totalCPUAssists = cpu.agents.reduce(accumulateStat('assists'), 0)
-    const totalCPUDeaths = cpu.agents.reduce(accumulateStat('deaths'), 0)
-
-    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerTeamConfig = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    return {
-      winningSide,
-      teamStats: {
-        [Side.PLAYER]: {
-          totalKills: totalPlayerKills,
-          totalAssists: totalPlayerAssists,
-          totalDeaths: totalPlayerDeaths,
-        },
-        [Side.CPU]: {
-          totalKills: totalCPUKills,
-          totalAssists: totalCPUAssists,
-          totalDeaths: totalCPUDeaths,
-        },
-      },
-      playerStats: {
-        [Side.PLAYER]: this.generateAgentStats(player.agents, winningSide === Side.PLAYER),
-        [Side.CPU]: this.generateAgentStats(cpu.agents, winningSide === Side.CPU),
-      },
-      cpuTeamConfig: this.cpuTeamConfig,
-      playerTeamConfig,
-    }
   }
 
   renderKillMessage(killer: Agent, killed: Agent) {

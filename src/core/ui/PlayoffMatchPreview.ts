@@ -14,6 +14,8 @@ export interface PlayoffMatchPreviewConfig {
   y: number
   homeTeam: TeamConfig
   awayTeam: TeamConfig
+  onStartMatch: Function
+  onViewLineups: Function
 }
 
 export class PlayoffMatchPreview {
@@ -48,7 +50,7 @@ export class PlayoffMatchPreview {
         y: this.rectangle.y - 50,
       },
     })
-    this.setupMatchButton()
+    this.setupMatchButton(config)
     this.setupViewStartingLineupsLink(config)
   }
 
@@ -56,13 +58,7 @@ export class PlayoffMatchPreview {
     this.viewStartingLineupsLink = new LinkText(this.scene, {
       text: 'View Starting Lineups',
       onClick: () => {
-        const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-        const opponentTeamConfig =
-          config.awayTeam.name === playerTeamName ? config.homeTeam : config.awayTeam
-        this.setVisible(false)
-        this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, {
-          opponentTeam: opponentTeamConfig,
-        })
+        config.onViewLineups()
       },
       position: {
         x: this.startMatchButton.x,
@@ -72,7 +68,7 @@ export class PlayoffMatchPreview {
     })
   }
 
-  setupMatchButton() {
+  setupMatchButton(config: PlayoffMatchPreviewConfig) {
     this.startMatchButton = new Button({
       scene: this.scene,
       x: this.rectangle.x,
@@ -82,7 +78,7 @@ export class PlayoffMatchPreview {
       text: 'Start Match',
       backgroundColor: 0x444444,
       onClick: () => {
-        // this.scene.startGame()
+        config.onStartMatch()
       },
       fontSize: '20px',
       textColor: 'white',

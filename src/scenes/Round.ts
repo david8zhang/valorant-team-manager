@@ -1,5 +1,5 @@
 import Phaser from 'phaser'
-import { Side } from '~/core/Agent'
+import { Agent, Side } from '~/core/Agent'
 import { CPU } from '~/core/CPU'
 import { Map } from '~/core/Map'
 import { Pathfinding } from '~/core/Pathfinding'
@@ -9,6 +9,8 @@ import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GunTypes } from '~/utils/GunConstants'
 import UI from './UI'
 import { PlayerAgentConfig, TeamConfig } from './TeamMgmt'
+import { Save, SaveKeys } from '~/utils/Save'
+import { PostRoundConfig } from './PostRound'
 
 export default class Round extends Phaser.Scene {
   private static _instance: Round
@@ -49,6 +51,7 @@ export default class Round extends Phaser.Scene {
 
   public cpuTeamConfig!: TeamConfig
   public playerTeamConfig!: TeamConfig
+  public isPlayoffGame: boolean = false
 
   constructor() {
     super('round')
@@ -57,9 +60,16 @@ export default class Round extends Phaser.Scene {
     }
   }
 
-  public init(data: { cpuTeamConfig: TeamConfig; playerTeamConfig: TeamConfig }) {
+  public init(data: {
+    cpuTeamConfig: TeamConfig
+    playerTeamConfig: TeamConfig
+    isPlayoffGame: boolean
+  }) {
     this.cpuTeamConfig = data.cpuTeamConfig
     this.playerTeamConfig = data.playerTeamConfig
+    if (data.isPlayoffGame) {
+      this.isPlayoffGame = data.isPlayoffGame
+    }
   }
 
   public static get instance() {
@@ -157,6 +167,87 @@ export default class Round extends Phaser.Scene {
     this.scoreMapping[Side.PLAYER] = 0
     this.scoreMapping[Side.CPU] = 0
     UI.instance.updateScores()
+  }
+
+  handleRoundFinished() {
+    const postRoundConfig = this.generatePostRoundData()
+    this.scene.bringToTop('team-mgmt')
+    this.scene.bringToTop('post-round')
+    this.scene.start('post-round', postRoundConfig)
+  }
+
+  getWinningSide() {
+    const scoreMapping = this.scoreMapping
+    return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
+  }
+
+  generatePostRoundData(): PostRoundConfig {
+    const accumulateStat = (key: string) => {
+      return (acc, curr) => {
+        return acc + curr[key]
+      }
+    }
+    const winningSide = this.getWinningSide()
+    const player = this.player
+    const cpu = this.cpu
+
+    const totalPlayerKills = player.agents.reduce(accumulateStat('kills'), 0)
+    const totalPlayerAssists = player.agents.reduce(accumulateStat('assists'), 0)
+    const totalPlayerDeaths = player.agents.reduce(accumulateStat('deaths'), 0)
+    const totalCPUKills = cpu.agents.reduce(accumulateStat('kills'), 0)
+    const totalCPUAssists = cpu.agents.reduce(accumulateStat('assists'), 0)
+    const totalCPUDeaths = cpu.agents.reduce(accumulateStat('deaths'), 0)
+
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeamConfig = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    return {
+      winningSide,
+      teamStats: {
+        [Side.PLAYER]: {
+          totalKills: totalPlayerKills,
+          totalAssists: totalPlayerAssists,
+          totalDeaths: totalPlayerDeaths,
+        },
+        [Side.CPU]: {
+          totalKills: totalCPUKills,
+          totalAssists: totalCPUAssists,
+          totalDeaths: totalCPUDeaths,
+        },
+      },
+      playerStats: {
+        [Side.PLAYER]: this.generateAgentStats(player.agents, winningSide === Side.PLAYER),
+        [Side.CPU]: this.generateAgentStats(cpu.agents, winningSide === Side.CPU),
+      },
+      cpuTeamConfig: this.cpuTeamConfig,
+      playerTeamConfig,
+      isPlayoffGame: this.isPlayoffGame,
+    }
+  }
+
+  generateAgentStats(agents: Agent[], didWin: boolean) {
+    const statMapping = {}
+    let mostPlayerKills = 0
+    let nameOfAgentWithMostKills = agents[0].name
+
+    agents.forEach((agent) => {
+      if (agent.kills > mostPlayerKills) {
+        mostPlayerKills = agent.kills
+        nameOfAgentWithMostKills = agent.name
+      }
+      statMapping[agent.name] = {
+        kills: agent.kills,
+        assists: agent.assists,
+        deaths: agent.deaths,
+        teamMvp: false,
+        matchMvp: false,
+      }
+    })
+    if (didWin) {
+      statMapping[nameOfAgentWithMostKills].matchMvp = true
+    } else {
+      statMapping[nameOfAgentWithMostKills].teamMvp = true
+    }
+    return statMapping
   }
 
   restartRound() {

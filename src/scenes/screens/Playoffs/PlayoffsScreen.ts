@@ -8,6 +8,7 @@ import { FinalsMatchup } from './FinalsMatchup'
 import { Button } from '~/core/ui/Button'
 import { SimulationUtils } from '~/utils/SimulationUtils'
 import { PlayoffMatchPreview } from '~/core/ui/PlayoffMatchPreview'
+import { ScreenKeys } from '../ScreenKeys'
 
 export interface PlayoffMatchupTeam {
   fullTeamName: string
@@ -63,6 +64,13 @@ export class PlayoffsScreen implements Screen {
     })
 
     if (playerMatchup) {
+      const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME) as string
+      const opponentTeamName =
+        playerMatchup.team1.fullTeamName === playerTeamName
+          ? playerMatchup.team2.fullTeamName
+          : playerMatchup.team1.fullTeamName
+      const opponentTeamConfig = allTeamConfigs[opponentTeamName] as TeamConfig
+
       this.playoffMatchPreview = new PlayoffMatchPreview(this.scene, {
         x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2,
         y: RoundConstants.WINDOW_HEIGHT / 2,
@@ -70,6 +78,14 @@ export class PlayoffsScreen implements Screen {
         height: RoundConstants.WINDOW_HEIGHT - 50,
         homeTeam: allTeamConfigs[playerMatchup.team1.fullTeamName],
         awayTeam: allTeamConfigs[playerMatchup.team2.fullTeamName],
+        onViewLineups: () => {
+          this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, {
+            opponentTeam: opponentTeamConfig,
+          })
+        },
+        onStartMatch: () => {
+          this.scene.startPlayoffGame(opponentTeamConfig)
+        },
       })
       this.playoffMatchPreview.setVisible(false)
     }

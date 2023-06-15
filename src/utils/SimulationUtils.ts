@@ -7,6 +7,12 @@ import {
 import { RANK_DIFF_UPSET_PROBABILITIES } from './TeamConstants'
 import { Utilities } from './Utilities'
 
+export interface ExpGrowthMapping {
+  [key: string]: {
+    [key in PlayerAttributes]?: PlayerStatGrowthConfig
+  }
+}
+
 export class SimulationUtils {
   public static getTeamOverallRank(teamConfig: TeamConfig) {
     return Math.round(
@@ -65,7 +71,8 @@ export class SimulationUtils {
       losingTeam: TeamConfig
       teamMvpPlayerName: string
       matchMvpPlayerName: string
-    }[]
+    }[],
+    updateTeamRegSeasonRecord: boolean = false
   ) {
     matchResults.forEach((matchup) => {
       const winningTeamPlayerStats = {}
@@ -95,6 +102,10 @@ export class SimulationUtils {
       )
       SimulationUtils.applyExpGrowth(matchup.winningTeam, winningTeamGrowthMapping)
       SimulationUtils.applyExpGrowth(matchup.losingTeam, losingTeamGrowthMapping)
+      if (updateTeamRegSeasonRecord) {
+        matchup.winningTeam.wins++
+        matchup.losingTeam.losses++
+      }
     })
     const teamConfigWithAppliedExp: TeamConfig[] = []
     matchResults.forEach((result) => {
