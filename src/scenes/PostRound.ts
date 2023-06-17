@@ -1,6 +1,6 @@
 import { Side } from '~/core/Agent'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { TeamConfig } from './TeamMgmt'
+import { TeamConfig, TeamMgmtData } from './TeamMgmt'
 import { PostRoundScreenKeys } from './screens/ScreenKeys'
 import { PostRoundTeamStatsScreen } from './screens/PostRound/PostRoundTeamStatsScreen'
 import { PostRoundPlayerStatsScreen } from './screens/PostRound/PostRoundPlayerStatsScreen'
@@ -64,6 +64,7 @@ export class PostRound extends Phaser.Scene {
     [key in PostRoundScreenKeys]: any
   }
   public activeScreenKey: PostRoundScreenKeys = PostRoundScreenKeys.TEAM_STATS
+  public isPlayoffGame: boolean = false
 
   init(data: PostRoundConfig) {
     this.winningSide = data.winningSide
@@ -71,6 +72,7 @@ export class PostRound extends Phaser.Scene {
     this.playerStats = data.playerStats
     this.playerTeamConfig = data.playerTeamConfig
     this.cpuTeamConfig = data.cpuTeamConfig
+    this.isPlayoffGame = data.isPlayoffGame
   }
 
   constructor() {
@@ -143,7 +145,18 @@ export class PostRound extends Phaser.Scene {
   }
 
   goToTeamMgmtScreen() {
-    this.scene.start('team-mgmt')
+    if (this.isPlayoffGame) {
+      const teamMgmtData: TeamMgmtData = {
+        playoffResult: {
+          winningSide: this.winningSide,
+          playerTeamConfig: this.playerTeamConfig,
+          cpuTeamConfig: this.cpuTeamConfig,
+        },
+      }
+      this.scene.start('team-mgmt', teamMgmtData)
+    } else {
+      this.scene.start('team-mgmt')
+    }
   }
 
   updateTeamWinLossRecord(playerTeam: TeamConfig, cpuTeam: TeamConfig) {
@@ -156,10 +169,21 @@ export class PostRound extends Phaser.Scene {
     }
   }
 
+  saveTeams(playerTeam: TeamConfig, cpuTeam: TeamConfig) {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    allTeams[playerTeam.name] = playerTeam
+    allTeams[cpuTeam.name] = cpuTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+  }
+
   handlePostRoundFinished(playerExpGrowthMapping: ExpGrowthMapping) {
     this.applyExpGrowthForTeams(this.playerTeamConfig, this.cpuTeamConfig, playerExpGrowthMapping)
-    this.updateTeamWinLossRecord(this.playerTeamConfig, this.cpuTeamConfig)
-    this.simulateOtherTeamsAndProgressSeason(this.playerTeamConfig, this.cpuTeamConfig)
+    if (!this.isPlayoffGame) {
+      this.updateTeamWinLossRecord(this.playerTeamConfig, this.cpuTeamConfig)
+      this.simulateOtherTeamsAndProgressSeason(this.playerTeamConfig, this.cpuTeamConfig)
+    } else {
+      this.saveTeams(this.playerTeamConfig, this.cpuTeamConfig)
+    }
     this.goToTeamMgmtScreen()
   }
 }

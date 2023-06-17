@@ -12,6 +12,7 @@ import { SeasonOver } from '~/core/ui/SeasonOver'
 import { ExpiringContractsModal } from '~/core/ui/ExpiringContractsModal'
 import { Utilities } from '~/utils/Utilities'
 import { InvalidStartingLineupModal } from '~/core/ui/InvalidStartingLineupModal'
+import { ViewLineupsScreenData } from './ViewLineupsScreen'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
@@ -129,9 +130,11 @@ export class SeasonScreen implements Screen {
         }
         const currMatch = seasonSchedule[currMatchIndex]
         const opponentTeamConfig = allTeamMapping[currMatch.opponent]
-        this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, {
+        const viewLineupsScreenData: ViewLineupsScreenData = {
           opponentTeam: opponentTeamConfig,
-        })
+          isPlayoffGame: false,
+        }
+        this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, viewLineupsScreenData)
       },
       position: {
         x: this.startMatchButton.x,

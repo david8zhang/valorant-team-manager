@@ -6,9 +6,11 @@ import { Utilities } from '~/utils/Utilities'
 import { Matchup } from './Matchup'
 import { FinalsMatchup } from './FinalsMatchup'
 import { Button } from '~/core/ui/Button'
-import { SimulationUtils } from '~/utils/SimulationUtils'
+import { PlayerPlayoffMatchResult, SimulationUtils } from '~/utils/SimulationUtils'
 import { PlayoffMatchPreview } from '~/core/ui/PlayoffMatchPreview'
 import { ScreenKeys } from '../ScreenKeys'
+import { Side } from '~/core/Agent'
+import { ViewLineupsScreenData } from '../ViewLineupsScreen'
 
 export interface PlayoffMatchupTeam {
   fullTeamName: string
@@ -20,8 +22,12 @@ export interface PlayoffMatchup {
   team1: PlayoffMatchupTeam
   team2: PlayoffMatchupTeam
   hasStarted: boolean
-  nextMatchIndex: number
+  nextRoundIndex: number // Used for determining which matchup to place the winner in in the next round
   nextMatchTeamKey: string
+}
+
+export interface PlayoffsScreenData {
+  playoffResult?: PlayerPlayoffMatchResult
 }
 
 export enum PlayoffRound {
@@ -52,36 +58,57 @@ export class PlayoffsScreen implements Screen {
     this.setVisible(false)
   }
 
-  setupPlayoffMatchPreview() {
-    const matchups = this.playoffBracket[this.currRound] as PlayoffMatchup[]
-    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
-    const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
-    const playerMatchup = matchups.find((matchup) => {
+  handlePlayerPlayoffResult(playoffResult: PlayerPlayoffMatchResult) {
+    const currRoundMatchups = this.playoffBracket[this.currRound] as PlayoffMatchup[]
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME) as string
+    const playerRound = currRoundMatchups.find((matchup) => {
       return (
         matchup.team1.fullTeamName === playerTeamName ||
-        matchup.team1.fullTeamName === playerTeamName
+        matchup.team2.fullTeamName === playerTeamName
       )
     })
+    if (playerRound) {
+      const playerTeam =
+        playerRound.team1.fullTeamName === playerTeamName ? playerRound.team1 : playerRound.team2
+      const cpuTeam =
+        playerRound.team1.fullTeamName === playerTeamName ? playerRound.team2 : playerRound.team1
+      if (playoffResult.winningSide === Side.PLAYER) {
+        playerTeam.score++
+      } else {
+        cpuTeam.score++
+      }
+      this.processRoundEnd()
+      this.setupOrUpdateFirstRoundMatchups()
+      this.setupOrUpdateSecondRoundMatchups()
+      this.setupOrUpdateFinalsMatchup()
+    }
+  }
 
+  setupPlayerPlayoffMatchPreview() {
+    const playerMatchup = this.getActivePlayerMatchup()
+    console.log('Setup player playoff match preview: ', playerMatchup, this.currRound)
     if (playerMatchup) {
+      const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
+        [key: string]: TeamConfig
+      }
       const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME) as string
       const opponentTeamName =
         playerMatchup.team1.fullTeamName === playerTeamName
           ? playerMatchup.team2.fullTeamName
           : playerMatchup.team1.fullTeamName
       const opponentTeamConfig = allTeamConfigs[opponentTeamName] as TeamConfig
-
       this.playoffMatchPreview = new PlayoffMatchPreview(this.scene, {
         x: (RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + RoundConstants.WINDOW_WIDTH) / 2,
         y: RoundConstants.WINDOW_HEIGHT / 2,
         width: 550,
         height: RoundConstants.WINDOW_HEIGHT - 50,
-        homeTeam: allTeamConfigs[playerMatchup.team1.fullTeamName],
-        awayTeam: allTeamConfigs[playerMatchup.team2.fullTeamName],
+        matchup: playerMatchup,
         onViewLineups: () => {
-          this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, {
+          const viewLineupsScreenData: ViewLineupsScreenData = {
             opponentTeam: opponentTeamConfig,
-          })
+            isPlayoffGame: true,
+          }
+          this.scene.renderActiveScreen(ScreenKeys.VIEW_LINEUPS, viewLineupsScreenData)
         },
         onStartMatch: () => {
           this.scene.startPlayoffGame(opponentTeamConfig)
@@ -103,7 +130,7 @@ export class PlayoffsScreen implements Screen {
       height: 40,
       text: 'Continue',
       onClick: () => {
-        this.updatePlayoffBracket()
+        this.progressPlayoffRound()
       },
       fontSize: '14px',
       textColor: 'black',
@@ -139,7 +166,6 @@ export class PlayoffsScreen implements Screen {
     teamConfigsWithAppliedExp.forEach((teamConfig: TeamConfig) => {
       allTeamConfigs[teamConfig.name] = teamConfig
     })
-    // Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamConfigs)
 
     // Update results
     const winningTeamNames = new Set(
@@ -154,6 +180,9 @@ export class PlayoffsScreen implements Screen {
         matchup.team2.score++
       }
     })
+
+    // Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamConfigs)
+    Save.setData(SaveKeys.PLAYOFF_BRACKET, this.playoffBracket)
   }
 
   getNextRound(currRound: PlayoffRound): PlayoffRound {
@@ -178,7 +207,7 @@ export class PlayoffsScreen implements Screen {
       matchups.forEach((matchup) => {
         if (matchup.team1.score === 3 || matchup.team2.score === 3) {
           const winningTeam = matchup.team1.score === 3 ? matchup.team1 : matchup.team2
-          const nextMatch = nextRoundMatchups[matchup.nextMatchIndex] as PlayoffMatchup
+          const nextMatch = nextRoundMatchups[matchup.nextRoundIndex] as PlayoffMatchup
           nextMatch[matchup.nextMatchTeamKey] = {
             ...winningTeam,
             score: 0,
@@ -191,27 +220,57 @@ export class PlayoffsScreen implements Screen {
       })
       if (completedMatchups.length === matchups.length) {
         this.currRound = nextRound
+        Save.setData(SaveKeys.CURR_PLAYOFF_ROUND, this.currRound)
       }
     }
   }
 
-  updatePlayoffBracket() {
+  progressPlayoffRound() {
+    // Handle player playoff preview
+    this.showPlayerPlayoffMatchPreview()
     this.simulatePlayoffGame()
     this.processRoundEnd()
-    this.setupFirstRoundMatchups()
-    this.setupSecondRoundMatchups()
-    this.setupFinalsMatchup()
-    this.showPlayoffMatchPreview()
+    this.setupOrUpdateFirstRoundMatchups()
+    this.setupOrUpdateSecondRoundMatchups()
+    this.setupOrUpdateFinalsMatchup()
   }
 
-  showPlayoffMatchPreview() {
+  getActivePlayerMatchup() {
+    const matchups = this.playoffBracket[this.currRound] as PlayoffMatchup[]
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME) as string
+    const playerMatchup = matchups.find((matchup) => {
+      return (
+        matchup.team1.fullTeamName === playerTeamName ||
+        matchup.team2.fullTeamName === playerTeamName
+      )
+    })
+
+    if (playerMatchup) {
+      const team1Score = playerMatchup.team1.score
+      const team2Score = playerMatchup.team2.score
+      // If the current round is over for the player team, return null
+      if (team1Score === 3 || team2Score === 3) {
+        return null
+      }
+    }
+    return playerMatchup
+  }
+
+  showPlayerPlayoffMatchPreview() {
     if (this.playoffMatchPreview) {
-      this.playoffMatchPreview.setVisible(true)
+      const playerMatchup = this.getActivePlayerMatchup()
+      console.log('Show Player Playoff Match Preview', playerMatchup, this.currRound)
+      if (playerMatchup) {
+        this.playoffMatchPreview?.updatePlayerMatchup(playerMatchup.team1, playerMatchup.team2)
+        this.playoffMatchPreview.setVisible(true)
+      }
     }
   }
 
   setupPlayoffBracket() {
     const savedPlayoffBracket = Save.getData(SaveKeys.PLAYOFF_BRACKET) as PlayoffBracket
+    const savedCurrPlayoffRound =
+      (Save.getData(SaveKeys.CURR_PLAYOFF_ROUND) as PlayoffRound) || PlayoffRound.ROUND_1
     if (!savedPlayoffBracket) {
       const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
       const top8Teams = Object.values(allTeams)
@@ -234,7 +293,7 @@ export class PlayoffsScreen implements Screen {
               shortTeamName: 'TBD',
               score: -1,
             },
-            nextMatchIndex: -1,
+            nextRoundIndex: -1,
             nextMatchTeamKey: 'N/A',
             hasStarted: false,
           },
@@ -254,7 +313,7 @@ export class PlayoffsScreen implements Screen {
             shortTeamName: lowerSeed.shortName,
             score: 0,
           },
-          nextMatchIndex: Math.floor(i / 2),
+          nextRoundIndex: Math.floor(i / 2),
           nextMatchTeamKey: `team${Math.round(i % 2) + 1}`,
           hasStarted: true,
         })
@@ -271,18 +330,21 @@ export class PlayoffsScreen implements Screen {
             shortTeamName: 'TBD',
             score: -1,
           },
-          nextMatchIndex: Math.floor(i / 2),
+          nextRoundIndex: Math.floor(i / 2),
           nextMatchTeamKey: `team${Math.round(i % 2) + 1}`,
           hasStarted: false,
         })
       }
       this.playoffBracket = newPlayoffBracket
+      Save.setData(SaveKeys.PLAYOFF_BRACKET, this.playoffBracket)
+      Save.setData(SaveKeys.CURR_PLAYOFF_ROUND, this.currRound)
     } else {
       this.playoffBracket = savedPlayoffBracket
     }
+    this.currRound = savedCurrPlayoffRound
   }
 
-  setupFirstRoundMatchups() {
+  setupOrUpdateFirstRoundMatchups() {
     if (this.round1Matchups.length > 0) {
       this.round1Matchups.forEach((matchup: Matchup) => {
         matchup.destroy()
@@ -315,7 +377,7 @@ export class PlayoffsScreen implements Screen {
     })
   }
 
-  setupSecondRoundMatchups() {
+  setupOrUpdateSecondRoundMatchups() {
     if (this.round2Matchups.length > 0) {
       this.round2Matchups.forEach((matchup: Matchup) => {
         matchup.destroy()
@@ -352,7 +414,7 @@ export class PlayoffsScreen implements Screen {
     })
   }
 
-  setupFinalsMatchup() {
+  setupOrUpdateFinalsMatchup() {
     if (this.finalsMatchup) {
       this.finalsMatchup.destroy()
       this.finalsMatchup = null
@@ -390,12 +452,16 @@ export class PlayoffsScreen implements Screen {
     }
   }
 
-  onRender(data?: any): void {
+  onRender(data?: { playoffResult: PlayerPlayoffMatchResult }): void {
     this.setupPlayoffBracket()
-    this.setupFirstRoundMatchups()
-    this.setupSecondRoundMatchups()
-    this.setupFinalsMatchup()
-    this.setupPlayoffMatchPreview()
     this.setupContinueButton()
+    this.setupPlayerPlayoffMatchPreview()
+    if (data && data.playoffResult) {
+      this.handlePlayerPlayoffResult(data.playoffResult)
+    } else {
+      this.setupOrUpdateFirstRoundMatchups()
+      this.setupOrUpdateSecondRoundMatchups()
+      this.setupOrUpdateFinalsMatchup()
+    }
   }
 }

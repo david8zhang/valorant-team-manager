@@ -22,8 +22,8 @@ import { SubstitutePlayerScreen } from './screens/SubstitutePlayerScreen'
 import { FrontOfficeScreen } from './screens/FrontOffice/FrontOfficeScreen'
 import { ContractsScreen } from './screens/FrontOffice/ContractsScreen'
 import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldownScreen'
-import { MALE_FIRST_NAMES } from '~/utils/Names'
 import { PlayoffsScreen } from './screens/Playoffs/PlayoffsScreen'
+import { PlayerPlayoffMatchResult } from '~/utils/SimulationUtils'
 
 export interface PlayerAgentConfig {
   id: string
@@ -58,9 +58,14 @@ export interface MatchConfig {
   isHome: boolean
 }
 
+export interface TeamMgmtData {
+  playoffResult?: PlayerPlayoffMatchResult
+}
+
 export default class TeamMgmt extends Phaser.Scene {
   private sidebar!: Sidebar
   public static BODY_WIDTH = RoundConstants.WINDOW_WIDTH - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH
+  private activeScreenData!: TeamMgmtData
 
   public screens!: {
     [key in ScreenKeys]: any
@@ -70,6 +75,10 @@ export default class TeamMgmt extends Phaser.Scene {
 
   constructor() {
     super('team-mgmt')
+  }
+
+  init(data: TeamMgmtData) {
+    this.activeScreenData = data
   }
 
   initializeNewGameData() {
@@ -246,7 +255,7 @@ export default class TeamMgmt extends Phaser.Scene {
         },
       ],
     })
-    this.renderActiveScreen(this.activeScreenKey)
+    this.renderActiveScreen(this.activeScreenKey, this.activeScreenData)
   }
 
   goBackToPreviousScreen() {
@@ -254,7 +263,7 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   renderActiveScreen(newActiveScreenKey: ScreenKeys, data?: any) {
-    if (this.activeScreenKey) {
+    if (this.activeScreenKey !== newActiveScreenKey) {
       this.prevScreenKey = this.activeScreenKey
       const prevActiveScreen = this.screens[this.activeScreenKey]
       prevActiveScreen.setVisible(false)

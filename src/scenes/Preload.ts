@@ -192,6 +192,7 @@ export default class Preload extends Phaser.Scene {
           },
         ],
       },
+      isPlayoffGame: false,
     }
     // this.scene.start('post-round', data)
     this.scene.start('team-mgmt')

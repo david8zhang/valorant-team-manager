@@ -1,27 +1,24 @@
-import { Scene } from 'phaser'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { UpcomingMatchTeam } from './UpcomingMatchTeam'
-import TeamMgmt, { MatchConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt from '~/scenes/TeamMgmt'
 import { Button } from './Button'
 import { LinkText } from './LinkText'
-import { ScreenKeys } from '~/scenes/screens/ScreenKeys'
-import { Save, SaveKeys } from '~/utils/Save'
+import { PlayoffMatchup, PlayoffMatchupTeam } from '~/scenes/screens/Playoffs/PlayoffsScreen'
 
 export interface PlayoffMatchPreviewConfig {
   width: number
   height: number
   x: number
   y: number
-  homeTeam: TeamConfig
-  awayTeam: TeamConfig
+  matchup: PlayoffMatchup
   onStartMatch: Function
   onViewLineups: Function
 }
 
 export class PlayoffMatchPreview {
   private scene: TeamMgmt
-  private homeTeam!: UpcomingMatchTeam
-  private awayTeam!: UpcomingMatchTeam
+  private team1!: UpcomingMatchTeam
+  private team2!: UpcomingMatchTeam
   private rectangle: Phaser.GameObjects.Rectangle
   private startMatchButton!: Button
   private viewStartingLineupsLink!: LinkText
@@ -35,16 +32,26 @@ export class PlayoffMatchPreview {
       config.height,
       0xffffff
     )
+
+    const playoffMatchup = config.matchup
     this.rectangle.setStrokeStyle(1, 0x000000).setDepth(RoundConstants.SORT_LAYERS.UI)
-    this.awayTeam = new UpcomingMatchTeam(this.scene, {
-      teamConfig: config.awayTeam,
+    this.team1 = new UpcomingMatchTeam(this.scene, {
+      teamConfig: {
+        name: playoffMatchup.team1.fullTeamName,
+        wins: playoffMatchup.team1.score,
+        losses: playoffMatchup.team2.score,
+      },
       position: {
         x: this.rectangle.x - this.rectangle.displayWidth / 2 + 150,
         y: this.rectangle.y - 50,
       },
     })
-    this.homeTeam = new UpcomingMatchTeam(this.scene, {
-      teamConfig: config.homeTeam,
+    this.team2 = new UpcomingMatchTeam(this.scene, {
+      teamConfig: {
+        name: playoffMatchup.team2.fullTeamName,
+        wins: playoffMatchup.team2.score,
+        losses: playoffMatchup.team1.score,
+      },
       position: {
         x: this.rectangle.x + this.rectangle.displayWidth / 2 - 150,
         y: this.rectangle.y - 50,
@@ -89,40 +96,48 @@ export class PlayoffMatchPreview {
   }
 
   destroy() {
-    this.awayTeam.destroy()
-    this.homeTeam.destroy()
+    this.team1.destroy()
+    this.team2.destroy()
     this.rectangle.destroy()
     this.startMatchButton.destroy()
     this.viewStartingLineupsLink.destroy()
   }
 
   setVisible(isVisible: boolean) {
-    this.awayTeam.setVisible(isVisible)
-    this.homeTeam.setVisible(isVisible)
+    this.team1.setVisible(isVisible)
+    this.team2.setVisible(isVisible)
     this.rectangle.setVisible(isVisible)
     this.startMatchButton.setVisible(isVisible)
     this.viewStartingLineupsLink.setVisible(isVisible)
   }
 
-  updatePlayerMatchup(homeTeam: TeamConfig, awayTeam: TeamConfig) {
-    if (this.awayTeam) {
-      this.awayTeam.destroy()
+  updatePlayerMatchup(team1: PlayoffMatchupTeam, team2: PlayoffMatchupTeam) {
+    if (this.team1) {
+      this.team1.destroy()
     }
-    if (this.homeTeam) {
-      this.homeTeam.destroy()
+    if (this.team2) {
+      this.team2.destroy()
     }
-    this.awayTeam = new UpcomingMatchTeam(this.scene, {
-      teamConfig: awayTeam,
+    this.team1 = new UpcomingMatchTeam(this.scene, {
+      teamConfig: {
+        name: team1.fullTeamName,
+        wins: team1.score,
+        losses: team2.score,
+      },
       position: {
-        x: this.rectangle.x - this.rectangle.displayWidth / 2 + 15,
-        y: this.rectangle.y - this.rectangle.displayHeight / 2,
+        x: this.rectangle.x - this.rectangle.displayWidth / 2 + 150,
+        y: this.rectangle.y - 50,
       },
     })
-    this.homeTeam = new UpcomingMatchTeam(this.scene, {
-      teamConfig: homeTeam,
+    this.team2 = new UpcomingMatchTeam(this.scene, {
+      teamConfig: {
+        name: team2.fullTeamName,
+        wins: team2.score,
+        losses: team1.score,
+      },
       position: {
-        x: this.rectangle.x + this.rectangle.displayWidth / 2 - 15,
-        y: this.rectangle.y - this.rectangle.displayHeight / 2,
+        x: this.rectangle.x + this.rectangle.displayWidth / 2 - 150,
+        y: this.rectangle.y - 50,
       },
     })
   }

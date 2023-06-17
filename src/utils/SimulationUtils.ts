@@ -6,6 +6,13 @@ import {
 } from '~/scenes/screens/PostRound/PostRoundPlayerExpScreen'
 import { RANK_DIFF_UPSET_PROBABILITIES } from './TeamConstants'
 import { Utilities } from './Utilities'
+import { Side } from '~/core/Agent'
+
+export interface PlayerPlayoffMatchResult {
+  winningSide: Side
+  playerTeamConfig: TeamConfig
+  cpuTeamConfig: TeamConfig
+}
 
 export interface ExpGrowthMapping {
   [key: string]: {

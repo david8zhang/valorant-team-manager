@@ -3,10 +3,14 @@ import { Screen } from './Screen'
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '../TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
 import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
-import { Scene } from 'phaser'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+
+export interface ViewLineupsScreenData {
+  opponentTeam: TeamConfig
+  isPlayoffGame: boolean
+}
 
 export class ViewLineupsScreen implements Screen {
   public currTeam: Side = Side.CPU
@@ -21,6 +25,7 @@ export class ViewLineupsScreen implements Screen {
   public cpuTeamConfig: TeamConfig | null = null
   public playerAttrRows: PlayerAttrRow[] = []
   private scene: TeamMgmt
+  private isPlayoffGame: boolean = false
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -67,7 +72,14 @@ export class ViewLineupsScreen implements Screen {
       height: 25,
       text: 'Start Match',
       onClick: () => {
-        this.scene.startGame()
+        if (this.isPlayoffGame) {
+          if (this.cpuTeamConfig) {
+            this.scene.startPlayoffGame(this.cpuTeamConfig)
+            this.scene.renderActiveScreen(ScreenKeys.PLAYOFFS)
+          }
+        } else {
+          this.scene.startGame()
+        }
       },
       backgroundColor: 0x222222,
       textColor: 'white',
@@ -76,9 +88,10 @@ export class ViewLineupsScreen implements Screen {
     this.setVisible(false)
   }
 
-  onRender(data?: any): void {
+  onRender(data?: ViewLineupsScreenData): void {
     if (data) {
       this.cpuTeamConfig = data.opponentTeam
+      this.isPlayoffGame = data.isPlayoffGame
     }
     this.displayCurrTeam()
   }

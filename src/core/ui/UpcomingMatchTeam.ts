@@ -2,7 +2,11 @@ import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface UpcomingMatchTeamConfig {
-  teamConfig: TeamConfig
+  teamConfig: {
+    name: string
+    wins: number
+    losses: number
+  }
   position: {
     x: number
     y: number
