@@ -178,7 +178,8 @@ export default class Round extends Phaser.Scene {
 
   getWinningSide() {
     const scoreMapping = this.scoreMapping
-    return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
+    // return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
+    return Side.CPU
   }
 
   generatePostRoundData(): PostRoundConfig {

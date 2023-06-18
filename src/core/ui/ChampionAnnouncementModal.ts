@@ -32,7 +32,7 @@ export class ChampionAnnouncementModal {
         align: 'center',
       })
       .setDepth(config.depth)
-      .setWordWrapWidth(this.bgRect.displayWidth - 50, true)
+      .setWordWrapWidth(this.bgRect.displayWidth - 30, true)
 
     if (config.champion) {
       this.announcementText.setText(`${config.champion.name} have won the championship!`)
@@ -59,7 +59,7 @@ export class ChampionAnnouncementModal {
       strokeColor: 0x000000,
       strokeWidth: 1,
       x: this.bgRect.x,
-      y: this.announcementText.y + this.announcementText.displayHeight + 20,
+      y: this.announcementText.y + this.announcementText.displayHeight + 50,
       text: 'Continue',
       depth: RoundConstants.SORT_LAYERS.UI,
     })

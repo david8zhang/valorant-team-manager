@@ -12,6 +12,7 @@ import { ScreenKeys } from '../ScreenKeys'
 import { Side } from '~/core/Agent'
 import { ViewLineupsScreenData } from '../ViewLineupsScreen'
 import { ChampionAnnouncementModal } from '~/core/ui/ChampionAnnouncementModal'
+import { PlayerEliminationModal } from '~/core/ui/PlayerEliminationModal'
 
 export interface PlayoffMatchupTeam {
   fullTeamName: string
@@ -53,7 +54,8 @@ export class PlayoffsScreen implements Screen {
   private continueButton!: Button
   private currRound: PlayoffRound = PlayoffRound.ROUND_1
   private playoffMatchPreview: PlayoffMatchPreview | null = null
-  public champAnnounceModal!: ChampionAnnouncementModal
+  private champAnnounceModal!: ChampionAnnouncementModal
+  private playerElimModal!: PlayerEliminationModal
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -78,6 +80,9 @@ export class PlayoffsScreen implements Screen {
         playerTeam.score++
       } else {
         cpuTeam.score++
+      }
+      if (cpuTeam.score === 3) {
+        this.playerElimModal.setVisible(true)
       }
       this.processRoundEnd()
       this.setupOrUpdateFirstRoundMatchups()
@@ -453,6 +458,9 @@ export class PlayoffsScreen implements Screen {
     if (this.champAnnounceModal) {
       this.champAnnounceModal.setVisible(isVisible)
     }
+    if (this.playerElimModal) {
+      this.playerElimModal.setVisible(isVisible)
+    }
   }
 
   getChampion() {
@@ -482,6 +490,19 @@ export class PlayoffsScreen implements Screen {
     this.champAnnounceModal.setVisible(false)
   }
 
+  setupPlayerElimModal() {
+    if (this.playerElimModal) {
+      this.playerElimModal.destroy()
+    }
+    this.playerElimModal = new PlayerEliminationModal(this.scene, {
+      onContinue: () => {
+        this.playerElimModal.setVisible(false)
+      },
+      depth: RoundConstants.SORT_LAYERS.UI + 10,
+    })
+    this.playerElimModal.setVisible(false)
+  }
+
   endPlayoffs() {
     // Reset playoff bracket
     Utilities.convertRookies()
@@ -506,6 +527,7 @@ export class PlayoffsScreen implements Screen {
     this.setupContinueButton()
     this.setupPlayerPlayoffMatchPreview()
     this.setupChampionAnnouncementModal()
+    this.setupPlayerElimModal()
     if (data && data.playoffResult) {
       this.handlePlayerPlayoffResult(data.playoffResult)
     } else {

@@ -535,7 +535,7 @@ export default class UI extends Phaser.Scene {
       onComplete: () => {
         const scoreMapping = Round.instance.scoreMapping
         let titleText = ''
-        const winningSide = this.getWinningSide()
+        const winningSide = Round.instance.getWinningSide()
         titleText = `${winningSide} won!`
         const subtitleText = `${scoreMapping[Side.PLAYER]} - ${scoreMapping[Side.CPU]}`
         const textObj = this.add.text(
@@ -586,11 +586,6 @@ export default class UI extends Phaser.Scene {
         })
       },
     })
-  }
-
-  getWinningSide() {
-    const scoreMapping = Round.instance.scoreMapping
-    return scoreMapping[Side.PLAYER] >= scoreMapping[Side.CPU] ? Side.PLAYER : Side.CPU
   }
 
   renderKillMessage(killer: Agent, killed: Agent) {

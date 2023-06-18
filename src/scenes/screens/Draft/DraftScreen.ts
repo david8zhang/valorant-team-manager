@@ -132,7 +132,6 @@ export class DraftScreen implements Screen {
     })
     this.draftCompletedText.setVisible(false)
     this.draftCompletedButton.setVisible(false)
-
     this.draftCompletedText.setPosition(
       this.draftCompletedText.x - this.draftCompletedText.displayWidth / 2,
       this.draftCompletedText.y
