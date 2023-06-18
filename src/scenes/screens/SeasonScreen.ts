@@ -80,43 +80,8 @@ export class SeasonScreen implements Screen {
     })
   }
 
-  decrementContractDurations() {
-    const playerTeam = Utilities.getPlayerTeamFromSave()
-    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
-      return {
-        ...playerAgent,
-        contract: {
-          ...playerAgent.contract,
-          duration: Math.max(0, playerAgent.contract.duration - 1),
-        },
-      }
-    })
-    playerTeam.roster = newPlayerRoster
-    Utilities.updatePlayerTeamInSave(playerTeam)
-  }
-
-  convertRookies() {
-    const playerTeam = Utilities.getPlayerTeamFromSave()
-    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
-      if (playerAgent.isRookie) {
-        return {
-          ...playerAgent,
-          isRookie: false,
-        }
-      }
-      return playerAgent
-    })
-    playerTeam.roster = newPlayerRoster
-    Utilities.updatePlayerTeamInSave(playerTeam)
-  }
-
   endSeason() {
     this.scene.renderActiveScreen(ScreenKeys.PLAYOFFS)
-    // this.decrementContractDurations()
-    // this.convertRookies()
-    // this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
-    //   isNewDraft: true,
-    // })
   }
 
   setupViewStartingLineupsLink() {
@@ -248,35 +213,40 @@ export class SeasonScreen implements Screen {
   }
 
   onRender(data?: any) {
-    const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
-    const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
-    if (data && data.isNewSeason) {
-      this.seasonSchedule.resetSeasonSchedule(seasonSchedule)
-      this.seasonOverText.setVisible(false)
-      if (!this.upcomingMatch) {
-        this.setupCurrentMatch()
-      } else {
-        this.upcomingMatch.setVisible(true)
-      }
-    }
-    if (currMatchIndex >= this.lastMatchIndex) {
-      this.displaySeasonOverText()
+    const isDraftInProgress = Save.getData(SaveKeys.DRAFT_IN_PROGRESS) as boolean
+    if (isDraftInProgress) {
+      this.scene.renderActiveScreen(ScreenKeys.DRAFT)
     } else {
-      this.updateUpcomingMatch()
-    }
+      const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX)
+      const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
+      if (data && data.isNewSeason) {
+        this.seasonSchedule.resetSeasonSchedule(seasonSchedule)
+        this.seasonOverText.setVisible(false)
+        if (!this.upcomingMatch) {
+          this.setupCurrentMatch()
+        } else {
+          this.upcomingMatch.setVisible(true)
+        }
+      }
+      if (currMatchIndex >= this.lastMatchIndex) {
+        this.displaySeasonOverText()
+      } else {
+        this.updateUpcomingMatch()
+      }
 
-    if (this.shouldShowExpiringContractsModal()) {
-      this.expiringContractsModal.display()
-      this.startMatchButton.setVisible(false)
-      this.viewStartingLineupsLink.setVisible(false)
-    } else if (this.shouldShowInvalidStartingLineupModal()) {
-      this.invalidStartingLineupModal.display()
-      this.startMatchButton.setVisible(false)
-      this.viewStartingLineupsLink.setVisible(false)
-    }
+      if (this.shouldShowExpiringContractsModal()) {
+        this.expiringContractsModal.display()
+        this.startMatchButton.setVisible(false)
+        this.viewStartingLineupsLink.setVisible(false)
+      } else if (this.shouldShowInvalidStartingLineupModal()) {
+        this.invalidStartingLineupModal.display()
+        this.startMatchButton.setVisible(false)
+        this.viewStartingLineupsLink.setVisible(false)
+      }
 
-    this.updateTeamRankings()
-    this.seasonSchedule.updateSchedulePage(0)
+      this.updateTeamRankings()
+      this.seasonSchedule.updateSchedulePage(0)
+    }
   }
 
   shouldShowSeasonOver() {

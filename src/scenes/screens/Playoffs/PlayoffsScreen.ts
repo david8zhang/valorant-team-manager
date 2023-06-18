@@ -11,6 +11,7 @@ import { PlayoffMatchPreview } from '~/core/ui/PlayoffMatchPreview'
 import { ScreenKeys } from '../ScreenKeys'
 import { Side } from '~/core/Agent'
 import { ViewLineupsScreenData } from '../ViewLineupsScreen'
+import { ChampionAnnouncementModal } from '~/core/ui/ChampionAnnouncementModal'
 
 export interface PlayoffMatchupTeam {
   fullTeamName: string
@@ -52,6 +53,7 @@ export class PlayoffsScreen implements Screen {
   private continueButton!: Button
   private currRound: PlayoffRound = PlayoffRound.ROUND_1
   private playoffMatchPreview: PlayoffMatchPreview | null = null
+  public champAnnounceModal!: ChampionAnnouncementModal
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -86,7 +88,6 @@ export class PlayoffsScreen implements Screen {
 
   setupPlayerPlayoffMatchPreview() {
     const playerMatchup = this.getActivePlayerMatchup()
-    console.log('Setup player playoff match preview: ', playerMatchup, this.currRound)
     if (playerMatchup) {
       const allTeamConfigs = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
         [key: string]: TeamConfig
@@ -180,8 +181,7 @@ export class PlayoffsScreen implements Screen {
         matchup.team2.score++
       }
     })
-
-    // Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamConfigs)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamConfigs)
     Save.setData(SaveKeys.PLAYOFF_BRACKET, this.playoffBracket)
   }
 
@@ -233,6 +233,7 @@ export class PlayoffsScreen implements Screen {
     this.setupOrUpdateFirstRoundMatchups()
     this.setupOrUpdateSecondRoundMatchups()
     this.setupOrUpdateFinalsMatchup()
+    this.announceChampionIfApplicable()
   }
 
   getActivePlayerMatchup() {
@@ -259,7 +260,6 @@ export class PlayoffsScreen implements Screen {
   showPlayerPlayoffMatchPreview() {
     if (this.playoffMatchPreview) {
       const playerMatchup = this.getActivePlayerMatchup()
-      console.log('Show Player Playoff Match Preview', playerMatchup, this.currRound)
       if (playerMatchup) {
         this.playoffMatchPreview?.updatePlayerMatchup(playerMatchup.team1, playerMatchup.team2)
         this.playoffMatchPreview.setVisible(true)
@@ -450,12 +450,62 @@ export class PlayoffsScreen implements Screen {
     if (!isVisible && this.playoffMatchPreview) {
       this.playoffMatchPreview.setVisible(isVisible)
     }
+    if (this.champAnnounceModal) {
+      this.champAnnounceModal.setVisible(isVisible)
+    }
+  }
+
+  getChampion() {
+    if (this.currRound === PlayoffRound.FINAL) {
+      const finalsMatchup = (this.playoffBracket[this.currRound] as PlayoffMatchup[])[0]
+      const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+      if (finalsMatchup.team1.score === 3) {
+        return allTeams[finalsMatchup.team1.fullTeamName]
+      } else if (finalsMatchup.team2.score === 3) {
+        return allTeams[finalsMatchup.team2.fullTeamName]
+      }
+    }
+    return null
+  }
+
+  setupChampionAnnouncementModal() {
+    if (this.champAnnounceModal) {
+      this.champAnnounceModal.destroy()
+    }
+    this.champAnnounceModal = new ChampionAnnouncementModal(this.scene, {
+      champion: null,
+      onContinue: () => {
+        this.endPlayoffs()
+      },
+      depth: RoundConstants.SORT_LAYERS.UI,
+    })
+    this.champAnnounceModal.setVisible(false)
+  }
+
+  endPlayoffs() {
+    // Reset playoff bracket
+    Utilities.convertRookies()
+    Utilities.decrementContractDurations()
+    Save.setData(SaveKeys.CURR_PLAYOFF_ROUND, null)
+    Save.setData(SaveKeys.PLAYOFF_BRACKET, null)
+    this.scene.renderActiveScreen(ScreenKeys.DRAFT, {
+      isNewDraft: true,
+    })
+  }
+
+  announceChampionIfApplicable() {
+    const champion = this.getChampion()
+    if (champion) {
+      this.champAnnounceModal.updateChampion(champion)
+      this.champAnnounceModal.setVisible(true)
+    }
   }
 
   onRender(data?: { playoffResult: PlayerPlayoffMatchResult }): void {
     this.setupPlayoffBracket()
     this.setupContinueButton()
     this.setupPlayerPlayoffMatchPreview()
+    this.setupChampionAnnouncementModal()
     if (data && data.playoffResult) {
       this.handlePlayerPlayoffResult(data.playoffResult)
     } else {
@@ -463,5 +513,6 @@ export class PlayoffsScreen implements Screen {
       this.setupOrUpdateSecondRoundMatchups()
       this.setupOrUpdateFinalsMatchup()
     }
+    this.announceChampionIfApplicable()
   }
 }

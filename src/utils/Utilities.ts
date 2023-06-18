@@ -76,4 +76,34 @@ export class Utilities {
     allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] = newPlayerTeam
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
   }
+
+  public static convertRookies() {
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
+      if (playerAgent.isRookie) {
+        return {
+          ...playerAgent,
+          isRookie: false,
+        }
+      }
+      return playerAgent
+    })
+    playerTeam.roster = newPlayerRoster
+    Utilities.updatePlayerTeamInSave(playerTeam)
+  }
+
+  public static decrementContractDurations() {
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
+      return {
+        ...playerAgent,
+        contract: {
+          ...playerAgent.contract,
+          duration: Math.max(0, playerAgent.contract.duration - 1),
+        },
+      }
+    })
+    playerTeam.roster = newPlayerRoster
+    Utilities.updatePlayerTeamInSave(playerTeam)
+  }
 }

@@ -127,7 +127,7 @@ export class DraftScreen implements Screen {
       strokeWidth: 1,
       text: 'Continue',
       onClick: () => {
-        this.startNewSeason()
+        this.endDraft()
       },
     })
     this.draftCompletedText.setVisible(false)
@@ -137,6 +137,11 @@ export class DraftScreen implements Screen {
       this.draftCompletedText.x - this.draftCompletedText.displayWidth / 2,
       this.draftCompletedText.y
     )
+  }
+
+  endDraft() {
+    Save.setData(SaveKeys.DRAFT_IN_PROGRESS, false)
+    this.startNewSeason()
   }
 
   setupContinueDraftButton() {
@@ -263,13 +268,14 @@ export class DraftScreen implements Screen {
   }
 
   onRender(data?: any): void {
-    if (data.isNewDraft) {
+    if (data && data.isNewDraft) {
       const savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
         return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
-      this.setupDraftOrder()
+      Save.setData(SaveKeys.DRAFT_IN_PROGRESS, true)
     }
+    this.setupDraftOrder()
     const currPickIndex = Save.getData(SaveKeys.CURR_PICK_INDEX)
     const draftOrder = Save.getData(SaveKeys.DRAFT_ORDER) as string[]
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }

@@ -255,6 +255,14 @@ export default class TeamMgmt extends Phaser.Scene {
         },
       ],
     })
+    this.renderDefaultScreen()
+  }
+
+  renderDefaultScreen() {
+    const isDraftInProgress = Save.getData(SaveKeys.DRAFT_IN_PROGRESS) as boolean
+    if (isDraftInProgress) {
+      this.activeScreenKey = ScreenKeys.DRAFT
+    }
     this.renderActiveScreen(this.activeScreenKey, this.activeScreenData)
   }
 
