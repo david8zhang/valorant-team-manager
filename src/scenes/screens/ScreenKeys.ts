@@ -12,6 +12,7 @@ export enum ScreenKeys {
   CONTRACTS = 'CONTRACTS',
   CONTRACT_DRILLDOWN = 'CONTRACT_DRILLDOWN',
   PLAYOFFS = 'PLAYOFFS',
+  TRADES = 'TRADES',
 }
 
 export enum PostRoundScreenKeys {

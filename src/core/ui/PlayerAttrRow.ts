@@ -28,7 +28,7 @@ export class PlayerAttrRow {
   private nameText: Phaser.GameObjects.Text
   private columnGroup: Phaser.GameObjects.Group
   private showStatsButton: Button | null = null
-  private numColumns: number = 3
+  private numColumns: number = 4
 
   constructor(scene: Scene, config: AgentTableRowStatsConfig) {
     this.scene = scene
@@ -88,13 +88,33 @@ export class PlayerAttrRow {
     const columnWidth =
       (TeamMgmt.BODY_WIDTH - (xPos - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH) - 100) /
       this.numColumns
-    Object.keys(config.attributes).forEach((key: string) => {
+
+    const keyValuePairs = [
+      {
+        key: PlayerAttributes.ACCURACY,
+        value: Utilities.getAbbrevRankNameForEnum(config.attributes[PlayerAttributes.ACCURACY]),
+      },
+      {
+        key: PlayerAttributes.REACTION,
+        value: Utilities.getAbbrevRankNameForEnum(config.attributes[PlayerAttributes.REACTION]),
+      },
+      {
+        key: PlayerAttributes.HEADSHOT,
+        value: Utilities.getAbbrevRankNameForEnum(config.attributes[PlayerAttributes.HEADSHOT]),
+      },
+      {
+        key: 'Overall',
+        value: Utilities.getAbbrevRankNameForEnum(Utilities.getOverallPlayerRank(config)),
+      },
+    ]
+
+    keyValuePairs.forEach((obj) => {
+      const { key, value } = obj
       const attr = key as PlayerAttributes
 
       // TODO: Replace this with rank icons
-      const rankLabel = Utilities.getRankNameForEnum(config.attributes[key])
       const rankIcon = this.scene.add
-        .text(xPos, this.nameText.y, rankLabel, {
+        .text(xPos, this.nameText.y, `${value}`, {
           fontSize: '15px',
           color: 'black',
         })

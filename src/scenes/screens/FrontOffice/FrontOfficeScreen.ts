@@ -24,7 +24,9 @@ export class FrontOfficeScreen implements Screen {
       },
       {
         text: 'Trades',
-        onClick: () => {},
+        onClick: () => {
+          this.scene.renderActiveScreen(ScreenKeys.TRADES)
+        },
       },
       {
         text: 'Free Agents',

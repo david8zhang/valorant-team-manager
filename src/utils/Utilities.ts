@@ -1,5 +1,5 @@
 import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { PlayerRank } from './PlayerConstants'
+import { PlayerAttributes, PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
 
@@ -58,7 +58,11 @@ export class Utilities {
     return `${ranks[rank]}.`
   }
 
-  public static getOverallPlayerRank(player: PlayerAgentConfig) {
+  public static getOverallPlayerRank(player: {
+    attributes: {
+      [key in PlayerAttributes]: PlayerRank
+    }
+  }) {
     return Math.round(
       Object.values(player.attributes).reduce((acc, curr) => {
         return acc + curr

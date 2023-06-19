@@ -5,6 +5,8 @@ import { Screen } from './Screen'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+import { RosterScreenData } from './RosterScreen'
+import { Utilities } from '~/utils/Utilities'
 
 export class TeamScreen implements Screen {
   private scene: TeamMgmt
@@ -40,7 +42,13 @@ export class TeamScreen implements Screen {
       text: 'View Roster',
       backgroundColor: 0x444444,
       onClick: () => {
-        this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER)
+        const rosterScreenData: RosterScreenData = {
+          shouldViewStarters: true,
+          teamToRender: Utilities.getPlayerTeamFromSave(),
+          shouldShowBackButton: true,
+          titleText: 'Your Roster',
+        }
+        this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER, rosterScreenData)
       },
       fontSize: '15px',
       textColor: 'white',
