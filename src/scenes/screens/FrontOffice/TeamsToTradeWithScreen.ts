@@ -6,7 +6,7 @@ import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from '../ScreenKeys'
 import { RosterScreenData } from '../RosterScreen'
 
-export class TradeScreen implements Screen {
+export class TeamsToTradeWithScreen implements Screen {
   private static PAGE_SIZE = 8
 
   private scene: TeamMgmt
@@ -93,7 +93,7 @@ export class TradeScreen implements Screen {
     this.currPageIndex += diff
     this.currPageIndex = Math.max(0, this.currPageIndex)
     this.currPageIndex = Math.min(
-      Math.round(allTeamsExceptPlayer.length / TradeScreen.PAGE_SIZE) - 1,
+      Math.round(allTeamsExceptPlayer.length / TeamsToTradeWithScreen.PAGE_SIZE) - 1,
       this.currPageIndex
     )
     if (this.leftButton && this.rightButton) {
@@ -102,7 +102,8 @@ export class TradeScreen implements Screen {
       if (this.currPageIndex === 0) {
         this.leftButton.setVisible(false)
       }
-      const lastPageIndex = Math.round(allTeamsExceptPlayer.length / TradeScreen.PAGE_SIZE) - 1
+      const lastPageIndex =
+        Math.round(allTeamsExceptPlayer.length / TeamsToTradeWithScreen.PAGE_SIZE) - 1
       if (this.currPageIndex === lastPageIndex) {
         this.rightButton.setVisible(false)
       }
@@ -114,8 +115,8 @@ export class TradeScreen implements Screen {
       this.teamsToTradeWith = []
     }
     const teamsOnCurrPage = allTeamsExceptPlayer.slice(
-      this.currPageIndex * TradeScreen.PAGE_SIZE,
-      this.currPageIndex * TradeScreen.PAGE_SIZE + TradeScreen.PAGE_SIZE
+      this.currPageIndex * TeamsToTradeWithScreen.PAGE_SIZE,
+      this.currPageIndex * TeamsToTradeWithScreen.PAGE_SIZE + TeamsToTradeWithScreen.PAGE_SIZE
     )
     let yPos = 100
     teamsOnCurrPage.forEach((team: TeamConfig) => {
@@ -148,7 +149,8 @@ export class TradeScreen implements Screen {
       if (this.currPageIndex === 0) {
         this.leftButton.setVisible(false)
       }
-      const lastPageIndex = Math.round(allTeamsExceptPlayer.length / TradeScreen.PAGE_SIZE) - 1
+      const lastPageIndex =
+        Math.round(allTeamsExceptPlayer.length / TeamsToTradeWithScreen.PAGE_SIZE) - 1
       if (this.currPageIndex === lastPageIndex) {
         this.rightButton.setVisible(false)
       }

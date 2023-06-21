@@ -17,21 +17,39 @@ export class RosterScreen implements Screen {
   private agentTableRowStats: PlayerAttrRow[] = []
   private titleText: Phaser.GameObjects.Text
   private teamConfig!: TeamConfig
+  private tradeButton!: Button
   private backButton!: Phaser.GameObjects.Image
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.titleText = this.scene.add.text(
       RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 40,
-      20,
+      22,
       'Your Roster',
       {
-        fontSize: '35px',
+        fontSize: '25px',
         color: 'black',
       }
     )
+    this.setupTradeButton()
     this.setupBackButton()
     this.setVisible(false)
+  }
+
+  setupTradeButton() {
+    this.tradeButton = new Button({
+      scene: this.scene,
+      x: RoundConstants.WINDOW_WIDTH - 75,
+      y: 35,
+      width: 120,
+      height: 40,
+      text: 'Trade',
+      fontSize: '15px',
+      strokeWidth: 1,
+      strokeColor: 0x000000,
+      backgroundColor: 0xffffff,
+      onClick: () => {},
+    })
   }
 
   setupBackButton() {
@@ -92,6 +110,7 @@ export class RosterScreen implements Screen {
       stats.setVisible(isVisible)
     })
     this.backButton.setVisible(isVisible)
+    this.tradeButton.setVisible(isVisible)
   }
 
   onRender(data?: RosterScreenData): void {
