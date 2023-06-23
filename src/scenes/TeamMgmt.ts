@@ -25,6 +25,7 @@ import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldown
 import { PlayoffsScreen } from './screens/Playoffs/PlayoffsScreen'
 import { PlayerPlayoffMatchResult } from '~/utils/SimulationUtils'
 import { TeamsToTradeWithScreen } from './screens/FrontOffice/TeamsToTradeWithScreen'
+import { TradeNegotiationScreen } from './screens/FrontOffice/TradeNegotationScreen'
 
 export interface PlayerAgentConfig {
   id: string
@@ -222,6 +223,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.CONTRACT_DRILLDOWN]: new ContractDrilldownScreen(this),
       [ScreenKeys.PLAYOFFS]: new PlayoffsScreen(this),
       [ScreenKeys.TRADES]: new TeamsToTradeWithScreen(this),
+      [ScreenKeys.TRADE_NEGOTIATION]: new TradeNegotiationScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)

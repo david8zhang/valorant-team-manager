@@ -43,7 +43,7 @@ export class TeamScreen implements Screen {
       backgroundColor: 0x444444,
       onClick: () => {
         const rosterScreenData: RosterScreenData = {
-          shouldViewStarters: true,
+          shouldShowTradeButton: false,
           teamToRender: Utilities.getPlayerTeamFromSave(),
           shouldShowBackButton: true,
           titleText: 'Your Roster',

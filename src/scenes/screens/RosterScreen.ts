@@ -4,10 +4,11 @@ import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+import { TradeNegotiationScreenData } from './FrontOffice/TradeNegotationScreen'
 
 export interface RosterScreenData {
   teamToRender: TeamConfig
-  shouldViewStarters: boolean
+  shouldShowTradeButton: boolean
   shouldShowBackButton: boolean
   titleText: string
 }
@@ -48,7 +49,12 @@ export class RosterScreen implements Screen {
       strokeWidth: 1,
       strokeColor: 0x000000,
       backgroundColor: 0xffffff,
-      onClick: () => {},
+      onClick: () => {
+        const tradeNegotiationData: TradeNegotiationScreenData = {
+          teamToTradeWith: this.teamConfig,
+        }
+        this.scene.renderActiveScreen(ScreenKeys.TRADE_NEGOTIATION, tradeNegotiationData)
+      },
     })
   }
 
@@ -117,6 +123,7 @@ export class RosterScreen implements Screen {
     if (data) {
       this.titleText.setText(data.titleText)
       this.teamConfig = data.teamToRender
+      this.tradeButton.setVisible(data.shouldShowTradeButton)
       this.setupPlayerStats(data.teamToRender)
     }
   }
