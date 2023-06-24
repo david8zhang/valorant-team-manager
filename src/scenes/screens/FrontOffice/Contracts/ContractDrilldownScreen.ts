@@ -1,14 +1,14 @@
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { Screen } from '../Screen'
+import { Screen } from '../../Screen'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { GenericPlayerAttrRow } from '~/core/ui/GenericPlayerAttrRow'
 import { Utilities } from '~/utils/Utilities'
 import { PlayerAttributes } from '~/utils/PlayerConstants'
 import { Button } from '~/core/ui/Button'
-import { ScreenKeys } from '../ScreenKeys'
+import { ScreenKeys } from '../../ScreenKeys'
 import { ContractConfigModal } from './ContractConfigModal'
 import { Save, SaveKeys } from '~/utils/Save'
-import { ConfirmReleaseModal } from './ConfirmReleaseModal'
+import { ConfirmReleaseModal } from '../ConfirmReleaseModal'
 
 export class ContractDrilldownScreen implements Screen {
   private scene: TeamMgmt

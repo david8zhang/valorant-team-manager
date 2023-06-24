@@ -20,12 +20,12 @@ import { DraftProspectsScreen } from './screens/Draft/DraftProspectsScreen'
 import { DraftScreen } from './screens/Draft/DraftScreen'
 import { SubstitutePlayerScreen } from './screens/SubstitutePlayerScreen'
 import { FrontOfficeScreen } from './screens/FrontOffice/FrontOfficeScreen'
-import { ContractsScreen } from './screens/FrontOffice/ContractsScreen'
-import { ContractDrilldownScreen } from './screens/FrontOffice/ContractDrilldownScreen'
+import { ContractsScreen } from './screens/FrontOffice/Contracts/ContractsScreen'
+import { ContractDrilldownScreen } from './screens/FrontOffice/Contracts/ContractDrilldownScreen'
 import { PlayoffsScreen } from './screens/Playoffs/PlayoffsScreen'
 import { PlayerPlayoffMatchResult } from '~/utils/SimulationUtils'
-import { TeamsToTradeWithScreen } from './screens/FrontOffice/TeamsToTradeWithScreen'
-import { TradeNegotiationScreen } from './screens/FrontOffice/TradeNegotationScreen'
+import { TeamsToTradeWithScreen } from './screens/FrontOffice/Trades/TeamsToTradeWithScreen'
+import { TradeNegotiationScreen } from './screens/FrontOffice/Trades/TradeNegotationScreen'
 
 export interface PlayerAgentConfig {
   id: string

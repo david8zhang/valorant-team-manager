@@ -4,7 +4,7 @@ import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
-import { TradeNegotiationScreenData } from './FrontOffice/TradeNegotationScreen'
+import { TradeNegotiationScreenData } from './FrontOffice/Trades/TradeNegotationScreen'
 
 export interface RosterScreenData {
   teamToRender: TeamConfig

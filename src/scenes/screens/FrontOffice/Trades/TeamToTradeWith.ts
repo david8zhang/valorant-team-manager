@@ -1,5 +1,5 @@
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
-import { Button } from './Button'
+import { Button } from '../../../../core/ui/Button'
 import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface TeamToTradeWithConfig {

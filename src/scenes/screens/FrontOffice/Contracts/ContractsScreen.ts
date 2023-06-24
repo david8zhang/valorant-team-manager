@@ -1,9 +1,9 @@
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { PlayerContractRow } from './PlayerContractRow'
-import { Screen } from '../Screen'
+import { PlayerContractRow } from '../PlayerContractRow'
+import { Screen } from '../../Screen'
 import { Save, SaveKeys } from '~/utils/Save'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { ScreenKeys } from '../ScreenKeys'
+import { ScreenKeys } from '../../ScreenKeys'
 
 export class ContractsScreen implements Screen {
   private scene: TeamMgmt

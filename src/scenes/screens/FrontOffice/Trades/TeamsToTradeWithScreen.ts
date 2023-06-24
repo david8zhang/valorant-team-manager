@@ -1,10 +1,10 @@
 import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
-import { Screen } from '../Screen'
+import { Screen } from '../../Screen'
 import { Save, SaveKeys } from '~/utils/Save'
-import { TeamToTradeWith } from '~/core/ui/TeamToTradeWith'
+import { TeamToTradeWith } from '~/scenes/screens/FrontOffice/Trades/TeamToTradeWith'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { ScreenKeys } from '../ScreenKeys'
-import { RosterScreenData } from '../RosterScreen'
+import { ScreenKeys } from '../../ScreenKeys'
+import { RosterScreenData } from '../../RosterScreen'
 
 export class TeamsToTradeWithScreen implements Screen {
   private static PAGE_SIZE = 8
@@ -96,18 +96,7 @@ export class TeamsToTradeWithScreen implements Screen {
       Math.round(allTeamsExceptPlayer.length / TeamsToTradeWithScreen.PAGE_SIZE) - 1,
       this.currPageIndex
     )
-    if (this.leftButton && this.rightButton) {
-      this.leftButton.setVisible(true)
-      this.rightButton.setVisible(true)
-      if (this.currPageIndex === 0) {
-        this.leftButton.setVisible(false)
-      }
-      const lastPageIndex =
-        Math.round(allTeamsExceptPlayer.length / TeamsToTradeWithScreen.PAGE_SIZE) - 1
-      if (this.currPageIndex === lastPageIndex) {
-        this.rightButton.setVisible(false)
-      }
-    }
+    this.hideOrDisplayPaginationButtons()
     if (this.teamsToTradeWith.length > 0) {
       this.teamsToTradeWith.forEach((row) => {
         row.destroy()
@@ -141,7 +130,7 @@ export class TeamsToTradeWithScreen implements Screen {
     })
   }
 
-  onRender(data?: any): void {
+  hideOrDisplayPaginationButtons() {
     if (this.leftButton && this.rightButton) {
       const allTeamsExceptPlayer = this.getAllTeamsExceptPlayer()
       this.leftButton.setVisible(true)
@@ -155,6 +144,10 @@ export class TeamsToTradeWithScreen implements Screen {
         this.rightButton.setVisible(false)
       }
     }
+  }
+
+  onRender(data?: any): void {
+    this.hideOrDisplayPaginationButtons()
   }
 
   setVisible(isVisible: boolean): void {
