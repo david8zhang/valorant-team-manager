@@ -41,21 +41,37 @@ export class Utilities {
 
   public static getRankNameForEnum(rank: PlayerRank) {
     const ranks = [
-      'BRONZE',
-      'SILVER',
-      'GOLD',
-      'PLATINUM',
-      'DIAMOND',
-      'MASTER',
-      'GRANDMASTER',
-      'CHALLENGER',
+      'BRONZE', // 55
+      'SILVER', // 65
+      'GOLD', // 75
+      'PLATINUM', // 80
+      'DIAMOND', // 85
+      'MASTER', // 90
+      'GRANDMASTER', // 95
+      'CHALLENGER', // 99
     ]
     return ranks[rank]
   }
 
   public static getAbbrevRankNameForEnum(rank: PlayerRank) {
-    const ranks = ['BRO', 'SIL', 'GOL', 'PLA', 'DIA', 'MAS', 'GM', 'CHA']
-    return `${ranks[rank]}.`
+    const ranks = ['BRZ', 'SIL', 'GOL', 'PLA', 'DIA', 'MAS', 'GM', 'CHA']
+    return `${ranks[rank]}`
+  }
+
+  public static getRatingNumberOutOf100(rank: PlayerRank) {
+    const overallRating = [55, 65, 75, 80, 85, 90, 95, 99]
+    return overallRating[rank]
+  }
+
+  public static getTradeValue(player: PlayerAgentConfig) {
+    const overallRank = Utilities.getOverallPlayerRank(player)
+    const overallOutOf100 = Utilities.getRatingNumberOutOf100(overallRank)
+    const potential = player.potential
+    const a = 0.00625
+    const b = -0.7125
+    const c = 21.28
+    const overallStarValue = Math.round(a * Math.pow(overallOutOf100, 2) + b * overallOutOf100 + c)
+    return overallStarValue + potential
   }
 
   public static getOverallPlayerRank(player: {

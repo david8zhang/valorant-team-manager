@@ -39,7 +39,7 @@ export class TradeNegotiationScreen implements Screen {
     return set
   }
 
-  setupAssetListWindows() {
+  setupAssetLists() {
     if (this.playerAssetList) {
       this.playerAssetList.destroy()
     }
@@ -58,9 +58,14 @@ export class TradeNegotiationScreen implements Screen {
         const playerTeam = Utilities.getPlayerTeamFromSave()
         this.addAssetModal.showModal(playerTeam)
       },
+      onRemoveAsset: () => {
+        this.removeAsset()
+      },
       width: totalWidth / 2,
       height: RoundConstants.WINDOW_HEIGHT - 135,
       teamName: playerTeamName,
+      negotiationScreen: this,
+      teamConfig: Utilities.getPlayerTeamFromSave(),
     })
     this.cpuAssetList = new TradeNegotiationAssetList(this.scene, {
       position: {
@@ -71,10 +76,30 @@ export class TradeNegotiationScreen implements Screen {
         this.currSideToAddFrom = Side.CPU
         this.addAssetModal.showModal(this.teamToTradeWith)
       },
+      onRemoveAsset: () => {
+        this.removeAsset()
+      },
       width: totalWidth / 2,
       height: RoundConstants.WINDOW_HEIGHT - 135,
       teamName: this.teamToTradeWith.name,
+      negotiationScreen: this,
+      teamConfig: this.teamToTradeWith,
     })
+  }
+
+  getProposedTrade() {
+    return {
+      playerToReceive: this.cpuAssetList ? this.cpuAssetList.assetList : [],
+      cpuToReceive: this.playerAssetList ? this.playerAssetList.assetList : [],
+    }
+  }
+
+  removeAsset() {
+    if (this.addAssetModal.isVisible) {
+      this.addAssetModal.updatePage(0)
+    }
+    this.cpuAssetList.updateSalaryAfterTradeValueText()
+    this.playerAssetList.updateSalaryAfterTradeValueText()
   }
 
   addAsset(playerAgentConfig: PlayerAgentConfig) {
@@ -83,6 +108,8 @@ export class TradeNegotiationScreen implements Screen {
     } else if (this.currSideToAddFrom === Side.CPU) {
       this.cpuAssetList.addAsset(playerAgentConfig)
     }
+    this.cpuAssetList.updateSalaryAfterTradeValueText()
+    this.playerAssetList.updateSalaryAfterTradeValueText()
   }
 
   setupProposeTradeButton() {
@@ -98,6 +125,26 @@ export class TradeNegotiationScreen implements Screen {
       backgroundColor: 0x444444,
       onClick: () => {},
     })
+  }
+
+  proposeTrade() {
+    const proposedTrade = this.getProposedTrade()
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    const cpuTeam = this.teamToTradeWith
+
+    const playerToSendIds = new Set(proposedTrade.playerToReceive.map((agent) => agent.id))
+    const cpuToSendIds = new Set(proposedTrade.cpuToReceive.map((agent) => agent.id))
+
+    const newPlayerRoster = playerTeam.roster
+      .concat(proposedTrade.playerToReceive)
+      .filter((config) => !playerToSendIds.has(config.id))
+
+    const newCPURoster = cpuTeam.roster
+      .concat(proposedTrade.cpuToReceive)
+      .filter((config) => !cpuToSendIds.has(config.id))
+
+    if (newPlayerRoster.length < 3 || newCPURoster.length < 3) {
+    }
   }
 
   setupAddAssetModal() {
@@ -125,7 +172,7 @@ export class TradeNegotiationScreen implements Screen {
   onRender(data?: any): void {
     if (data) {
       this.teamToTradeWith = data.teamToTradeWith
-      this.setupAssetListWindows()
+      this.setupAssetLists()
     }
   }
 }

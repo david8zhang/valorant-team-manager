@@ -103,12 +103,12 @@ export class AddTradeAssetModal {
           y: yPos,
         },
         playerConfig,
-        onAddAsset: () => {
+        onClickButton: () => {
           this.onAddAsset(playerConfig)
           this.updatePage(0)
         },
         depth: RoundConstants.SORT_LAYERS.Modal,
-        shouldShowAddAssetButton: true,
+        shouldShowButton: true,
       })
       yPos += 100
       this.assetRows.push(tradeAssetRow)
@@ -141,6 +141,10 @@ export class AddTradeAssetModal {
       .setDepth(this.bgRect.depth + 15)
     this.setVisible(true)
     this.updatePage(0)
+  }
+
+  get isVisible() {
+    return this.bgRect.visible
   }
 
   setVisible(isVisible: boolean) {
