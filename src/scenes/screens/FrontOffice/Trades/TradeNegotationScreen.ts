@@ -7,6 +7,7 @@ import { TradeNegotiationAssetList } from './TradeNegotiationAssetList'
 import { Save, SaveKeys } from '~/utils/Save'
 import { Side } from '~/core/Agent'
 import { Button } from '~/core/ui/Button'
+import { TradeProposalNotifModal } from './TradeProposalNotifModal'
 
 export interface TradeNegotiationScreenData {
   teamToTradeWith: TeamConfig
@@ -20,11 +21,13 @@ export class TradeNegotiationScreen implements Screen {
   private addAssetModal!: AddTradeAssetModal
   private currSideToAddFrom: Side = Side.PLAYER
   private proposeTradeButton!: Button
+  private tradeProposalNotifModal!: TradeProposalNotifModal
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
     this.setupAddAssetModal()
     this.setupProposeTradeButton()
+    this.setupTradeProposalNotifModal()
     this.setVisible(false)
   }
 
@@ -123,8 +126,20 @@ export class TradeNegotiationScreen implements Screen {
       fontSize: '15px',
       textColor: 'white',
       backgroundColor: 0x444444,
-      onClick: () => {},
+      onClick: () => {
+        this.proposeTrade()
+      },
     })
+  }
+
+  setupTradeProposalNotifModal() {
+    this.tradeProposalNotifModal = new TradeProposalNotifModal(this.scene, {
+      onContinue: () => {},
+      title: '',
+      subtitle: '',
+      depth: RoundConstants.SORT_LAYERS.Modal,
+    })
+    this.tradeProposalNotifModal.setVisible(false)
   }
 
   proposeTrade() {
@@ -132,8 +147,8 @@ export class TradeNegotiationScreen implements Screen {
     const playerTeam = Utilities.getPlayerTeamFromSave()
     const cpuTeam = this.teamToTradeWith
 
-    const playerToSendIds = new Set(proposedTrade.playerToReceive.map((agent) => agent.id))
-    const cpuToSendIds = new Set(proposedTrade.cpuToReceive.map((agent) => agent.id))
+    const playerToSendIds = new Set(proposedTrade.cpuToReceive.map((agent) => agent.id))
+    const cpuToSendIds = new Set(proposedTrade.playerToReceive.map((agent) => agent.id))
 
     const newPlayerRoster = playerTeam.roster
       .concat(proposedTrade.playerToReceive)
@@ -143,8 +158,62 @@ export class TradeNegotiationScreen implements Screen {
       .concat(proposedTrade.cpuToReceive)
       .filter((config) => !cpuToSendIds.has(config.id))
 
-    if (newPlayerRoster.length < 3 || newCPURoster.length < 3) {
+    if (!this.areRosterSizesValid(newPlayerRoster, newCPURoster)) {
+      this.tradeProposalNotifModal.display({
+        title: 'Trade Invalid!',
+        subtitle: 'Teams must have at least 3 players on them after trade',
+        onContinue: () => {
+          this.tradeProposalNotifModal.setVisible(false)
+        },
+      })
+      return
     }
+    if (!this.areSalariesValid(newPlayerRoster, newCPURoster)) {
+      this.tradeProposalNotifModal.display({
+        title: 'Trade Invalid!',
+        subtitle: 'Salaries after the trade must be under the salary cap',
+        onContinue: () => {
+          this.tradeProposalNotifModal.setVisible(false)
+        },
+      })
+      return
+    }
+    if (!this.areTradeValuesFair(newPlayerRoster, newCPURoster)) {
+      this.tradeProposalNotifModal.display({
+        title: 'Trade Rejected!',
+        subtitle: 'You must add more value to make this trade work',
+        onContinue: () => {
+          this.tradeProposalNotifModal.setVisible(false)
+        },
+      })
+      return
+    }
+  }
+
+  areRosterSizesValid(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
+    return newPlayerRoster.length >= 3 && newCPURoster.length >= 3
+  }
+
+  areSalariesValid(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
+    const playerTotalSalary = newPlayerRoster.reduce((acc, curr) => {
+      return acc + curr.contract.salary
+    }, 0)
+    const cpuTotalSalary = newCPURoster.reduce((acc, curr) => {
+      return acc + curr.contract.salary
+    }, 0)
+    return (
+      playerTotalSalary <= RoundConstants.SALARY_CAP && cpuTotalSalary <= RoundConstants.SALARY_CAP
+    )
+  }
+
+  areTradeValuesFair(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
+    const playerTotalTradeValue = newPlayerRoster.reduce((acc, curr) => {
+      return (acc += Utilities.getTradeValue(curr))
+    }, 0)
+    const cpuTotalTradeValue = newCPURoster.reduce((acc, curr) => {
+      return (acc += Utilities.getTradeValue(curr))
+    }, 0)
+    return playerTotalTradeValue >= cpuTotalTradeValue + 3
   }
 
   setupAddAssetModal() {
@@ -165,6 +234,7 @@ export class TradeNegotiationScreen implements Screen {
     }
     if (!isVisible) {
       this.addAssetModal.setVisible(isVisible)
+      this.tradeProposalNotifModal.setVisible(isVisible)
     }
     this.proposeTradeButton.setVisible(isVisible)
   }
