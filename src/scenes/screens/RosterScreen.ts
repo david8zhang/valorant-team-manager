@@ -124,6 +124,7 @@ export class RosterScreen implements Screen {
       this.titleText.setText(data.titleText)
       this.teamConfig = data.teamToRender
       this.tradeButton.setVisible(data.shouldShowTradeButton)
+      this.backButton.setVisible(data.shouldShowTradeButton)
       this.setupPlayerStats(data.teamToRender)
     }
   }

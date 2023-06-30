@@ -8,6 +8,8 @@ import { Save, SaveKeys } from '~/utils/Save'
 import { Side } from '~/core/Agent'
 import { Button } from '~/core/ui/Button'
 import { TradeProposalNotifModal } from './TradeProposalNotifModal'
+import { ScreenKeys } from '../../ScreenKeys'
+import { RosterScreenData } from '../../RosterScreen'
 
 export interface TradeNegotiationScreenData {
   teamToTradeWith: TeamConfig
@@ -188,6 +190,33 @@ export class TradeNegotiationScreen implements Screen {
       })
       return
     }
+    this.tradeProposalNotifModal.display({
+      title: 'Trade Successful',
+      subtitle: `The ${this.teamToTradeWith.name} have accepted your trade request`,
+      onContinue: () => {
+        this.processSuccessfulTrade(newPlayerRoster, newCPURoster)
+      },
+    })
+  }
+
+  processSuccessfulTrade(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
+    const playerTeam = Utilities.getPlayerTeamFromSave()
+    playerTeam.roster = newPlayerRoster
+    Utilities.updatePlayerTeamInSave(playerTeam)
+
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
+    const cpuTeam = allTeams[this.teamToTradeWith.name]
+    cpuTeam.roster = newCPURoster
+    allTeams[this.teamToTradeWith.name] = cpuTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+
+    const rosterData: RosterScreenData = {
+      shouldShowTradeButton: false,
+      teamToRender: playerTeam,
+      titleText: `${playerTeam.name} Roster`,
+      shouldShowBackButton: false,
+    }
+    this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER, rosterData)
   }
 
   areRosterSizesValid(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
@@ -207,13 +236,16 @@ export class TradeNegotiationScreen implements Screen {
   }
 
   areTradeValuesFair(newPlayerRoster: PlayerAgentConfig[], newCPURoster: PlayerAgentConfig[]) {
-    const playerTotalTradeValue = newPlayerRoster.reduce((acc, curr) => {
-      return (acc += Utilities.getTradeValue(curr))
+    const playerAssets = this.playerAssetList.assetList
+    const playerTotalTradeValue = playerAssets.reduce((acc, curr) => {
+      return acc + Utilities.getTradeValue(curr)
     }, 0)
-    const cpuTotalTradeValue = newCPURoster.reduce((acc, curr) => {
-      return (acc += Utilities.getTradeValue(curr))
+
+    const cpuAssets = this.cpuAssetList.assetList
+    const cpuTotalTradeValue = cpuAssets.reduce((acc, curr) => {
+      return acc + Utilities.getTradeValue(curr)
     }, 0)
-    return playerTotalTradeValue >= cpuTotalTradeValue + 3
+    return playerTotalTradeValue >= cpuTotalTradeValue + 2
   }
 
   setupAddAssetModal() {

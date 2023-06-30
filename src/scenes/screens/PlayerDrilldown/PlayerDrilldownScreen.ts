@@ -2,7 +2,6 @@ import { Button } from '~/core/ui/Button'
 import TeamMgmt, { PlayerAgentConfig } from '../../TeamMgmt'
 import { Screen } from '../Screen'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { ScreenKeys } from '../ScreenKeys'
 import { Utilities } from '~/utils/Utilities'
 import { PlayerAttributesTab } from './tabs/PlayerAttributesTab'
 
@@ -14,6 +13,7 @@ export class PlayerDrilldownScreen implements Screen {
   private playerImage: Phaser.GameObjects.Image
   private playerRankText: Phaser.GameObjects.Text
   private playerPotentialText: Phaser.GameObjects.Text
+  private playerContractAmountText: Phaser.GameObjects.Text
 
   private playerAttributesTab: PlayerAttributesTab | null = null
 
@@ -56,6 +56,17 @@ export class PlayerDrilldownScreen implements Screen {
         color: 'black',
       }
     )
+
+    this.playerContractAmountText = this.scene.add.text(
+      this.playerPotentialText.x + this.playerPotentialText.displayWidth + 15,
+      this.playerPotentialText.y,
+      '',
+      {
+        fontSize: '15px',
+        color: 'black',
+      }
+    )
+
     this.playerRankText = this.scene.add
       .text(RoundConstants.WINDOW_WIDTH - 20, this.playerNameText.y, '', {
         fontSize: '20px',
@@ -69,6 +80,15 @@ export class PlayerDrilldownScreen implements Screen {
     this.playerConfig = data
     this.playerNameText.setText(`${this.playerConfig.name}`)
     this.playerPotentialText.setText(`Potential: ${this.playerConfig.potential}`)
+    this.playerContractAmountText
+      .setText(
+        `Contract: $${this.playerConfig.contract.salary}M/${this.playerConfig.contract.duration}Yrs.`
+      )
+      .setPosition(
+        this.playerPotentialText.x + this.playerPotentialText.displayWidth + 15,
+        this.playerPotentialText.y
+      )
+
     const overallRank = Utilities.getRankNameForEnum(
       Utilities.getOverallPlayerRank(this.playerConfig)
     )
@@ -92,6 +112,7 @@ export class PlayerDrilldownScreen implements Screen {
     this.playerImage.setVisible(isVisible)
     this.playerRankText.setVisible(isVisible)
     this.playerPotentialText.setVisible(isVisible)
+    this.playerContractAmountText.setVisible(isVisible)
     if (this.playerAttributesTab) {
       this.playerAttributesTab.setVisible(isVisible)
     }
