@@ -8,7 +8,7 @@ import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../../ScreenKeys'
 import { ContractConfigModal } from './ContractConfigModal'
 import { Save, SaveKeys } from '~/utils/Save'
-import { ConfirmReleaseModal } from '../ConfirmReleaseModal'
+import { ConfirmReleaseModal } from './ConfirmReleaseModal'
 
 export class ContractDrilldownScreen implements Screen {
   private scene: TeamMgmt

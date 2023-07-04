@@ -483,7 +483,7 @@ export class PlayoffsScreen implements Screen {
     this.champAnnounceModal = new ChampionAnnouncementModal(this.scene, {
       champion: null,
       onContinue: () => {
-        this.endPlayoffs()
+        this.endPlayoffsAndSeason()
       },
       depth: RoundConstants.SORT_LAYERS.UI,
     })
@@ -503,10 +503,10 @@ export class PlayoffsScreen implements Screen {
     this.playerElimModal.setVisible(false)
   }
 
-  endPlayoffs() {
-    // Reset playoff bracket
+  endPlayoffsAndSeason() {
     Utilities.convertRookies()
     Utilities.decrementContractDurations()
+    // Reset playoff bracket
     Save.setData(SaveKeys.CURR_PLAYOFF_ROUND, null)
     Save.setData(SaveKeys.PLAYOFF_BRACKET, null)
     this.scene.renderActiveScreen(ScreenKeys.DRAFT, {

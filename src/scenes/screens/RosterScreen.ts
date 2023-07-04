@@ -10,6 +10,7 @@ export interface RosterScreenData {
   teamToRender: TeamConfig
   shouldShowTradeButton: boolean
   shouldShowBackButton: boolean
+  onBack?: Function
   titleText: string
 }
 
@@ -20,6 +21,7 @@ export class RosterScreen implements Screen {
   private teamConfig!: TeamConfig
   private tradeButton!: Button
   private backButton!: Phaser.GameObjects.Image
+  private onBack: Function | undefined
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -67,15 +69,27 @@ export class RosterScreen implements Screen {
         this.backButton.setAlpha(0.5)
       })
       .on(Phaser.Input.Events.POINTER_DOWN_OUTSIDE, () => {
-        this.scene.goBackToPreviousScreen()
+        if (this.onBack) {
+          this.onBack()
+        } else {
+          this.scene.goBackToPreviousScreen()
+        }
         this.backButton.setAlpha(1)
       })
       .on(Phaser.Input.Events.POINTER_UP, () => {
-        this.scene.goBackToPreviousScreen()
+        if (this.onBack) {
+          this.onBack()
+        } else {
+          this.scene.goBackToPreviousScreen()
+        }
         this.backButton.setAlpha(1)
       })
       .on(Phaser.Input.Events.POINTER_UP_OUTSIDE, () => {
-        this.scene.goBackToPreviousScreen()
+        if (this.onBack) {
+          this.onBack()
+        } else {
+          this.scene.goBackToPreviousScreen()
+        }
         this.backButton.setAlpha(1)
       })
   }
@@ -121,6 +135,7 @@ export class RosterScreen implements Screen {
 
   onRender(data?: RosterScreenData): void {
     if (data) {
+      this.onBack = data.onBack
       this.titleText.setText(data.titleText)
       this.teamConfig = data.teamToRender
       this.tradeButton.setVisible(data.shouldShowTradeButton)

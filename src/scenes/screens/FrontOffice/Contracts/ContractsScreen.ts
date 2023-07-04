@@ -1,5 +1,5 @@
 import TeamMgmt, { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { PlayerContractRow } from '../PlayerContractRow'
+import { PlayerContractRow } from './PlayerContractRow'
 import { Screen } from '../../Screen'
 import { Save, SaveKeys } from '~/utils/Save'
 import { RoundConstants } from '~/utils/RoundConstants'

@@ -9,7 +9,7 @@ import { GenericPlayerAttrRow } from '~/core/ui/GenericPlayerAttrRow'
 
 export class DraftProspectsScreen implements Screen {
   public static PAGE_SIZE = 10
-  public static NUM_DRAFT_PROSPECTS = 20
+  public static NUM_DRAFT_PROSPECTS = 64
 
   private scene: TeamMgmt
   private titleText: Phaser.GameObjects.Text
@@ -28,7 +28,7 @@ export class DraftProspectsScreen implements Screen {
       })
       .setOrigin(0)
     this.setupScoutPointsText()
-    this.setupPaginationButton()
+    this.setupPaginationButtons()
     this.setVisible(false)
   }
 
@@ -62,7 +62,7 @@ export class DraftProspectsScreen implements Screen {
     return savedDraftProspects
   }
 
-  setupPaginationButton() {
+  setupPaginationButtons() {
     this.leftButton = this.scene.add
       .image(
         RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 20,

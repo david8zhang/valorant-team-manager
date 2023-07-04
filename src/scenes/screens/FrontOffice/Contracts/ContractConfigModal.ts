@@ -49,7 +49,7 @@ export class ContractConfigModal {
       .setStrokeStyle(1, 0x000000)
       .setFillStyle(0xffffff)
 
-    this.salaryAsk = this.getExtensionEstimate(config.playerConfig, this.durationAsk)
+    this.salaryAsk = Utilities.getExtensionEstimate(config.playerConfig, this.durationAsk)
     this.titleText = this.scene.add
       .text(config.position.x, config.position.y, 'Extend Contract?', {
         fontSize: '20px',
@@ -150,34 +150,11 @@ export class ContractConfigModal {
       stepSize: 1,
       onStepChanged: (step: number) => {
         this.durationAsk = step + 2
-        this.salaryAsk = this.getExtensionEstimate(this.playerConfig, this.durationAsk)
+        this.salaryAsk = Utilities.getExtensionEstimate(this.playerConfig, this.durationAsk)
         this.updateContractAskText()
         this.updateSalaryCapSpaceText()
       },
     })
-  }
-
-  getAskingAmount(player: PlayerAgentConfig) {
-    const overall = Utilities.getOverallPlayerRank(player) as PlayerRank
-    return RANK_TO_ASKING_AMOUNT_MAPPING[overall]
-  }
-
-  getExtensionEstimate(player: PlayerAgentConfig, duration: number) {
-    const contract = player.contract
-    const currDuration = contract.duration
-    let askingAmount = Math.max(contract.salary, this.getAskingAmount(player))
-
-    // Factor in potentials
-    const potentialMultiplier = 0.15 * player.potential + 0.8
-    askingAmount *= potentialMultiplier
-
-    // Factor in duration
-    const durationMultiplier = 1.46429 - 0.0714286 * (duration + currDuration)
-    askingAmount *= durationMultiplier
-    askingAmount = Math.floor(askingAmount)
-
-    // If hero is a rookie, the max they can ask for is 10
-    return player.isRookie ? Math.min(askingAmount, 10) : Math.min(askingAmount, 40)
   }
 
   updateContractAskText() {

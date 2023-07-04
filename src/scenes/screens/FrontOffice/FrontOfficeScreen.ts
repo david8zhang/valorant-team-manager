@@ -30,7 +30,9 @@ export class FrontOfficeScreen implements Screen {
       },
       {
         text: 'Free Agents',
-        onClick: () => {},
+        onClick: () => {
+          this.scene.renderActiveScreen(ScreenKeys.FREE_AGENTS)
+        },
       },
     ]
     const padding = 15

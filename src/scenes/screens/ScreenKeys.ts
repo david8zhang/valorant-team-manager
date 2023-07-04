@@ -14,6 +14,7 @@ export enum ScreenKeys {
   PLAYOFFS = 'PLAYOFFS',
   TRADES = 'TRADES',
   TRADE_NEGOTIATION = 'TRADE_NEGOTIATION',
+  FREE_AGENTS = 'FREE_AGENTS',
 }
 
 export enum PostRoundScreenKeys {

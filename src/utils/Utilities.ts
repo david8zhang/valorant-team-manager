@@ -2,6 +2,7 @@ import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
 import { PlayerAttributes, PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
+import { RANK_TO_ASKING_AMOUNT_MAPPING } from './PlayerConstants'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -21,6 +22,12 @@ export class Utilities {
     return array
   }
 
+  public static moveUndraftedToFreeAgents(undraftedPlayers: PlayerAgentConfig[]) {
+    const existingFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) || []
+    const allFreeAgents = existingFreeAgents.concat(undraftedPlayers)
+    Save.setData(SaveKeys.FREE_AGENTS, allFreeAgents)
+  }
+
   public static generateRandomName() {
     const randFirstName = MALE_FIRST_NAMES[Phaser.Math.Between(0, MALE_FIRST_NAMES.length - 1)]
     const randLastName = LAST_NAMES[Phaser.Math.Between(0, LAST_NAMES.length - 1)]
@@ -30,6 +37,12 @@ export class Utilities {
     const firstNameProperCase = convertToProperCase(randFirstName)
     const lastNameProperCase = convertToProperCase(randLastName)
     return `${firstNameProperCase} ${lastNameProperCase}`
+  }
+
+  public static getTotalSalary(teamConfig: TeamConfig) {
+    return teamConfig.roster.reduce((acc, curr) => {
+      return acc + curr.contract.salary
+    }, 0)
   }
 
   public static getWinLossRatio(teamConfig: TeamConfig) {
@@ -113,17 +126,42 @@ export class Utilities {
   }
 
   public static decrementContractDurations() {
-    const playerTeam = Utilities.getPlayerTeamFromSave()
-    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
-      return {
-        ...playerAgent,
-        contract: {
-          ...playerAgent.contract,
-          duration: Math.max(0, playerAgent.contract.duration - 1),
-        },
-      }
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    Object.values(allTeams).forEach((teamConfig: TeamConfig) => {
+      const newTeamRoster = teamConfig.roster.map((playerAgent: PlayerAgentConfig) => {
+        return {
+          ...playerAgent,
+          contract: {
+            ...playerAgent.contract,
+            duration: Math.max(0, playerAgent.contract.duration - 1),
+          },
+        }
+      })
+      allTeams[teamConfig.name].roster = newTeamRoster
     })
-    playerTeam.roster = newPlayerRoster
-    Utilities.updatePlayerTeamInSave(playerTeam)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+  }
+
+  static getAskingAmount(player: PlayerAgentConfig) {
+    const overall = Utilities.getOverallPlayerRank(player) as PlayerRank
+    return RANK_TO_ASKING_AMOUNT_MAPPING[overall]
+  }
+
+  static getExtensionEstimate(player: PlayerAgentConfig, duration: number) {
+    const contract = player.contract
+    const currDuration = contract.duration
+    let askingAmount = Math.max(contract.salary, Utilities.getAskingAmount(player))
+
+    // Factor in potentials
+    const potentialMultiplier = 0.15 * player.potential + 0.8
+    askingAmount *= potentialMultiplier
+
+    // Factor in duration
+    const durationMultiplier = 1.46429 - 0.0714286 * (duration + currDuration)
+    askingAmount *= durationMultiplier
+    askingAmount = Math.floor(askingAmount)
+
+    // If hero is a rookie, the max they can ask for is 10
+    return player.isRookie ? Math.min(askingAmount, 10) : Math.min(askingAmount, 40)
   }
 }

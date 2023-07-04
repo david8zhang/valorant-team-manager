@@ -140,7 +140,81 @@ export class DraftScreen implements Screen {
 
   endDraft() {
     Save.setData(SaveKeys.DRAFT_IN_PROGRESS, false)
+
+    // All draft prospects at this point will have been undrafted
+    const undraftedPlayers = Save.getData(SaveKeys.DRAFT_PROSPECTS)
+    Utilities.moveUndraftedToFreeAgents(undraftedPlayers)
+    this.processCPUExpiringContracts()
     this.startNewSeason()
+  }
+
+  processCPUExpiringContracts() {
+    const allTeamsMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
+      [key: string]: TeamConfig
+    }
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    const cpuControlledTeams = Object.values(allTeamsMapping).filter((teamConfig: TeamConfig) => {
+      return teamConfig.name !== playerTeamName
+    })
+
+    let allFreeAgents: PlayerAgentConfig[] = []
+    cpuControlledTeams.forEach((teamConfig: TeamConfig) => {
+      // Get all expiring player contracts
+      const expiringPlayers = teamConfig.roster.filter(
+        (playerConfig) => playerConfig.contract.duration === 0
+      )
+
+      // Get all non-expiring player contracts
+      const returningPlayers = teamConfig.roster.filter(
+        (playerConfig) => playerConfig.contract.duration > 0
+      )
+
+      // Keep players with highest OVR (while staying under salary cap)
+      const playersToKeep: PlayerAgentConfig[] = []
+      const playersToWaive: PlayerAgentConfig[] = []
+      let runningSalary = Utilities.getTotalSalary(teamConfig)
+      const sortedByOverallDesc = expiringPlayers.sort((a, b) => {
+        return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
+      })
+      sortedByOverallDesc.forEach((playerConfig: PlayerAgentConfig) => {
+        const durationAsk = Phaser.Math.Between(2, 4)
+        const oldSalary = playerConfig.contract.salary
+        const newSalary = Utilities.getExtensionEstimate(playerConfig, durationAsk)
+        const salaryIncrease = newSalary - oldSalary
+
+        // If the roster + re-signed player has fewer than the required number of starters,
+        // We need to ensure we still have enough salary to sign at least 2 minimum free agents
+        const projectedRoster = returningPlayers.concat(playerConfig)
+        const numRemainingRosterSlots = projectedRoster.length > 3 ? 0 : 3 - projectedRoster.length
+        const requiredCapSpaceToFillRoster = numRemainingRosterSlots * 5
+
+        // Ensure that the player has enough salary to
+        if (
+          runningSalary + salaryIncrease <=
+          RoundConstants.SALARY_CAP - requiredCapSpaceToFillRoster
+        ) {
+          playersToKeep.push({
+            ...playerConfig,
+            contract: {
+              duration: durationAsk,
+              salary: newSalary,
+            },
+          })
+          runningSalary += newSalary - oldSalary
+        } else {
+          playersToWaive.push(playerConfig)
+        }
+      })
+      // Update the CPU roster based on salary re-negotiations
+      const newRoster = playersToKeep.concat(returningPlayers)
+      teamConfig.roster = newRoster
+      allTeamsMapping[teamConfig.name] = teamConfig
+      allFreeAgents = allFreeAgents.concat(playersToWaive)
+    })
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamsMapping)
+    const existingFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) || []
+    const newFreeAgents = existingFreeAgents.concat(allFreeAgents)
+    Save.setData(SaveKeys.FREE_AGENTS, newFreeAgents)
   }
 
   setupContinueDraftButton() {

@@ -117,6 +117,9 @@ export class TeamsToTradeWithScreen implements Screen {
             teamToRender: team,
             titleText: `${team.name} Roster`,
             shouldShowBackButton: true,
+            onBack: () => {
+              this.scene.renderActiveScreen(ScreenKeys.TRADES)
+            },
           }
           this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER, rosterData)
         },

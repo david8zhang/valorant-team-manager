@@ -26,6 +26,7 @@ import { PlayoffsScreen } from './screens/Playoffs/PlayoffsScreen'
 import { PlayerPlayoffMatchResult } from '~/utils/SimulationUtils'
 import { TeamsToTradeWithScreen } from './screens/FrontOffice/Trades/TeamsToTradeWithScreen'
 import { TradeNegotiationScreen } from './screens/FrontOffice/Trades/TradeNegotationScreen'
+import { FreeAgentScreen } from './screens/FrontOffice/FreeAgents/FreeAgentScreen'
 
 export interface PlayerAgentConfig {
   id: string
@@ -224,6 +225,7 @@ export default class TeamMgmt extends Phaser.Scene {
       [ScreenKeys.PLAYOFFS]: new PlayoffsScreen(this),
       [ScreenKeys.TRADES]: new TeamsToTradeWithScreen(this),
       [ScreenKeys.TRADE_NEGOTIATION]: new TradeNegotiationScreen(this),
+      [ScreenKeys.FREE_AGENTS]: new FreeAgentScreen(this),
     }
     this.add
       .rectangle(201, 0, RoundConstants.WINDOW_WIDTH - 202, RoundConstants.WINDOW_HEIGHT - 2)
