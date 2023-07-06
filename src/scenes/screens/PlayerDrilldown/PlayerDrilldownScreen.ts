@@ -5,6 +5,11 @@ import { RoundConstants } from '~/utils/RoundConstants'
 import { Utilities } from '~/utils/Utilities'
 import { PlayerAttributesTab } from './tabs/PlayerAttributesTab'
 
+export interface PlayerDrilldownScreenConfig {
+  playerConfig: PlayerAgentConfig
+  onBack?: Function
+}
+
 export class PlayerDrilldownScreen implements Screen {
   private scene: TeamMgmt
   private playerConfig!: PlayerAgentConfig
@@ -16,6 +21,7 @@ export class PlayerDrilldownScreen implements Screen {
   private playerContractAmountText: Phaser.GameObjects.Text
 
   private playerAttributesTab: PlayerAttributesTab | null = null
+  private onBackFn: Function | undefined
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -23,7 +29,7 @@ export class PlayerDrilldownScreen implements Screen {
       scene: this.scene,
       text: 'Back',
       onClick: () => {
-        this.scene.goBackToPreviousScreen()
+        this.onBack()
       },
       fontSize: '15px',
       x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 40,
@@ -76,34 +82,45 @@ export class PlayerDrilldownScreen implements Screen {
     this.setVisible(false)
   }
 
-  onRender(data?: any): void {
-    this.playerConfig = data
-    this.playerNameText.setText(`${this.playerConfig.name}`)
-    this.playerPotentialText.setText(`Potential: ${this.playerConfig.potential}`)
-    this.playerContractAmountText
-      .setText(
-        `Contract: $${this.playerConfig.contract.salary}M/${this.playerConfig.contract.duration}Yrs.`
-      )
-      .setPosition(
-        this.playerPotentialText.x + this.playerPotentialText.displayWidth + 15,
-        this.playerPotentialText.y
-      )
-
-    const overallRank = Utilities.getRankNameForEnum(
-      Utilities.getOverallPlayerRank(this.playerConfig)
-    )
-    if (!this.playerAttributesTab) {
-      this.playerAttributesTab = new PlayerAttributesTab(this.scene, {
-        playerConfig: this.playerConfig,
-        position: {
-          x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 25,
-          y: this.playerImage.y + this.playerImage.displayHeight + 50,
-        },
-      })
+  onBack() {
+    if (this.onBackFn) {
+      this.onBackFn()
     } else {
-      this.playerAttributesTab.updatePlayerConfig(this.playerConfig)
+      this.scene.goBackToPreviousScreen()
     }
-    this.playerRankText.setText(`${overallRank}`)
+  }
+
+  onRender(data?: PlayerDrilldownScreenConfig): void {
+    if (data) {
+      this.playerConfig = data.playerConfig
+      this.onBackFn = data.onBack
+      this.playerNameText.setText(`${this.playerConfig.name}`)
+      this.playerPotentialText.setText(`Potential: ${this.playerConfig.potential}`)
+      this.playerContractAmountText
+        .setText(
+          `Contract: $${this.playerConfig.contract.salary}M/${this.playerConfig.contract.duration}Yrs.`
+        )
+        .setPosition(
+          this.playerPotentialText.x + this.playerPotentialText.displayWidth + 15,
+          this.playerPotentialText.y
+        )
+
+      const overallRank = Utilities.getRankNameForEnum(
+        Utilities.getOverallPlayerRank(this.playerConfig)
+      )
+      if (!this.playerAttributesTab) {
+        this.playerAttributesTab = new PlayerAttributesTab(this.scene, {
+          playerConfig: this.playerConfig,
+          position: {
+            x: RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 25,
+            y: this.playerImage.y + this.playerImage.displayHeight + 50,
+          },
+        })
+      } else {
+        this.playerAttributesTab.updatePlayerConfig(this.playerConfig)
+      }
+      this.playerRankText.setText(`${overallRank}`)
+    }
   }
 
   setVisible(isVisible: boolean): void {

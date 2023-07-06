@@ -123,7 +123,7 @@ export class AddTradeAssetModal {
       if (this.currPageIndex === 0) {
         this.leftButton.setVisible(false)
       }
-      const lastPageIndex = Math.round(roster.length / AddTradeAssetModal.PAGE_SIZE) - 1
+      const lastPageIndex = Math.ceil(roster.length / AddTradeAssetModal.PAGE_SIZE) - 1
       if (this.currPageIndex === lastPageIndex) {
         this.rightButton.setVisible(false)
       }

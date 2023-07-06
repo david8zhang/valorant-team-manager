@@ -10,6 +10,12 @@ import { ContractConfigModal } from './ContractConfigModal'
 import { Save, SaveKeys } from '~/utils/Save'
 import { ConfirmReleaseModal } from './ConfirmReleaseModal'
 
+export interface ContractDrilldownScreenConfig {
+  playerConfig: PlayerAgentConfig
+  onCancelFn?: Function | undefined
+  isFreeAgentSigning: boolean
+}
+
 export class ContractDrilldownScreen implements Screen {
   private scene: TeamMgmt
   private playerConfig: PlayerAgentConfig | null = null
@@ -21,6 +27,7 @@ export class ContractDrilldownScreen implements Screen {
   private releaseButton!: Button
   private mgmtHelpText: Phaser.GameObjects.Text | null = null
   private confirmReleaseModal: ConfirmReleaseModal | null = null
+  private onCancelFn: Function | undefined
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -50,7 +57,7 @@ export class ContractDrilldownScreen implements Screen {
     })
   }
 
-  setupContractConfigModal() {
+  setupContractConfigModal(isFreeAgentSigning: boolean = false) {
     if (!this.playerConfig) {
       return
     }
@@ -65,7 +72,11 @@ export class ContractDrilldownScreen implements Screen {
         y: yPos,
       },
       onAccept: (salaryAsk: number, durationAsk: number) => {
-        this.extendPlayer(salaryAsk, durationAsk)
+        if (isFreeAgentSigning) {
+          this.signFreeAgent(salaryAsk, durationAsk)
+        } else {
+          this.extendPlayer(salaryAsk, durationAsk)
+        }
       },
       onDeny: () => {
         if (this.contractConfigModal) {
@@ -79,7 +90,7 @@ export class ContractDrilldownScreen implements Screen {
     this.contractConfigModal.hide()
   }
 
-  setupExtendButton() {
+  setupExtendOrSignButton(isFreeAgentSigning: boolean = false) {
     if (!this.playerConfig) {
       return
     }
@@ -91,7 +102,7 @@ export class ContractDrilldownScreen implements Screen {
         scene: this.scene,
         width: 150,
         height: 30,
-        text: 'Extend',
+        text: `${isFreeAgentSigning ? 'Sign' : 'Extend'}`,
         onClick: () => {
           if (this.contractConfigModal) {
             this.contractConfigModal.display()
@@ -113,10 +124,9 @@ export class ContractDrilldownScreen implements Screen {
     }
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
-    const currContract = this.playerConfig.contract
     const newContract = {
       salary: salaryAsk,
-      duration: currContract.duration + durationAsk,
+      duration: durationAsk,
     }
     const newRoster = playerTeam.roster.map((player: PlayerAgentConfig) => {
       if (player.id === this.playerConfig!.id) {
@@ -126,6 +136,32 @@ export class ContractDrilldownScreen implements Screen {
     })
     playerTeam.roster = newRoster
     allTeams[playerTeam.name] = playerTeam
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
+    this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+  }
+
+  signFreeAgent(salaryAsk: number, durationAsk: number) {
+    if (!this.playerConfig) {
+      return
+    }
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeam = allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
+    const currContract = this.playerConfig.contract
+    const newContract = {
+      salary: salaryAsk,
+      duration: currContract.duration + durationAsk,
+    }
+    const newRoster = playerTeam.roster.concat({
+      ...this.playerConfig,
+      contract: newContract,
+    })
+    playerTeam.roster = newRoster
+    allTeams[playerTeam.name] = playerTeam
+    const existingFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) || []
+    const newFreeAgents = existingFreeAgents.filter((agent) => {
+      return agent.id !== this.playerConfig!.id
+    })
+    Save.setData(SaveKeys.FREE_AGENTS, newFreeAgents)
     Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
     this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
   }
@@ -144,7 +180,7 @@ export class ContractDrilldownScreen implements Screen {
     this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
   }
 
-  setupReleaseButton() {
+  setupReleaseButton(isFreeAgentSigning: boolean = false) {
     if (!this.playerConfig) {
       return
     }
@@ -167,6 +203,7 @@ export class ContractDrilldownScreen implements Screen {
         strokeColor: 0x000000,
         fontSize: '15px',
       })
+      this.releaseButton.setVisible(!isFreeAgentSigning)
     }
   }
 
@@ -224,7 +261,11 @@ export class ContractDrilldownScreen implements Screen {
       y: 40,
       text: 'Cancel',
       onClick: () => {
-        this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+        if (this.onCancelFn) {
+          this.onCancelFn()
+        } else {
+          this.scene.renderActiveScreen(ScreenKeys.CONTRACTS)
+        }
       },
       fontSize: '15px',
       textColor: 'black',
@@ -297,16 +338,17 @@ export class ContractDrilldownScreen implements Screen {
     })
   }
 
-  onRender(data?: any): void {
+  onRender(data?: ContractDrilldownScreenConfig): void {
     if (data && data.playerConfig) {
       this.playerConfig = data.playerConfig
+      this.onCancelFn = data.onCancelFn
       this.setupPlayerName()
       this.setupPlayerAttributes()
       this.setupConfirmReleaseModal()
       this.setupMgmtHelpText()
-      this.setupExtendButton()
-      this.setupReleaseButton()
-      this.setupContractConfigModal()
+      this.setupExtendOrSignButton(data.isFreeAgentSigning)
+      this.setupReleaseButton(data.isFreeAgentSigning)
+      this.setupContractConfigModal(data.isFreeAgentSigning)
     }
   }
 }

@@ -22,6 +22,8 @@ export class RosterScreen implements Screen {
   private tradeButton!: Button
   private backButton!: Phaser.GameObjects.Image
   private onBack: Function | undefined
+  private shouldShowTradeButton: boolean = false
+  private shouldShowBackButton: boolean = false
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -115,7 +117,18 @@ export class RosterScreen implements Screen {
           text: 'Show Stats',
           shouldShow: true,
           onClick: () => {
-            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, {
+              playerConfig: config,
+              onBack: () => {
+                this.scene.renderActiveScreen(ScreenKeys.TEAM_ROSTER, {
+                  onBack: this.onBack,
+                  shouldShowBackButton: this.shouldShowBackButton,
+                  shouldShowTradeButton: this.shouldShowTradeButton,
+                  teamToRender: this.teamConfig,
+                  titleText: this.titleText.text,
+                })
+              },
+            })
           },
         },
       })
@@ -140,6 +153,8 @@ export class RosterScreen implements Screen {
       this.teamConfig = data.teamToRender
       this.tradeButton.setVisible(data.shouldShowTradeButton)
       this.backButton.setVisible(data.shouldShowTradeButton)
+      this.shouldShowTradeButton = data.shouldShowTradeButton
+      this.shouldShowBackButton = data.shouldShowBackButton
       this.setupPlayerStats(data.teamToRender)
     }
   }

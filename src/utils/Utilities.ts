@@ -22,10 +22,8 @@ export class Utilities {
     return array
   }
 
-  public static moveUndraftedToFreeAgents(undraftedPlayers: PlayerAgentConfig[]) {
-    const existingFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) || []
-    const allFreeAgents = existingFreeAgents.concat(undraftedPlayers)
-    Save.setData(SaveKeys.FREE_AGENTS, allFreeAgents)
+  public static processFreeAgents(undraftedPlayers: PlayerAgentConfig[]) {
+    Save.setData(SaveKeys.FREE_AGENTS, undraftedPlayers)
   }
 
   public static generateRandomName() {

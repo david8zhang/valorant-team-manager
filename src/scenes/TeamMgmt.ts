@@ -69,6 +69,7 @@ export default class TeamMgmt extends Phaser.Scene {
   private sidebar!: Sidebar
   public static BODY_WIDTH = RoundConstants.WINDOW_WIDTH - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH
   private activeScreenData!: TeamMgmtData
+  private prevScreenData: any
 
   public screens!: {
     [key in ScreenKeys]: any

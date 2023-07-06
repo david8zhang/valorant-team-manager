@@ -24,8 +24,8 @@ export class PostRoundPlayerExpScreen implements Screen {
   public playerExpGrowthMapping: ExpGrowthMapping = {}
 
   // Static constants
-  public static ROUND_WIN_EXP_MODIFIER = 2
-  public static MVP_EXP_MODIFIER = 1.5
+  public static ROUND_WIN_EXP_MODIFIER = 1.25
+  public static MVP_EXP_MODIFIER = 2
 
   constructor(scene: PostRound) {
     this.scene = scene

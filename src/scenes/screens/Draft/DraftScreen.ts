@@ -143,7 +143,7 @@ export class DraftScreen implements Screen {
 
     // All draft prospects at this point will have been undrafted
     const undraftedPlayers = Save.getData(SaveKeys.DRAFT_PROSPECTS)
-    Utilities.moveUndraftedToFreeAgents(undraftedPlayers)
+    Utilities.processFreeAgents(undraftedPlayers)
     this.processCPUExpiringContracts()
     this.startNewSeason()
   }
@@ -185,7 +185,10 @@ export class DraftScreen implements Screen {
         // If the roster + re-signed player has fewer than the required number of starters,
         // We need to ensure we still have enough salary to sign at least 2 minimum free agents
         const projectedRoster = returningPlayers.concat(playerConfig)
-        const numRemainingRosterSlots = projectedRoster.length > 3 ? 0 : 3 - projectedRoster.length
+        const numRemainingRosterSlots =
+          projectedRoster.length > RoundConstants.NUM_STARTERS
+            ? 0
+            : RoundConstants.NUM_STARTERS - projectedRoster.length
         const requiredCapSpaceToFillRoster = numRemainingRosterSlots * 5
 
         // Ensure that the player has enough salary to

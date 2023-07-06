@@ -5,6 +5,8 @@ import { RoundConstants } from '~/utils/RoundConstants'
 import { Save, SaveKeys } from '~/utils/Save'
 import { PlayerAttributes } from '~/utils/PlayerConstants'
 import { GenericPlayerAttrRow } from '~/core/ui/GenericPlayerAttrRow'
+import { ScreenKeys } from '../../ScreenKeys'
+import { ContractDrilldownScreenConfig } from '../Contracts/ContractDrilldownScreen'
 
 export class FreeAgentScreen implements Screen {
   private static PAGE_SIZE = 10
@@ -171,7 +173,16 @@ export class FreeAgentScreen implements Screen {
             key: 'Sign',
             buttonConfig: {
               text: 'Sign',
-              onClick: () => {},
+              onClick: () => {
+                const data: ContractDrilldownScreenConfig = {
+                  playerConfig: freeAgentConfig,
+                  isFreeAgentSigning: true,
+                  onCancelFn: () => {
+                    this.scene.renderActiveScreen(ScreenKeys.FREE_AGENTS)
+                  },
+                }
+                this.scene.renderActiveScreen(ScreenKeys.CONTRACT_DRILLDOWN, data)
+              },
             },
           },
         ],

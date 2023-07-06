@@ -74,7 +74,6 @@ export class TradeProposalNotifModal {
   }
 
   display(config: { title: string; subtitle: string; onContinue: Function }) {
-    console.log('Went here!')
     this.onContinue = config.onContinue
     this.titleText.setText(config.title)
     this.subtitleText.setText(config.subtitle)
