@@ -2,7 +2,7 @@ import { MapConstants } from '~/utils/MapConstants'
 import { Save } from '~/utils/Save'
 import { PostRoundConfig } from './PostRound'
 import { Side } from '~/core/Agent'
-import { DEFAULT_CONTRACT } from '~/utils/PlayerConstants'
+import { MINIMUM_CONTRACT } from '~/utils/PlayerConstants'
 
 export default class Preload extends Phaser.Scene {
   constructor() {
@@ -125,7 +125,7 @@ export default class Preload extends Phaser.Scene {
             potential: 1,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
           {
             id: 'IRO-2',
@@ -136,7 +136,7 @@ export default class Preload extends Phaser.Scene {
             potential: 1,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
           {
             id: 'IRO-3',
@@ -147,7 +147,7 @@ export default class Preload extends Phaser.Scene {
             potential: 1,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
         ],
       },
@@ -166,7 +166,7 @@ export default class Preload extends Phaser.Scene {
             potential: 2,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 90, headshot: 90, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
           {
             id: 'GDT-2',
@@ -177,7 +177,7 @@ export default class Preload extends Phaser.Scene {
             potential: 0,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
           {
             id: 'GDT-3',
@@ -188,7 +188,7 @@ export default class Preload extends Phaser.Scene {
             potential: 0,
             attributes: { accuracy: 0, headshot: 0, reaction: 0 },
             experience: { accuracy: 0, headshot: 0, reaction: 0 },
-            contract: { ...DEFAULT_CONTRACT },
+            contract: { ...MINIMUM_CONTRACT },
           },
         ],
       },

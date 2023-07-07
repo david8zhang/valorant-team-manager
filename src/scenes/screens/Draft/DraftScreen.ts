@@ -7,7 +7,7 @@ import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from '../ScreenKeys'
 import { Utilities } from '~/utils/Utilities'
 import { DraftProspectsScreen } from './DraftProspectsScreen'
-import { DEFAULT_CONTRACT, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
+import { MINIMUM_CONTRACT, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { SHORT_NAMES } from '~/utils/TeamConstants'
 
 export class DraftScreen implements Screen {
@@ -145,6 +145,7 @@ export class DraftScreen implements Screen {
     const undraftedPlayers = Save.getData(SaveKeys.DRAFT_PROSPECTS)
     Utilities.processFreeAgents(undraftedPlayers)
     this.processCPUExpiringContracts()
+    this.fillCPURostersWithFreeAgents()
     this.startNewSeason()
   }
 
@@ -170,32 +171,57 @@ export class DraftScreen implements Screen {
       )
 
       // Keep players with highest OVR (while staying under salary cap)
+
+      /**
+       * Imagine we have:
+       *
+       * Salary Cap: 100
+       *
+       * 1 Returning player
+       * 3 Expiring players
+       *
+       * Returning Player -> 50M/Yr
+       *
+       * Exp 1 -> 50M / Yr
+       * Exp 2 -> 20M / yr
+       * Exp 3 -> 30M / yr
+       *
+       * We need some way to resign Exp 2 and Exp 3 rather than resign Exp 1, since we don't have capspace
+       * to fill out the rest of the roster if we do so
+       *
+       * Curr algo:
+       *
+       * Is Exp 1 salary > Cap space - (1 remaining roster spot after signing * 5M / yr min contract?)
+       *  -> 50 >=? 50 - (10) NO
+       *  -> We must waive Exp 1
+       *
+       * Is Exp 2 salary > Cap space - (1 remaining roster spot after signing * 5M / yr min contract?)
+       *  -> 20 >=? 50 - (10) YES
+       *  -> Sign Exp 2, so now we only have 30M capspace
+       *
+       * Is Exp 3 salary > Cap space - (0 remaining roster spot * 5M / yr min contract?)
+       *  -> 30 >=? 30 - (0) YES
+       *  -> Sign Exp 3, so now we have 0M capspace
+       *
+       */
       const playersToKeep: PlayerAgentConfig[] = []
       const playersToWaive: PlayerAgentConfig[] = []
-      let runningSalary = Utilities.getTotalSalary(teamConfig)
+      let guaranteedSalary = Utilities.getTotalSalary(returningPlayers)
       const sortedByOverallDesc = expiringPlayers.sort((a, b) => {
         return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       sortedByOverallDesc.forEach((playerConfig: PlayerAgentConfig) => {
         const durationAsk = Phaser.Math.Between(2, 4)
-        const oldSalary = playerConfig.contract.salary
         const newSalary = Utilities.getExtensionEstimate(playerConfig, durationAsk)
-        const salaryIncrease = newSalary - oldSalary
-
-        // If the roster + re-signed player has fewer than the required number of starters,
-        // We need to ensure we still have enough salary to sign at least 2 minimum free agents
-        const projectedRoster = returningPlayers.concat(playerConfig)
-        const numRemainingRosterSlots =
-          projectedRoster.length > RoundConstants.NUM_STARTERS
-            ? 0
-            : RoundConstants.NUM_STARTERS - projectedRoster.length
-        const requiredCapSpaceToFillRoster = numRemainingRosterSlots * 5
+        const currCapspace = RoundConstants.SALARY_CAP - guaranteedSalary
+        const numRosterSpotsAfterSigning = Math.max(
+          0,
+          RoundConstants.NUM_STARTERS - playersToKeep.length - 1
+        )
+        const requiredCapSpace = currCapspace - numRosterSpotsAfterSigning * MINIMUM_CONTRACT.salary
 
         // Ensure that the player has enough salary to
-        if (
-          runningSalary + salaryIncrease <=
-          RoundConstants.SALARY_CAP - requiredCapSpaceToFillRoster
-        ) {
+        if (newSalary <= requiredCapSpace) {
           playersToKeep.push({
             ...playerConfig,
             contract: {
@@ -203,9 +229,15 @@ export class DraftScreen implements Screen {
               salary: newSalary,
             },
           })
-          runningSalary += newSalary - oldSalary
+          guaranteedSalary += newSalary
         } else {
-          playersToWaive.push(playerConfig)
+          playersToWaive.push({
+            ...playerConfig,
+            contract: {
+              duration: durationAsk,
+              salary: newSalary,
+            },
+          })
         }
       })
       // Update the CPU roster based on salary re-negotiations
@@ -218,6 +250,46 @@ export class DraftScreen implements Screen {
     const existingFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) || []
     const newFreeAgents = existingFreeAgents.concat(allFreeAgents)
     Save.setData(SaveKeys.FREE_AGENTS, newFreeAgents)
+  }
+
+  fillCPURostersWithFreeAgents() {
+    const allTeamsMapping = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as {
+      [key: string]: TeamConfig
+    }
+    const allFreeAgents = Save.getData(SaveKeys.FREE_AGENTS) as PlayerAgentConfig[]
+    const sortedByOvr = allFreeAgents.sort((a, b) => {
+      return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
+    })
+    const signedFreeAgents = new Set()
+    Object.values(allTeamsMapping).forEach((teamConfig: TeamConfig) => {
+      if (teamConfig.roster.length < RoundConstants.NUM_STARTERS) {
+        const newRoster = teamConfig.roster
+        for (let i = 0; i < RoundConstants.NUM_STARTERS - teamConfig.roster.length; i++) {
+          const currSalary = Utilities.getTotalSalary(newRoster)
+          let hasSignedPlayer = false
+          sortedByOvr.forEach((playerAgentConfig: PlayerAgentConfig) => {
+            if (
+              playerAgentConfig.contract.salary <= RoundConstants.SALARY_CAP - currSalary &&
+              !hasSignedPlayer &&
+              !signedFreeAgents.has(playerAgentConfig.id)
+            ) {
+              console.log(
+                `${teamConfig.name} signed ${playerAgentConfig.name} for $${playerAgentConfig.contract.salary}M for ${playerAgentConfig.contract.duration} years`
+              )
+              newRoster.push(playerAgentConfig)
+              hasSignedPlayer = true
+              signedFreeAgents.add(playerAgentConfig.id)
+            }
+          })
+        }
+        allTeamsMapping[teamConfig.name].roster = newRoster
+      }
+    })
+    const newFreeAgents = allFreeAgents.filter((playerAgentConfig: PlayerAgentConfig) => {
+      return !signedFreeAgents.has(playerAgentConfig.id)
+    })
+    Save.setData(SaveKeys.FREE_AGENTS, newFreeAgents)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeamsMapping)
   }
 
   setupContinueDraftButton() {
@@ -402,7 +474,7 @@ export class DraftScreen implements Screen {
         isRookie: true,
         texture: '',
         potential: Phaser.Math.Between(0, 2),
-        contract: { ...DEFAULT_CONTRACT },
+        contract: { ...MINIMUM_CONTRACT },
         attributes: {
           [PlayerAttributes.ACCURACY]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
           [PlayerAttributes.HEADSHOT]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],

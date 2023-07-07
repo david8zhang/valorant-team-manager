@@ -37,8 +37,8 @@ export class Utilities {
     return `${firstNameProperCase} ${lastNameProperCase}`
   }
 
-  public static getTotalSalary(teamConfig: TeamConfig) {
-    return teamConfig.roster.reduce((acc, curr) => {
+  public static getTotalSalary(roster: PlayerAgentConfig[]) {
+    return roster.reduce((acc, curr) => {
       return acc + curr.contract.salary
     }, 0)
   }

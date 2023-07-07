@@ -86,7 +86,7 @@ export const PLAYER_POTENTIAL_TO_EXP_MAPPING = {
   },
 }
 
-export const DEFAULT_CONTRACT = {
+export const MINIMUM_CONTRACT = {
   duration: 1,
   salary: 5,
 }

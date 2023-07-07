@@ -1,7 +1,7 @@
 import { Sidebar } from '~/core/ui/Sidebar'
 import { RoundConstants } from '~/utils/RoundConstants'
 import {
-  DEFAULT_CONTRACT,
+  MINIMUM_CONTRACT,
   PlayerAttributes,
   PlayerPotential,
   PlayerRank,
@@ -189,7 +189,7 @@ export default class TeamMgmt extends Phaser.Scene {
         texture: '',
         potential: Phaser.Math.Between(0, 2),
         contract: {
-          ...DEFAULT_CONTRACT,
+          ...MINIMUM_CONTRACT,
         },
         attributes: {
           [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,

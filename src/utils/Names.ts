@@ -9,7 +9,7 @@ export const MALE_FIRST_NAMES = [
   'CHARLES',
   'JOSEPH',
   'THOMAS',
-  'CHRISTOPHER',
+  'CHRIS',
   'DANIEL',
   'PAUL',
   'MARK',

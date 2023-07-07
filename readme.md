@@ -6,12 +6,12 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ### Management Sim
 
-- Free Agents
-- Player ages
-  - Degredation after a certain age
+- Make draft class OVR always below OVR of players currently playing (and capped at Gold)
 - First time user screen
   - Allow user to pick a team name
   - Initial team draft
+- Player ages
+  - Degredation after a certain age
 - "Mental" stat
 
 ### In-Round Gameplay
