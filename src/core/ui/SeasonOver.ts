@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { TeamConfig } from '~/scenes/TeamMgmt'
+import { TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
 import { Button } from './Button'
 

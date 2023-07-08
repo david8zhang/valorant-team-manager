@@ -1,12 +1,16 @@
-import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { PLAYER_POTENTIAL_TO_EXP_MAPPING, PlayerAttributes } from './PlayerConstants'
-import {
-  PlayerStatGrowthConfig,
-  PostRoundPlayerExpScreen,
-} from '~/scenes/screens/PostRound/PostRoundPlayerExpScreen'
+// import {
+//   PlayerStatGrowthConfig,
+//   PostRoundPlayerExpScreen,
+// } from '~/scenes/PostRound/PostRoundPlayerExpScreen'
 import { RANK_DIFF_UPSET_PROBABILITIES } from './TeamConstants'
 import { Utilities } from './Utilities'
 import { Side } from '~/core/Agent'
+import {
+  PlayerStatGrowthConfig,
+  PostRoundPlayerExpScreen,
+} from '~/scenes/PostRound/PostRoundPlayerExpScreen'
 
 export interface PlayerPlayoffMatchResult {
   winningSide: Side

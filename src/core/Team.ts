@@ -1,6 +1,6 @@
 import Round from '~/scenes/Round'
 import { Agent, AgentConfig } from './Agent'
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 
 export interface Team {
   onAgentDeathHandlers: Function[]

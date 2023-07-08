@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from './Button'
 

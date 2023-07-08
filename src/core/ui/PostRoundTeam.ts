@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 
 export interface PostRoundTeamconfig {
   teamConfig: TeamConfig

@@ -1,4 +1,4 @@
-import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { MINIMUM_CONTRACT, PlayerAttributes, PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'

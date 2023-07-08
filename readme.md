@@ -6,7 +6,6 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ### Management Sim
 
-- Make draft class OVR always below OVR of players currently playing (and capped at Gold)
 - First time user screen
   - Allow user to pick a team name
   - Initial team draft

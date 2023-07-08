@@ -7,8 +7,9 @@ import Preload from './scenes/Preload'
 import UI from './scenes/UI'
 import { RoundConstants } from './utils/RoundConstants'
 import StartMenu from './scenes/StartMenu'
-import TeamMgmt from './scenes/TeamMgmt'
-import { PostRound } from './scenes/PostRound'
+import TeamMgmt from './scenes/TeamMgmt/TeamMgmt'
+import { PostRound } from './scenes/PostRound/PostRound'
+import { FirstTime } from './scenes/FirstTime/FirstTime'
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -45,7 +46,7 @@ const config: Phaser.Types.Core.GameConfig = {
       },
     ],
   },
-  scene: [Preload, StartMenu, TeamMgmt, Round, UI, PostRound],
+  scene: [Preload, StartMenu, FirstTime, TeamMgmt, Round, UI, PostRound],
 }
 
 export default new Phaser.Game(config)

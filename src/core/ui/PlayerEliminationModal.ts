@@ -1,4 +1,4 @@
-import TeamMgmt from '~/scenes/TeamMgmt'
+import TeamMgmt from '~/scenes/TeamMgmt/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from './Button'
 import { Save, SaveKeys } from '~/utils/Save'

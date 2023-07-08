@@ -6,7 +6,7 @@ import { UtilityKey } from '~/core/utility/UtilityKey'
 import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GUN_CONFIGS } from '~/utils/GunConstants'
 import Round from './Round'
-import { TeamConfig } from './TeamMgmt'
+import { TeamConfig } from './TeamMgmt/TeamMgmt'
 
 export enum CommandState {
   MOVE = 'MOVE',

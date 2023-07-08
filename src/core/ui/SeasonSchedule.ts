@@ -1,4 +1,4 @@
-import TeamMgmt, { MatchConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { MatchConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 
 export interface SeasonScheduleConfig {

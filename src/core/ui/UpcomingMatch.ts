@@ -1,4 +1,4 @@
-import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt'
+import TeamMgmt, { TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { UpcomingMatchTeam } from './UpcomingMatchTeam'
 

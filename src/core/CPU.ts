@@ -13,7 +13,7 @@ import { UtilityKey } from './utility/UtilityKey'
 import { UtilityName } from './utility/UtilityNames'
 import { MoveToZone } from './behavior-tree/behaviors/MoveToZone'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 
 export interface CPUConfig {
   teamRoster: PlayerAgentConfig[]

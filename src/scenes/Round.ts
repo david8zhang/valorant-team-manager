@@ -8,9 +8,9 @@ import { Spike } from '~/core/Spike'
 import { RoundConstants, RoundState } from '~/utils/RoundConstants'
 import { GunTypes } from '~/utils/GunConstants'
 import UI from './UI'
-import { PlayerAgentConfig, TeamConfig } from './TeamMgmt'
+import { PlayerAgentConfig, TeamConfig } from './TeamMgmt/TeamMgmt'
 import { Save, SaveKeys } from '~/utils/Save'
-import { PostRoundConfig } from './PostRound'
+import { PostRoundConfig } from './PostRound/PostRound'
 
 export default class Round extends Phaser.Scene {
   private static _instance: Round

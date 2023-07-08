@@ -1,5 +1,4 @@
 import { Scene } from 'phaser'
-import TeamMgmt from '~/scenes/TeamMgmt'
 import { Side } from '../Agent'
 import { RoundConstants } from '~/utils/RoundConstants'
 

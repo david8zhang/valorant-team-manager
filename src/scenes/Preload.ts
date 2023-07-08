@@ -1,6 +1,6 @@
 import { MapConstants } from '~/utils/MapConstants'
 import { Save } from '~/utils/Save'
-import { PostRoundConfig } from './PostRound'
+import { PostRoundConfig } from './PostRound/PostRound'
 import { Side } from '~/core/Agent'
 import { MINIMUM_CONTRACT } from '~/utils/PlayerConstants'
 
@@ -195,7 +195,7 @@ export default class Preload extends Phaser.Scene {
       isPlayoffGame: false,
     }
     // this.scene.start('post-round', data)
-    this.scene.start('team-mgmt')
+    this.scene.start('ftue')
     // this.scene.start('start')
   }
 }

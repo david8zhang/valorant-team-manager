@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import TeamMgmt from '~/scenes/TeamMgmt'
+import TeamMgmt from '~/scenes/TeamMgmt/TeamMgmt'
 import { PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from './Button'

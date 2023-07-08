@@ -1,9 +1,9 @@
 import { RoundConstants } from '~/utils/RoundConstants'
 import { UpcomingMatchTeam } from './UpcomingMatchTeam'
-import TeamMgmt from '~/scenes/TeamMgmt'
+import TeamMgmt from '~/scenes/TeamMgmt/TeamMgmt'
 import { Button } from './Button'
 import { LinkText } from './LinkText'
-import { PlayoffMatchup, PlayoffMatchupTeam } from '~/scenes/screens/Playoffs/PlayoffsScreen'
+import { PlayoffMatchup, PlayoffMatchupTeam } from '~/scenes/TeamMgmt/Playoffs/PlayoffsScreen'
 
 export interface PlayoffMatchPreviewConfig {
   width: number

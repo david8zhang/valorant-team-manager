@@ -1,5 +1,5 @@
 import { Scene } from 'phaser'
-import { PlayerAgentConfig } from '~/scenes/TeamMgmt'
+import { PlayerAgentConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 
 export interface HomePlayerInfoConfig {
   name: string

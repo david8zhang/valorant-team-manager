@@ -1,5 +1,5 @@
-import { PostRound } from '~/scenes/PostRound'
-import { PlayerStatGrowthConfig } from '~/scenes/screens/PostRound/PostRoundPlayerExpScreen'
+import { PostRound } from '~/scenes/PostRound/PostRound'
+import { PlayerStatGrowthConfig } from '~/scenes/PostRound/PostRoundPlayerExpScreen'
 import { PLAYER_ATTRIBUTE_ABBREV, PlayerAttributes, PlayerRank } from '~/utils/PlayerConstants'
 import { UIValueBar } from './UIValueBar'
 import { RoundConstants } from '~/utils/RoundConstants'
