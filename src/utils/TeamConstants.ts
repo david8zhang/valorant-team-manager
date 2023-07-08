@@ -66,3 +66,5 @@ export const RANK_DIFF_UPSET_PROBABILITIES = {
     probability: 0,
   },
 }
+
+export const NUM_DRAFT_PROSPECTS = 64

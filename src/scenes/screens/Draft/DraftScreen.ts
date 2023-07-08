@@ -404,7 +404,7 @@ export class DraftScreen implements Screen {
 
   onRender(data?: any): void {
     if (data && data.isNewDraft) {
-      const savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
+      const savedDraftProspects = Utilities.generateDraftProspects().sort((a, b) => {
         return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
@@ -441,40 +441,12 @@ export class DraftScreen implements Screen {
   loadSavedDraftProspects() {
     let savedDraftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS) as PlayerAgentConfig[]
     if (!savedDraftProspects) {
-      savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
+      savedDraftProspects = Utilities.generateDraftProspects().sort((a, b) => {
         return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
     }
     return savedDraftProspects
-  }
-
-  generateDraftProspects() {
-    const newPlayers: PlayerAgentConfig[] = []
-    const playerRanks = [PlayerRank.BRONZE, PlayerRank.SILVER, PlayerRank.GOLD]
-    for (let i = 1; i <= DraftProspectsScreen.NUM_DRAFT_PROSPECTS; i++) {
-      const randomName = Utilities.generateRandomName()
-      newPlayers.push({
-        id: `draft-prospect-${i}`,
-        name: `${randomName}`,
-        isStarting: false,
-        isRookie: true,
-        texture: '',
-        potential: Phaser.Math.Between(0, 2),
-        contract: { ...MINIMUM_CONTRACT },
-        attributes: {
-          [PlayerAttributes.ACCURACY]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-          [PlayerAttributes.HEADSHOT]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-          [PlayerAttributes.REACTION]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-        },
-        experience: {
-          [PlayerAttributes.ACCURACY]: 0,
-          [PlayerAttributes.HEADSHOT]: 0,
-          [PlayerAttributes.REACTION]: 0,
-        },
-      })
-    }
-    return newPlayers
   }
 
   processPickAndRenderResult() {

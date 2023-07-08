@@ -1,8 +1,9 @@
 import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt'
-import { PlayerAttributes, PlayerRank } from './PlayerConstants'
+import { MINIMUM_CONTRACT, PlayerAttributes, PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
 import { RANK_TO_ASKING_AMOUNT_MAPPING } from './PlayerConstants'
+import { NUM_DRAFT_PROSPECTS } from './TeamConstants'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -171,5 +172,44 @@ export class Utilities {
 
     // If hero is a rookie, the max they can ask for is 10
     return player.isRookie ? Math.min(askingAmount, 10) : Math.min(askingAmount, 40)
+  }
+
+  static getRandomAttrRank() {
+    // 70% chance to be bronze, 20% chance for silver, 10% chance for gold
+    const randNum = Phaser.Math.Between(1, 100)
+    if (randNum > 0 && randNum <= 75) {
+      return PlayerRank.BRONZE
+    }
+    if (randNum > 75 && randNum <= 90) {
+      return PlayerRank.SILVER
+    }
+    return PlayerRank.GOLD
+  }
+
+  static generateDraftProspects() {
+    const newPlayers: PlayerAgentConfig[] = []
+    for (let i = 1; i <= NUM_DRAFT_PROSPECTS; i++) {
+      const randomName = Utilities.generateRandomName()
+      newPlayers.push({
+        id: `draft-prospect-${i}`,
+        name: randomName,
+        isStarting: false,
+        isRookie: true,
+        texture: '',
+        potential: Phaser.Math.Between(0, 2),
+        attributes: {
+          [PlayerAttributes.ACCURACY]: Utilities.getRandomAttrRank(),
+          [PlayerAttributes.HEADSHOT]: Utilities.getRandomAttrRank(),
+          [PlayerAttributes.REACTION]: Utilities.getRandomAttrRank(),
+        },
+        contract: { ...MINIMUM_CONTRACT },
+        experience: {
+          [PlayerAttributes.ACCURACY]: 0,
+          [PlayerAttributes.HEADSHOT]: 0,
+          [PlayerAttributes.REACTION]: 0,
+        },
+      })
+    }
+    return newPlayers
   }
 }

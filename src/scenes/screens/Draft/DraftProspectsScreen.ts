@@ -54,7 +54,7 @@ export class DraftProspectsScreen implements Screen {
   loadSavedDraftProspects() {
     let savedDraftProspects = Save.getData(SaveKeys.DRAFT_PROSPECTS) as PlayerAgentConfig[]
     if (!savedDraftProspects) {
-      savedDraftProspects = this.generateDraftProspects().sort((a, b) => {
+      savedDraftProspects = Utilities.generateDraftProspects().sort((a, b) => {
         return Utilities.getOverallPlayerRank(b) - Utilities.getOverallPlayerRank(a)
       })
       Save.setData(SaveKeys.DRAFT_PROSPECTS, savedDraftProspects)
@@ -112,10 +112,12 @@ export class DraftProspectsScreen implements Screen {
     const draftProspects = this.loadSavedDraftProspects()
     this.currPageIndex += diff
     this.currPageIndex = Math.max(0, this.currPageIndex)
-    this.currPageIndex = Math.min(
-      draftProspects.length / DraftProspectsScreen.PAGE_SIZE - 1,
-      this.currPageIndex
-    )
+    if (draftProspects.length > 0) {
+      this.currPageIndex = Math.min(
+        Math.ceil(draftProspects.length / DraftProspectsScreen.PAGE_SIZE) - 1,
+        this.currPageIndex
+      )
+    }
 
     if (this.leftButton && this.rightButton) {
       this.leftButton.setVisible(true)
@@ -123,7 +125,7 @@ export class DraftProspectsScreen implements Screen {
       if (this.currPageIndex === 0) {
         this.leftButton.setVisible(false)
       }
-      const lastPageIndex = draftProspects.length / DraftProspectsScreen.PAGE_SIZE - 1
+      const lastPageIndex = Math.ceil(draftProspects.length / DraftProspectsScreen.PAGE_SIZE) - 1
       if (this.currPageIndex === lastPageIndex) {
         this.rightButton.setVisible(false)
       }
@@ -252,32 +254,5 @@ export class DraftProspectsScreen implements Screen {
     this.leftButton.setVisible(isVisible)
     this.rightButton.setVisible(isVisible)
     this.scoutPointsText.setVisible(isVisible)
-  }
-
-  generateDraftProspects() {
-    const newPlayers: PlayerAgentConfig[] = []
-    const playerRanks = [PlayerRank.BRONZE, PlayerRank.SILVER, PlayerRank.GOLD]
-    for (let i = 1; i <= DraftProspectsScreen.NUM_DRAFT_PROSPECTS; i++) {
-      newPlayers.push({
-        id: `draft-prospect-${i}`,
-        name: `draft-${i}`,
-        isStarting: false,
-        isRookie: true,
-        texture: '',
-        potential: Phaser.Math.Between(0, 2),
-        attributes: {
-          [PlayerAttributes.ACCURACY]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-          [PlayerAttributes.HEADSHOT]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-          [PlayerAttributes.REACTION]: playerRanks[Phaser.Math.Between(0, playerRanks.length - 1)],
-        },
-        contract: { ...MINIMUM_CONTRACT },
-        experience: {
-          [PlayerAttributes.ACCURACY]: 0,
-          [PlayerAttributes.HEADSHOT]: 0,
-          [PlayerAttributes.REACTION]: 0,
-        },
-      })
-    }
-    return newPlayers
   }
 }
