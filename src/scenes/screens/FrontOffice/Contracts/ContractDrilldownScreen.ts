@@ -97,7 +97,7 @@ export class ContractDrilldownScreen implements Screen {
     if (this.extendButton) {
       this.extendButton.destroy()
     }
-    if (this.playerConfig.contract.duration <= 1) {
+    if (this.playerConfig.contract.duration <= 1 || isFreeAgentSigning) {
       this.extendButton = new Button({
         scene: this.scene,
         width: 150,
@@ -232,14 +232,14 @@ export class ContractDrilldownScreen implements Screen {
     }
   }
 
-  setupMgmtHelpText() {
+  setupMgmtHelpText(isFreeAgentSigning: boolean = false) {
     if (!this.playerConfig) {
       return
     }
     if (this.mgmtHelpText) {
       this.mgmtHelpText.destroy()
     }
-    if (this.playerConfig.contract.duration > 1) {
+    if (this.playerConfig.contract.duration > 1 && !isFreeAgentSigning) {
       this.mgmtHelpText = this.scene.add.text(
         RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + 15,
         200,
@@ -345,7 +345,7 @@ export class ContractDrilldownScreen implements Screen {
       this.setupPlayerName()
       this.setupPlayerAttributes()
       this.setupConfirmReleaseModal()
-      this.setupMgmtHelpText()
+      this.setupMgmtHelpText(data.isFreeAgentSigning)
       this.setupExtendOrSignButton(data.isFreeAgentSigning)
       this.setupReleaseButton(data.isFreeAgentSigning)
       this.setupContractConfigModal(data.isFreeAgentSigning)

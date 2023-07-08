@@ -135,7 +135,7 @@ export class SimulationUtils {
         const attr = key as PlayerAttributes
         let expGainAmt = Phaser.Math.Between(expRange.low, expRange.high)
         if (didWin) {
-          expGainAmt *= PostRoundPlayerExpScreen.ROUND_WIN_EXP_MODIFIER
+          expGainAmt *= Math.round(PostRoundPlayerExpScreen.ROUND_WIN_EXP_MODIFIER)
         }
         if (playerStats[config.name].matchMvp || playerStats[config.name].teamMvp) {
           expGainAmt = Math.round(expGainAmt * PostRoundPlayerExpScreen.MVP_EXP_MODIFIER)

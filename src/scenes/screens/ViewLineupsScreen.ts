@@ -6,6 +6,7 @@ import { PlayerAttrRow } from '~/core/ui/PlayerAttrRow'
 import { RoundConstants } from '~/utils/RoundConstants'
 import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
+import { PlayerDrilldownScreenConfig } from './PlayerDrilldown/PlayerDrilldownScreen'
 
 export interface ViewLineupsScreenData {
   opponentTeam: TeamConfig
@@ -121,7 +122,10 @@ export class ViewLineupsScreen implements Screen {
             text: 'Show Stats',
             shouldShow: true,
             onClick: () => {
-              this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, player)
+              const screenConfig: PlayerDrilldownScreenConfig = {
+                playerConfig: player,
+              }
+              this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, screenConfig)
             },
           },
         })

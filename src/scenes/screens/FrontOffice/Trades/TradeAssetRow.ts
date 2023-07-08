@@ -3,6 +3,7 @@ import TeamMgmt, { PlayerAgentConfig } from '~/scenes/TeamMgmt'
 import { PlayerRank } from '~/utils/PlayerConstants'
 import { Utilities } from '~/utils/Utilities'
 import { ScreenKeys } from '../../ScreenKeys'
+import { PlayerDrilldownScreenConfig } from '../../PlayerDrilldown/PlayerDrilldownScreen'
 
 export interface TradeAssetRowConfig {
   position: {
@@ -62,7 +63,10 @@ export class TradeAssetRow {
       .setDepth(config.depth)
       .setInteractive({ useHandCursor: true })
       .on(Phaser.Input.Events.POINTER_DOWN, () => {
-        this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config.playerConfig)
+        const screenConfig: PlayerDrilldownScreenConfig = {
+          playerConfig: config.playerConfig,
+        }
+        this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, screenConfig)
       })
 
     const overallRank = Utilities.getOverallPlayerRank(config.playerConfig) as PlayerRank

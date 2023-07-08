@@ -7,6 +7,7 @@ import { Button } from '~/core/ui/Button'
 import { ScreenKeys } from './ScreenKeys'
 import { RosterScreenData } from './RosterScreen'
 import { Utilities } from '~/utils/Utilities'
+import { PlayerDrilldownScreenConfig } from './PlayerDrilldown/PlayerDrilldownScreen'
 
 export class TeamScreen implements Screen {
   private scene: TeamMgmt
@@ -120,7 +121,10 @@ export class TeamScreen implements Screen {
         const statButton = new Button({
           text: 'Show Stats',
           onClick: () => {
-            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, config)
+            const screenConfig: PlayerDrilldownScreenConfig = {
+              playerConfig: config,
+            }
+            this.scene.renderActiveScreen(ScreenKeys.PLAYER_DRILLDOWN, screenConfig)
           },
           x: xPos + homePlayerInfo.rectangle.displayWidth / 2,
           y: homePlayerInfo.rectangle.y + homePlayerInfo.rectangle.displayHeight + 35,

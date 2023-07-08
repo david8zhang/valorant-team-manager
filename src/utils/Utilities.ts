@@ -97,6 +97,14 @@ export class Utilities {
     )
   }
 
+  public static getCPUControlledTeamFromSave() {
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    const playerTeamName = Save.getData(SaveKeys.PLAYER_TEAM_NAME)
+    return Object.values(allTeams).filter((teamConfig: TeamConfig) => {
+      return teamConfig.name !== playerTeamName
+    })
+  }
+
   public static getPlayerTeamFromSave() {
     const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
     return allTeams[Save.getData(SaveKeys.PLAYER_TEAM_NAME)] as TeamConfig
@@ -109,18 +117,20 @@ export class Utilities {
   }
 
   public static convertRookies() {
-    const playerTeam = Utilities.getPlayerTeamFromSave()
-    const newPlayerRoster = playerTeam.roster.map((playerAgent: PlayerAgentConfig) => {
-      if (playerAgent.isRookie) {
-        return {
-          ...playerAgent,
-          isRookie: false,
+    const allTeams = Save.getData(SaveKeys.ALL_TEAM_CONFIGS) as { [key: string]: TeamConfig }
+    Object.values(allTeams).forEach((teamConfig: TeamConfig) => {
+      const newRoster = teamConfig.roster.map((playerAgent: PlayerAgentConfig) => {
+        if (playerAgent.isRookie) {
+          return {
+            ...playerAgent,
+            isRookie: false,
+          }
         }
-      }
-      return playerAgent
+        return playerAgent
+      })
+      allTeams[teamConfig.name].roster = newRoster
     })
-    playerTeam.roster = newPlayerRoster
-    Utilities.updatePlayerTeamInSave(playerTeam)
+    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, allTeams)
   }
 
   public static decrementContractDurations() {
