@@ -84,7 +84,7 @@ export class CreateTeamScreen implements Screen {
     this.nextButton = new Button({
       scene: this.scene,
       onClick: () => {
-        this.scene.teamName = (this.createTeamAbbrevInputHTML as any).value
+        this.scene.teamName = (this.createTeamNameInputHTML as any).value
         this.scene.teamShortName = (this.createTeamAbbrevInputHTML as any).value.toUpperCase()
         this.scene.renderActiveScreen(FirstTimeScreenKeys.DRAFT_STARTERS)
       },

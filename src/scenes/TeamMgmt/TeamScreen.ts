@@ -107,6 +107,8 @@ export class TeamScreen implements Screen {
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     for (let i = 0; i < numStarters; i++) {
       const config = starterConfigs[i]
+      const rankEnum = Utilities.getOverallPlayerRank(config)
+      const ovrRankText = Utilities.getRankNameForEnum(rankEnum)
       if (config) {
         const homePlayerInfo = new HomePlayerInfo(this.scene, {
           name: config.name,
@@ -116,6 +118,7 @@ export class TeamScreen implements Screen {
           },
           height: cardHeight,
           width: cardWidth,
+          ovrRank: ovrRankText,
         })
         this.startingLineup.push(homePlayerInfo)
         const statButton = new Button({

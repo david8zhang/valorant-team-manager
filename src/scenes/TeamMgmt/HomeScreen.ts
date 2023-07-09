@@ -5,6 +5,7 @@ import { RoundConstants } from '~/utils/RoundConstants'
 import { ScreenKeys } from './ScreenKeys'
 import { HomePlayerInfo } from '~/core/ui/HomePlayerInfo'
 import { Button } from '~/core/ui/Button'
+import { Utilities } from '~/utils/Utilities'
 
 export class HomeScreen implements Screen {
   private scene: TeamMgmt
@@ -80,6 +81,8 @@ export class HomeScreen implements Screen {
       TeamMgmt.BODY_WIDTH / numStarters - padding * ((numStarters + 1) / numStarters)
     let xPos = RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH + padding
     starterConfigs.forEach((config) => {
+      const rankEnum = Utilities.getOverallPlayerRank(config)
+      const ovrRankText = Utilities.getRankNameForEnum(rankEnum)
       const homePlayerInfo = new HomePlayerInfo(this.scene, {
         name: config.name,
         position: {
@@ -88,6 +91,7 @@ export class HomeScreen implements Screen {
         },
         height: RoundConstants.WINDOW_HEIGHT - 240,
         width: cardWidth,
+        ovrRank: ovrRankText,
       })
       this.playerCards.push(homePlayerInfo)
       xPos += cardWidth + padding

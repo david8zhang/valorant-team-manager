@@ -1,6 +1,7 @@
 import { Scene } from 'phaser'
 import { Button } from '~/core/ui/Button'
 import { RoundConstants } from '~/utils/RoundConstants'
+import { Save, SaveKeys } from '~/utils/Save'
 
 export default class StartMenu extends Scene {
   constructor() {
@@ -25,7 +26,12 @@ export default class StartMenu extends Scene {
     const startButton = new Button({
       text: 'Start',
       onClick: () => {
-        this.scene.start('home')
+        const hasExistingSave = Save.getData(SaveKeys.ALL_TEAM_CONFIGS)
+        if (!hasExistingSave) {
+          this.scene.start('ftue')
+        } else {
+          this.scene.start('team-mgmt')
+        }
       },
       backgroundColor: 0x555555,
       textColor: '#ffffff',

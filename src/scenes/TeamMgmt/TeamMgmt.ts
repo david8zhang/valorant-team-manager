@@ -85,28 +85,6 @@ export default class TeamMgmt extends Phaser.Scene {
     this.activeScreenData = data
   }
 
-  initializeNewGameData() {
-    const newPlayers = Utilities.generateNewPlayers(RoundConstants.TEAM_NAME_PLACEHOLDER)
-    const teamConfigMapping = this.generateTeams()
-    const seasonSchedule = this.generateSchedule(Object.values(teamConfigMapping))
-    const winLossRecord = {
-      wins: 0,
-      losses: 0,
-    }
-    // Add player team to the mapping
-    teamConfigMapping[RoundConstants.TEAM_NAME_PLACEHOLDER] = {
-      name: RoundConstants.TEAM_NAME_PLACEHOLDER,
-      ...winLossRecord,
-      shortName: RoundConstants.TEAM_SHORT_NAME,
-      roster: newPlayers,
-    }
-    Save.setData(SaveKeys.PLAYER_TEAM_NAME, RoundConstants.TEAM_NAME_PLACEHOLDER)
-    Save.setData(SaveKeys.ALL_TEAM_CONFIGS, teamConfigMapping)
-    Save.setData(SaveKeys.SEASON_SCHEDULE, seasonSchedule)
-    Save.setData(SaveKeys.CURR_MATCH_INDEX, 0)
-    Save.setData(SaveKeys.SCOUT_POINTS, RoundConstants.DEFAULT_SCOUT_POINTS)
-  }
-
   startGame() {
     const currMatchIndex = Save.getData(SaveKeys.CURR_MATCH_INDEX) as number
     const schedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
@@ -140,26 +118,6 @@ export default class TeamMgmt extends Phaser.Scene {
     })
   }
 
-  generateTeams() {
-    const shuffledCPUTeamNames = Utilities.shuffle([...CPU_TEAM_NAMES])
-    const allTeams = shuffledCPUTeamNames
-      .map((teamName) => {
-        return {
-          name: teamName,
-          shortName: SHORT_NAMES[teamName],
-          wins: 0,
-          losses: 0,
-          roster: Utilities.generateNewPlayers(teamName),
-        }
-      })
-      .slice(0, shuffledCPUTeamNames.length - 1)
-    const teamNameToObjMapping = allTeams.reduce((acc, curr) => {
-      acc[curr.name] = curr
-      return acc
-    }, {})
-    return teamNameToObjMapping
-  }
-
   generateSchedule(otherTeamConfigs: TeamConfig[]): MatchConfig[] {
     const result: MatchConfig[] = []
     otherTeamConfigs.forEach((team) => {
@@ -178,9 +136,6 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   create() {
-    if (!Save.getData(SaveKeys.ALL_TEAM_CONFIGS)) {
-      this.initializeNewGameData()
-    }
     this.screens = {
       [ScreenKeys.HOME]: new HomeScreen(this),
       [ScreenKeys.SEASON]: new SeasonScreen(this),

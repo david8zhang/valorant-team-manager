@@ -1,9 +1,9 @@
-import { PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
+import { MatchConfig, PlayerAgentConfig, TeamConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { MINIMUM_CONTRACT, PlayerAttributes, PlayerRank } from './PlayerConstants'
 import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
 import { RANK_TO_ASKING_AMOUNT_MAPPING } from './PlayerConstants'
-import { NUM_DRAFT_PROSPECTS } from './TeamConstants'
+import { CPU_TEAM_NAMES, NUM_DRAFT_PROSPECTS, SHORT_NAMES } from './TeamConstants'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -184,6 +184,41 @@ export class Utilities {
       return PlayerRank.SILVER
     }
     return PlayerRank.GOLD
+  }
+
+  static generateTeams() {
+    const shuffledCPUTeamNames = Utilities.shuffle([...CPU_TEAM_NAMES])
+    const allTeams = shuffledCPUTeamNames.map((teamName) => {
+      return {
+        name: teamName,
+        shortName: SHORT_NAMES[teamName],
+        wins: 0,
+        losses: 0,
+        roster: Utilities.generateNewPlayers(teamName),
+      }
+    })
+    const teamNameToObjMapping = allTeams.reduce((acc, curr) => {
+      acc[curr.name] = curr
+      return acc
+    }, {})
+    return teamNameToObjMapping
+  }
+
+  static generateSchedule(otherTeamConfigs: TeamConfig[]): MatchConfig[] {
+    const result: MatchConfig[] = []
+    otherTeamConfigs.forEach((team) => {
+      result.push({
+        isHome: true,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
+      result.push({
+        isHome: false,
+        opponent: team.name,
+        shortName: SHORT_NAMES[team.name],
+      })
+    })
+    return Utilities.shuffle([...result])
   }
 
   static generateNewPlayers(teamName: string, numPlayers: number = 3): PlayerAgentConfig[] {

@@ -12,6 +12,7 @@ export class DraftStartingPlayersScreen implements Screen {
   private starterPlayers: PlayerAgentConfig[] = []
   private playerCards: HomePlayerInfo[] = []
   private buttons: Button[] = []
+  private nextButton!: Button
 
   constructor(scene: FirstTime) {
     this.scene = scene
@@ -21,11 +22,35 @@ export class DraftStartingPlayersScreen implements Screen {
     })
     this.generateStarterPlayers()
     this.setupOrUpdateStarterPlayerCards()
+    this.setupNextButton()
     this.setVisible(false)
   }
 
   generateStarterPlayers() {
     this.starterPlayers = Utilities.generateNewPlayers(this.scene.teamName, 4)
+  }
+
+  setupNextButton() {
+    this.nextButton = new Button({
+      scene: this.scene,
+      onClick: () => {
+        this.scene.initializeNewGameData()
+      },
+      text: 'Next',
+      width: 150,
+      height: 40,
+      x: RoundConstants.WINDOW_WIDTH - 90,
+      y: RoundConstants.WINDOW_HEIGHT - 40,
+      strokeColor: 0x000000,
+      textColor: 'black',
+      strokeWidth: 1,
+      fontSize: '15px',
+    })
+    this.updateNextButton()
+  }
+
+  updateNextButton() {
+    this.nextButton.setVisible(this.scene.selectedPlayers.length == 3)
   }
 
   setupOrUpdateStarterPlayerCards() {
@@ -49,6 +74,8 @@ export class DraftStartingPlayersScreen implements Screen {
       this.scene.selectedPlayers.map((playerConfig) => playerConfig.id)
     )
     this.starterPlayers.forEach((config) => {
+      const rankEnum = Utilities.getOverallPlayerRank(config)
+      const ovrRankText = Utilities.getRankNameForEnum(rankEnum)
       const isSelected = selectedPlayerIds.has(config.id)
       const buttonGrayedDueToMaxStarters =
         !isSelected && this.scene.selectedPlayers.length === RoundConstants.NUM_STARTERS
@@ -56,10 +83,12 @@ export class DraftStartingPlayersScreen implements Screen {
         name: config.name,
         position: {
           x: xPos,
-          y: padding + 90,
+          y: padding + 75,
         },
         height: cardHeight,
         width: cardWidth,
+        bgColor: isSelected ? 0x2ecc71 : 0xffffff,
+        ovrRank: ovrRankText,
       })
       const selectButton = new Button({
         text: buttonGrayedDueToMaxStarters
@@ -77,6 +106,7 @@ export class DraftStartingPlayersScreen implements Screen {
               this.scene.selectedPlayers.push(config)
             }
             this.setupOrUpdateStarterPlayerCards()
+            this.updateNextButton()
           }
         },
         x: xPos + playerCard.rectangle.displayWidth / 2,
@@ -103,5 +133,8 @@ export class DraftStartingPlayersScreen implements Screen {
       button.setVisible(isVisible)
     })
     this.headerText.setVisible(isVisible)
+    if (!isVisible) {
+      this.nextButton.setVisible(isVisible)
+    }
   }
 }
