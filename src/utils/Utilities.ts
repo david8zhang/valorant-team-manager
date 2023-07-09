@@ -186,6 +186,35 @@ export class Utilities {
     return PlayerRank.GOLD
   }
 
+  static generateNewPlayers(teamName: string, numPlayers: number = 3): PlayerAgentConfig[] {
+    const newPlayers: PlayerAgentConfig[] = []
+    for (let i = 1; i <= numPlayers; i++) {
+      const randomName = Utilities.generateRandomName()
+      newPlayers.push({
+        id: `${teamName}-player-${i}`,
+        name: randomName,
+        isStarting: true,
+        isRookie: true,
+        texture: '',
+        potential: Phaser.Math.Between(0, 2),
+        contract: {
+          ...MINIMUM_CONTRACT,
+        },
+        attributes: {
+          [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,
+          [PlayerAttributes.HEADSHOT]: PlayerRank.BRONZE,
+          [PlayerAttributes.REACTION]: PlayerRank.BRONZE,
+        },
+        experience: {
+          [PlayerAttributes.ACCURACY]: 0,
+          [PlayerAttributes.HEADSHOT]: 0,
+          [PlayerAttributes.REACTION]: 0,
+        },
+      })
+    }
+    return newPlayers
+  }
+
   static generateDraftProspects() {
     const newPlayers: PlayerAgentConfig[] = []
     for (let i = 1; i <= NUM_DRAFT_PROSPECTS; i++) {

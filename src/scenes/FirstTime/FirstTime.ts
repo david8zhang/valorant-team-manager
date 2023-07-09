@@ -2,6 +2,7 @@ import { RoundConstants } from '~/utils/RoundConstants'
 import { FirstTimeScreenKeys } from './FirstTimeScreenKeys'
 import { CreateTeamScreen } from './CreateTeamScreen'
 import { DraftStartingPlayersScreen } from './DraftStartingPlayersScreen'
+import { PlayerAgentConfig } from '../TeamMgmt/TeamMgmt'
 
 export class FirstTime extends Phaser.Scene {
   public screens!: {
@@ -10,6 +11,7 @@ export class FirstTime extends Phaser.Scene {
   public activeScreenKey: FirstTimeScreenKeys = FirstTimeScreenKeys.CREATE_TEAM
   public teamName: string = ''
   public teamShortName: string = ''
+  public selectedPlayers: PlayerAgentConfig[] = []
 
   constructor() {
     super('ftue')

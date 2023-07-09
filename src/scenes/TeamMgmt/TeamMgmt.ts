@@ -70,7 +70,6 @@ export default class TeamMgmt extends Phaser.Scene {
   private sidebar!: Sidebar
   public static BODY_WIDTH = RoundConstants.WINDOW_WIDTH - RoundConstants.TEAM_MGMT_SIDEBAR_WIDTH
   private activeScreenData!: TeamMgmtData
-  private prevScreenData: any
 
   public screens!: {
     [key in ScreenKeys]: any
@@ -87,7 +86,7 @@ export default class TeamMgmt extends Phaser.Scene {
   }
 
   initializeNewGameData() {
-    const newPlayers = this.generateNewPlayers(RoundConstants.TEAM_NAME_PLACEHOLDER)
+    const newPlayers = Utilities.generateNewPlayers(RoundConstants.TEAM_NAME_PLACEHOLDER)
     const teamConfigMapping = this.generateTeams()
     const seasonSchedule = this.generateSchedule(Object.values(teamConfigMapping))
     const winLossRecord = {
@@ -150,7 +149,7 @@ export default class TeamMgmt extends Phaser.Scene {
           shortName: SHORT_NAMES[teamName],
           wins: 0,
           losses: 0,
-          roster: this.generateNewPlayers(teamName),
+          roster: Utilities.generateNewPlayers(teamName),
         }
       })
       .slice(0, shuffledCPUTeamNames.length - 1)
@@ -176,35 +175,6 @@ export default class TeamMgmt extends Phaser.Scene {
       })
     })
     return Utilities.shuffle([...result])
-  }
-
-  generateNewPlayers(teamName: string): PlayerAgentConfig[] {
-    const newPlayers: PlayerAgentConfig[] = []
-    for (let i = 1; i <= 3; i++) {
-      const randomName = Utilities.generateRandomName()
-      newPlayers.push({
-        id: `${teamName}-player-${i}`,
-        name: randomName,
-        isStarting: true,
-        isRookie: true,
-        texture: '',
-        potential: Phaser.Math.Between(0, 2),
-        contract: {
-          ...MINIMUM_CONTRACT,
-        },
-        attributes: {
-          [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,
-          [PlayerAttributes.HEADSHOT]: PlayerRank.BRONZE,
-          [PlayerAttributes.REACTION]: PlayerRank.BRONZE,
-        },
-        experience: {
-          [PlayerAttributes.ACCURACY]: 0,
-          [PlayerAttributes.HEADSHOT]: 0,
-          [PlayerAttributes.REACTION]: 0,
-        },
-      })
-    }
-    return newPlayers
   }
 
   create() {
