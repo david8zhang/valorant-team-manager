@@ -1,6 +1,7 @@
 import TeamMgmt, { PlayerAgentConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { PlayerDrilldownAttrRow } from '../components/PlayerDrilldownAttrRow'
 import {
+  MENTAL_RANK_DESC_MAPPING,
   PlayerAttributes,
   RANK_TO_ACCURACY_MAPPING,
   RANK_TO_HS_MAPPING,
@@ -21,6 +22,8 @@ export class PlayerAttributesTab {
   private accuracyRow!: PlayerDrilldownAttrRow
   private reactionRow!: PlayerDrilldownAttrRow
   private headshotRow!: PlayerDrilldownAttrRow
+  private mentalRow!: PlayerDrilldownAttrRow
+
   private position: {
     x: number
     y: number
@@ -78,6 +81,22 @@ export class PlayerAttributesTab {
         maxValue: 100 * Math.pow(2, this.playerConfig.attributes[PlayerAttributes.HEADSHOT]),
       },
     })
+    const mentalsAdjectives =
+      MENTAL_RANK_DESC_MAPPING[this.playerConfig.attributes[PlayerAttributes.MENTAL]]
+    const index = this.playerConfig.name.length % mentalsAdjectives.length
+    this.mentalRow.updateConfig({
+      name: 'Mental',
+      value: `${mentalsAdjectives[index]}`,
+      rank: this.playerConfig.attributes[PlayerAttributes.MENTAL],
+      position: {
+        x: this.position.x,
+        y: this.position.y + 150,
+      },
+      exp: {
+        currValue: this.playerConfig.experience[PlayerAttributes.MENTAL],
+        maxValue: 100 * Math.pow(2, this.playerConfig.attributes[PlayerAttributes.MENTAL]),
+      },
+    })
   }
 
   setupAttributeRows(config: PlayerAttributesTabConfig) {
@@ -125,11 +144,29 @@ export class PlayerAttributesTab {
         maxValue: 100 * Math.pow(2, this.playerConfig.attributes[PlayerAttributes.HEADSHOT]),
       },
     })
+
+    const mentalsAdjectives =
+      MENTAL_RANK_DESC_MAPPING[this.playerConfig.attributes[PlayerAttributes.MENTAL]]
+    const index = this.playerConfig.name.length % mentalsAdjectives.length
+    this.mentalRow = new PlayerDrilldownAttrRow(this.scene, {
+      name: 'Mental',
+      value: `${mentalsAdjectives[index]}`,
+      rank: this.playerConfig.attributes[PlayerAttributes.MENTAL],
+      position: {
+        x: config.position.x,
+        y: config.position.y + 150,
+      },
+      exp: {
+        currValue: this.playerConfig.experience[PlayerAttributes.MENTAL],
+        maxValue: 100 * Math.pow(2, this.playerConfig.attributes[PlayerAttributes.MENTAL]),
+      },
+    })
   }
 
   setVisible(isVisible: boolean) {
     this.accuracyRow.setVisible(isVisible)
     this.headshotRow.setVisible(isVisible)
     this.reactionRow.setVisible(isVisible)
+    this.mentalRow.setVisible(isVisible)
   }
 }

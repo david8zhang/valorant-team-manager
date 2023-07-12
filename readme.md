@@ -6,12 +6,9 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ### Management Sim
 
-- First time user screen
-  - Allow user to pick a team name
-  - Initial team draft
+- "Mental" stat
 - Player ages
   - Degredation after a certain age
-- "Mental" stat
 
 ### In-Round Gameplay
 

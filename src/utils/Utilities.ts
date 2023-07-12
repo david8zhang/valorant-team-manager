@@ -239,11 +239,13 @@ export class Utilities {
           [PlayerAttributes.ACCURACY]: PlayerRank.BRONZE,
           [PlayerAttributes.HEADSHOT]: PlayerRank.BRONZE,
           [PlayerAttributes.REACTION]: PlayerRank.BRONZE,
+          [PlayerAttributes.MENTAL]: PlayerRank.BRONZE,
         },
         experience: {
           [PlayerAttributes.ACCURACY]: 0,
           [PlayerAttributes.HEADSHOT]: 0,
           [PlayerAttributes.REACTION]: 0,
+          [PlayerAttributes.MENTAL]: 0,
         },
       })
     }
@@ -265,12 +267,14 @@ export class Utilities {
           [PlayerAttributes.ACCURACY]: Utilities.getRandomAttrRank(),
           [PlayerAttributes.HEADSHOT]: Utilities.getRandomAttrRank(),
           [PlayerAttributes.REACTION]: Utilities.getRandomAttrRank(),
+          [PlayerAttributes.MENTAL]: Utilities.getRandomAttrRank(),
         },
         contract: { ...MINIMUM_CONTRACT },
         experience: {
           [PlayerAttributes.ACCURACY]: 0,
           [PlayerAttributes.HEADSHOT]: 0,
           [PlayerAttributes.REACTION]: 0,
+          [PlayerAttributes.MENTAL]: 0,
         },
       })
     }
