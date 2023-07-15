@@ -4,6 +4,8 @@ import { getRangeForPoints, GUN_CONFIGS, GunConfig, Range } from '~/utils/GunCon
 import { Agent } from '../Agent'
 import { State } from './StateMachine'
 import { States } from './States'
+import { Utilities } from '~/utils/Utilities'
+import { PlayerAttributes } from '~/utils/PlayerConstants'
 
 export class ShootingState extends State {
   public target: Agent | null = null
@@ -123,7 +125,12 @@ export class ShootingState extends State {
 
         const rangeOfFight = getRangeForPoints(agent.sprite, this.target.sprite) as Range
         const accuracyModifier = weaponConfig.rangeAccModifiers[rangeOfFight]
-        const accuracyPct = agent.stats.accuracyPct * accuracyModifier
+        let accuracyPct = agent.stats.accuracyPct * accuracyModifier
+        accuracyPct = Utilities.applyMentalStateModifier(
+          PlayerAttributes.ACCURACY,
+          agent,
+          accuracyPct
+        )
         const randNum = Phaser.Math.Between(1, 100)
 
         if (accuracyPct > randNum) {
@@ -194,7 +201,12 @@ export class ShootingState extends State {
 
   handleRandomShot(agent: Agent, weaponConfig: GunConfig) {
     if (this.target) {
-      const headshotPct = agent.stats.headshotPct
+      let headshotPct = agent.stats.headshotPct
+      headshotPct = Utilities.applyMentalStateModifier(
+        PlayerAttributes.HEADSHOT,
+        agent,
+        headshotPct
+      )
       const randNum = Phaser.Math.Between(1, 100)
       let shotType = ''
       if (headshotPct >= randNum) {

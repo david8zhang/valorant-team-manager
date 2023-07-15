@@ -16,16 +16,26 @@ import { UtilityKey } from './utility/UtilityKey'
 import { UtilityMapping } from './utility/UtilityMapping'
 import { UtilityName } from './utility/UtilityNames'
 import {
+  DEATH_STREAK_REQUIRED_FOR_COLD_STREAK,
+  KILL_STREAK_REQUIRED_FOR_HOT_STREAK,
   PlayerAttributes,
   PlayerRank,
   RANK_TO_ACCURACY_MAPPING,
   RANK_TO_HS_MAPPING,
+  RANK_TO_MENTAL_MAPPING,
   RANK_TO_REACTION_MAPPING,
 } from '~/utils/PlayerConstants'
+import { Utilities } from '~/utils/Utilities'
 
 export enum Side {
   PLAYER = 'Player',
   CPU = 'CPU',
+}
+
+export enum MentalState {
+  HOT_STREAK = 'HOT_STREAK',
+  NORMAL = 'NORMAL',
+  COLD_STREAK = 'COLD_STREAK',
 }
 
 export interface AgentConfig {
@@ -60,7 +70,6 @@ export class Agent {
 
   public game: Round
   public sprite: Phaser.Physics.Arcade.Sprite
-  public spikeIcon: Phaser.GameObjects.Image
   public isPaused: boolean = false
   public hideSightCones: boolean = false
   public name: string
@@ -73,11 +82,12 @@ export class Agent {
   public healthBar!: UIValueBar
   public currWeapon: GunTypes = GunTypes.PISTOL
   public agentNameText: Phaser.GameObjects.Text
-  public hasSpike: boolean = false
   public team: Team
 
   public kills: number = 0
+  public killStreak: number = 0 // Number of kills w/o a death
   public deaths: number = 0
+  public deathStreak: number = 0 // Number of deaths w/o a kill
   public assists: number = 0
   public credits: number = 0
 
@@ -92,6 +102,15 @@ export class Agent {
     accuracyPct: number
     headshotPct: number
     reactionTimeMs: number // Affects how quickly agent will turn to return fire
+    mental: {
+      // Affects cold/hot streaks
+      hotStreakPct: number
+      coldStreakPct: number
+      hotStreakBuff: number
+      coldStreakDebuff: number
+      hotStreakDuration: number
+      coldStreakDuration: number
+    }
   }
 
   // Location the agent is currently holding (will fire on sight)
@@ -120,7 +139,13 @@ export class Agent {
   public onKillEnemyHandlers: Function[] = []
   public onWasKilledByEnemyHandlers: Function[] = []
 
+  // Heal over time
   public healTimerEvent: Phaser.Time.TimerEvent
+
+  // Current player mental state
+  public mentalState: MentalState = MentalState.HOT_STREAK
+  public streakStartTimeMs: number = 0
+  public mentalStateText: Phaser.GameObjects.Text
 
   constructor(config: AgentConfig) {
     this.game = Round.instance
@@ -139,12 +164,6 @@ export class Agent {
       .setName('agent')
       .setData('ref', this)
       .setPushable(false)
-
-    this.spikeIcon = this.game.add
-      .image(config.position.x + 4, config.position.y + 4, 'spike-icon')
-      .setDepth(RoundConstants.SORT_LAYERS.UI)
-      .setScale(1)
-      .setVisible(false)
 
     this.stateMachine = new StateMachine(
       States.IDLE,
@@ -190,13 +209,22 @@ export class Agent {
         this.healOverTime()
       },
     })
+
+    // Icon for displaying mental state
+    this.mentalStateText = this.game.add
+      .text(0, 0, '🔥', {
+        fontSize: '10px',
+      })
+      .setDepth(RoundConstants.SORT_LAYERS.UI)
+      .setVisible(false)
   }
 
-  convertRankToStats(config: any) {
+  convertRankToStats(config: { [key in PlayerAttributes]: PlayerRank }) {
     return {
       accuracyPct: RANK_TO_ACCURACY_MAPPING[config.accuracy],
       headshotPct: RANK_TO_HS_MAPPING[config.headshot],
       reactionTimeMs: RANK_TO_REACTION_MAPPING[config.reaction],
+      mental: RANK_TO_MENTAL_MAPPING[config.mental],
     }
   }
 
@@ -252,15 +280,66 @@ export class Agent {
   }
 
   onKillEnemy(enemyAgent: Agent) {
-    this.game.addScore(this.side)
+    this.deathStreak = 0
+    this.killStreak++
     this.credits += RoundConstants.KILL_CREDITS_AMOUNT
+    this.game.addScore(this.side)
+    this.processHotStreakStart()
     UI.instance.renderKillMessage(this, enemyAgent)
     this.onKillEnemyHandlers.forEach((handler) => {
       handler(enemyAgent)
     })
+    enemyAgent.onDeath()
     enemyAgent.onWasKilledByEnemyHandlers.forEach((handler) => {
       handler(this)
     })
+  }
+
+  onDeath() {
+    this.deathStreak++
+    this.killStreak = 0
+    this.processColdStreakStart()
+  }
+
+  processHotStreakStart() {
+    if (this.mentalState === MentalState.NORMAL) {
+      if (this.killStreak == KILL_STREAK_REQUIRED_FOR_HOT_STREAK) {
+        const isHot = Phaser.Math.Between(1, 100) <= this.stats.mental.hotStreakPct * 100
+        this.mentalState = isHot ? MentalState.HOT_STREAK : MentalState.NORMAL
+        this.streakStartTimeMs = Date.now()
+        this.mentalStateText.setText('🔥').setVisible(true)
+      }
+    }
+  }
+
+  processColdStreakStart() {
+    if (this.mentalState === MentalState.HOT_STREAK) {
+      this.mentalState = MentalState.NORMAL
+    } else if (this.mentalState == MentalState.NORMAL) {
+      if (this.deathStreak == DEATH_STREAK_REQUIRED_FOR_COLD_STREAK) {
+        const isCold = Phaser.Math.Between(1, 100) <= this.stats.mental.coldStreakPct * 100
+        this.mentalState = isCold ? MentalState.COLD_STREAK : MentalState.NORMAL
+        this.streakStartTimeMs = Date.now()
+        this.mentalStateText.setText('🥶').setVisible(true)
+      }
+    }
+  }
+
+  processStreakExpiration() {
+    if (this.stats.mental && this.stats.mental) {
+      const timestamp = Date.now()
+      const timeElapsedSinceStreakStart = timestamp - this.streakStartTimeMs
+      if (this.mentalState === MentalState.HOT_STREAK) {
+        if (timeElapsedSinceStreakStart >= this.stats.mental.hotStreakDuration) {
+          this.mentalState = MentalState.NORMAL
+        }
+      } else if (this.mentalState === MentalState.COLD_STREAK) {
+        if (timeElapsedSinceStreakStart >= this.stats.mental.coldStreakDuration) {
+          this.mentalState = MentalState.NORMAL
+        }
+      }
+      this.mentalStateText.setVisible(this.mentalState !== MentalState.NORMAL)
+    }
   }
 
   get health() {
@@ -304,7 +383,12 @@ export class Agent {
     )
 
     // if the agent has "fireOnSight" toggled
-    this.game.time.delayedCall(this.stats.reactionTimeMs, () => {
+    const reactionTimeMs = Utilities.applyMentalStateModifier(
+      PlayerAttributes.REACTION,
+      this,
+      this.stats.reactionTimeMs
+    )
+    this.game.time.delayedCall(reactionTimeMs, () => {
       this.visionRay.setAngle(angleToShooter)
       if (this.getCurrState() !== States.DIE) {
         this.setState(States.SHOOT, shooter)
@@ -371,6 +455,8 @@ export class Agent {
     this.healthBar.x = this.sprite.x - this.healthBar.width / 2
     this.healthBar.y = this.sprite.y - this.sprite.displayHeight - 5
     this.healthBar.draw()
+    this.processStreakExpiration()
+    this.mentalStateText.setPosition(this.sprite.x + 5, this.sprite.y - 8)
 
     if (this.game.isDebug) {
       this.agentNameText.setText(this.name).setVisible(true)
@@ -395,7 +481,6 @@ export class Agent {
     this.damageMapping = {}
     this.fireOnSight = false
     this.killerId = null
-    this.hasSpike = false
 
     this.setState(States.IDLE)
     this.sprite.setPosition(resetConfig.x, resetConfig.y)

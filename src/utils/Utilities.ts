@@ -4,6 +4,7 @@ import { Save, SaveKeys } from './Save'
 import { LAST_NAMES, MALE_FIRST_NAMES } from './Names'
 import { RANK_TO_ASKING_AMOUNT_MAPPING } from './PlayerConstants'
 import { CPU_TEAM_NAMES, NUM_DRAFT_PROSPECTS, SHORT_NAMES } from './TeamConstants'
+import { Agent, MentalState } from '~/core/Agent'
 
 export class Utilities {
   public static shuffle(array: any[]) {
@@ -184,6 +185,36 @@ export class Utilities {
       return PlayerRank.SILVER
     }
     return PlayerRank.GOLD
+  }
+
+  static applyMentalStateModifier(attributeType: PlayerAttributes, agent: Agent, value: number) {
+    const mentalStat = agent.stats.mental
+    if (mentalStat) {
+      switch (attributeType) {
+        case PlayerAttributes.HEADSHOT:
+        case PlayerAttributes.ACCURACY: {
+          if (agent.mentalState === MentalState.HOT_STREAK) {
+            return value * (1 + mentalStat.hotStreakBuff)
+          } else if (agent.mentalState === MentalState.COLD_STREAK) {
+            return value * (1 - mentalStat.coldStreakDebuff)
+          }
+          return value
+        }
+        case PlayerAttributes.REACTION: {
+          // Reaction time = smaller is better
+          if (agent.mentalState === MentalState.HOT_STREAK) {
+            return value * (1 - mentalStat.hotStreakBuff)
+          } else if (agent.mentalState === MentalState.COLD_STREAK) {
+            return value * (1 + mentalStat.coldStreakDebuff)
+          }
+          return value
+        }
+        default: {
+          return value
+        }
+      }
+    }
+    return value
   }
 
   static generateTeams() {

@@ -25,7 +25,7 @@ export class RoundConstants {
   public static ASSIST_CREDITS_AMOUNT = 250
 
   public static PREROUND_TIME_SEC = 1
-  public static MID_ROUND_TIME_SEC = 1
+  public static MID_ROUND_TIME_SEC = 100
   public static OVERTIME_ROUND_TIME_SEC = 45
 
   public static TOP_BAR_HEIGHT = 60

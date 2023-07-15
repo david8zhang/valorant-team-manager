@@ -82,50 +82,69 @@ export const RANK_TO_MENTAL_MAPPING = {
     coldStreakPct: 0.25,
     hotStreakBuff: 0.05,
     coldStreakDebuff: 0.35,
+    hotStreakDuration: 5000, // milliseconds
+    coldStreakDuration: 20000,
   },
   [PlayerRank.SILVER]: {
     hotStreakPct: 0.1,
     coldStreakPct: 0.2,
     hotStreakBuff: 0.075,
     coldStreakDebuff: 0.3,
+    hotStreakDuration: 7500, // milliseconds
+    coldStreakDuration: 17500,
   },
   [PlayerRank.GOLD]: {
     hotStreakPct: 0.15,
     coldStreakPct: 0.15,
     hotStreakBuff: 0.1,
     coldStreakDebuff: 0.25,
+    hotStreakDuration: 10000, // milliseconds
+    coldStreakDuration: 15000,
   },
   [PlayerRank.PLATINUM]: {
     hotStreakPct: 0.2,
     coldStreakPct: 0.1,
     hotStreakBuff: 0.15,
     coldStreakDebuff: 0.2,
+    hotStreakDuration: 12500, // milliseconds
+    coldStreakDuration: 12500,
   },
   [PlayerRank.DIAMOND]: {
     hotStreakPct: 0.25,
     coldStreakPct: 0.05,
     hotStreakBuff: 0.2,
     coldStreakDebuff: 0.15,
+    hotStreakDuration: 15000, // milliseconds
+    coldStreakDuration: 10000,
   },
   [PlayerRank.MASTER]: {
     hotStreakPct: 0.3,
     coldStreakPct: 0.025,
     hotStreakBuff: 0.25,
     coldStreakDebuff: 0.1,
+    hotStreakDuration: 17500, // milliseconds
+    coldStreakDuration: 7500,
   },
   [PlayerRank.GRANDMASTER]: {
     hotStreakPct: 0.35,
     coldStreakPct: 0.02,
     hotStreakBuff: 0.3,
     coldStreakDebuff: 0.075,
+    hotStreakDuration: 20000, // milliseconds
+    coldStreakDuration: 7000,
   },
   [PlayerRank.CHALLENGER]: {
     hotStreakPct: 0.4,
     coldStreakPct: 0.01,
     hotStreakBuff: 0.35,
     coldStreakDebuff: 0.05,
+    hotStreakDuration: 22500, // milliseconds
+    coldStreakDuration: 6500,
   },
 }
+
+export const KILL_STREAK_REQUIRED_FOR_HOT_STREAK = 3
+export const DEATH_STREAK_REQUIRED_FOR_COLD_STREAK = 3
 
 export const MENTAL_RANK_DESC_MAPPING = {
   [PlayerRank.BRONZE]: ['Erratic', 'Immature', 'Nervous'],
