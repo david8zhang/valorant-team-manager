@@ -115,11 +115,13 @@ export class ShootingState extends State {
       const weaponConfig = GUN_CONFIGS[agent.currWeapon] as GunConfig
 
       if (currTimestamp - this.lastBulletFiredTimestamp > weaponConfig.fireDelay) {
-        this.muzzleFlareSprite.setPosition(agent.sprite.x, agent.sprite.y)
-        this.muzzleFlareSprite.setAngle(Phaser.Math.RadToDeg(angle))
-        this.muzzleFlareSprite.setOrigin(0, 0.5)
-        this.muzzleFlareSprite.setAlpha(1)
-        this.muzzleFlareSprite.setVisible(true)
+        this.muzzleFlareSprite
+          .setPosition(agent.sprite.x, agent.sprite.y)
+          .setAngle(Phaser.Math.RadToDeg(angle))
+          .setOrigin(0, 0.5)
+          .setAlpha(1)
+          .setDepth(RoundConstants.SORT_LAYERS.UI)
+          .setVisible(true)
 
         this.lastBulletFiredTimestamp = currTimestamp
 
@@ -179,7 +181,14 @@ export class ShootingState extends State {
 
   handleHit(agent: Agent, weaponConfig: GunConfig) {
     this.tracerLine = Round.instance.add
-      .line(0, 0, agent.sprite.x, agent.sprite.y, this.target!.sprite.x, this.target!.sprite.y)
+      .line(
+        0,
+        0,
+        this.muzzleFlareSprite.x,
+        this.muzzleFlareSprite.y,
+        this.target!.sprite.x,
+        this.target!.sprite.y
+      )
       .setStrokeStyle(1, 0xfeff32)
       .setDisplayOrigin(0.5)
       .setDepth(RoundConstants.SORT_LAYERS.UI + 100)

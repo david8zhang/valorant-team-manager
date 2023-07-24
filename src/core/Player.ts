@@ -10,7 +10,6 @@ import { UtilityName } from './utility/UtilityNames'
 import { createAgentBehaviorTree } from './behavior-tree/AgentBehaviorTree'
 import { PlayerAgentConfig } from '~/scenes/TeamMgmt/TeamMgmt'
 import { RoundConstants } from '~/utils/RoundConstants'
-import { Utilities } from '~/utils/Utilities'
 
 export interface PlayerConfig {
   teamRoster: PlayerAgentConfig[]
@@ -242,8 +241,9 @@ export class Player implements Team {
           y: startY,
         },
         name: config.name,
-        texture: 'player-agent',
+        texture: 'agent-pistol',
         sightAngleDeg: 90,
+        scale: 0.3,
         raycaster: this.game.playerRaycaster,
         side: Side.PLAYER,
         team: this,

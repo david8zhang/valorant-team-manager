@@ -124,6 +124,7 @@ export class MoveState extends State {
         this.moveTarget.y
       )
       agent.visionRay.setAngle(angle)
+      agent.sprite.setRotation(angle)
     }
   }
 

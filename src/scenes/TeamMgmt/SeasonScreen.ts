@@ -16,7 +16,6 @@ import { ViewLineupsScreenData } from './ViewLineupsScreen'
 
 export class SeasonScreen implements Screen {
   private scene: TeamMgmt
-  private schedule: MatchConfig[] = []
   private upcomingMatch!: UpcomingMatch
   private seasonSchedule!: SeasonSchedule
   private rankingsList!: TeamRankings
@@ -26,7 +25,8 @@ export class SeasonScreen implements Screen {
   private expiringContractsModal!: ExpiringContractsModal
   private invalidStartingLineupModal!: InvalidStartingLineupModal
 
-  private _draftOverrideIndex: number = 3
+  // Set this to cut the season short after x number of games (-1 to ignore)
+  private _lastMatchOverrideIndex: number = -1
 
   constructor(scene: TeamMgmt) {
     this.scene = scene
@@ -139,8 +139,8 @@ export class SeasonScreen implements Screen {
   get lastMatchIndex() {
     const seasonSchedule = Save.getData(SaveKeys.SEASON_SCHEDULE) as MatchConfig[]
     let lastMatchIndex = seasonSchedule.length
-    if (this._draftOverrideIndex !== -1) {
-      lastMatchIndex = this._draftOverrideIndex
+    if (this._lastMatchOverrideIndex !== -1) {
+      lastMatchIndex = this._lastMatchOverrideIndex
     }
     return lastMatchIndex
   }

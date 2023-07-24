@@ -1,8 +1,5 @@
 import { MapConstants } from '~/utils/MapConstants'
 import { Save } from '~/utils/Save'
-import { PostRoundConfig } from './PostRound/PostRound'
-import { Side } from '~/core/Agent'
-import { MINIMUM_CONTRACT } from '~/utils/PlayerConstants'
 
 export default class Preload extends Phaser.Scene {
   constructor() {
@@ -19,8 +16,10 @@ export default class Preload extends Phaser.Scene {
     this.load.image('spike-planted', 'map/spike-planted.png')
     this.load.image('spike-icon', 'map/spike-icon.png')
 
-    this.load.image('player-agent', 'agents/player-agent.png')
-    this.load.image('cpu-agent', 'agents/cpu-agent.png')
+    this.load.image('agent-pistol', 'agents/agent-pistol.png')
+    this.load.image('agent-preround', 'agents/agent-preround.png')
+    this.load.image('agent-rifle', 'agents/agent-rifle.png')
+    this.load.image('agent-smg', 'agents/agent-smg.png')
 
     this.load.image('move-icon', 'ui/move-icon.png')
     this.load.image('watch-icon', 'ui/watch-icon.png')

@@ -58,6 +58,8 @@ export interface AgentConfig {
   hideSightCones?: boolean
   fireOnSight?: boolean
   onDetectedEnemyHandler?: Function
+  scale: number
+  tint?: number
 }
 
 export class Agent {
@@ -160,10 +162,13 @@ export class Agent {
     this.setupVisionAndCrosshair(config)
     this.sprite = this.game.physics.add
       .sprite(config.position.x, config.position.y, config.texture)
+      .setScale(config.scale)
+      .setTint(config.tint || 0xffffff)
       .setDepth(RoundConstants.SORT_LAYERS.Player)
       .setName('agent')
       .setData('ref', this)
       .setPushable(false)
+      .setRotation(Phaser.Math.DegToRad(config.sightAngleDeg))
 
     this.stateMachine = new StateMachine(
       States.IDLE,
@@ -390,6 +395,7 @@ export class Agent {
     )
     this.game.time.delayedCall(reactionTimeMs, () => {
       this.visionRay.setAngle(angleToShooter)
+      this.sprite.setRotation(angleToShooter)
       if (this.getCurrState() !== States.DIE) {
         this.setState(States.SHOOT, shooter)
       }
@@ -484,6 +490,7 @@ export class Agent {
 
     this.setState(States.IDLE)
     this.sprite.setPosition(resetConfig.x, resetConfig.y)
+
     this.setHealth(Agent.FULL_HEALTH)
     this.holdLocation = null
     this.visionRay.setAngle(Phaser.Math.DegToRad(resetConfig.sightAngle))

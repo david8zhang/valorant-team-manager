@@ -13,10 +13,6 @@ export class DeathState extends State {
     agent.healTimerEvent.paused = true
     this.diedTimestamp = Date.now()
     agent.sprite.setVelocity(0, 0)
-    if (agent.hasSpike) {
-      Round.instance.spike.drop(agent.sprite.x, agent.sprite.y, agent)
-    }
-    agent.hasSpike = false
     agent.team.onAgentDeathHandlers.forEach((handler) => {
       handler(agent)
     })
@@ -33,6 +29,6 @@ export class DeathState extends State {
   }
 
   exit(agent: Agent) {
-    agent.sprite.setScale(1)
+    agent.sprite.setScale(0.3)
   }
 }

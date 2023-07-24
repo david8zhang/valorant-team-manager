@@ -4,15 +4,26 @@ Management sim / strategy game where you manage a professional Valorant e-sports
 
 ## TODO:
 
+### Art/Assets
+
+- Better art for players in round
+- Splash screen art
+- Custom font
+
 ### Management Sim
 
-- "Mental" stat
-- Player ages
-  - Degredation after a certain age
+- Off-season training camp
+  - Mini games for training different stats
+  - Accuracy -> moving cursor line up timing game
+  - Reaction time -> Shoot targets as fast as possible
+  - Headshot Percentage -> Shooting range, but only heads are clickable
+  - Mental -> Meditation game where you clear out thoughts (leaf blower revolution)
+- "Sense" stat that improves pathfinding
+  - Higher sense = better enemy tracking
 
 ### In-Round Gameplay
 
-- Hot/cold streaks (based on mental stat)
+- Sniper rifle
 - Utility:
   - Molotov cocktail
   - Flashbang grenade
