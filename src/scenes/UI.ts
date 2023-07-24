@@ -149,13 +149,6 @@ export default class UI extends Phaser.Scene {
   }
 
   selectNewCommand(newCommandState: CommandState) {
-    // If the user is not selecting the current spike carrier, they cannot plant
-    if (newCommandState === CommandState.PLANT) {
-      if (!this.canPlantSpike()) {
-        return
-      }
-    }
-
     // If the spike is not planted yet, the user cannot defuse
     if (newCommandState === CommandState.DEFUSE) {
       if (!Round.instance.spike.isPlanted) {
@@ -192,10 +185,6 @@ export default class UI extends Phaser.Scene {
 
       Round.instance.player.handleUtilityPress(utilityKey)
     }
-  }
-
-  canPlantSpike() {
-    return !Round.instance.spike.isPlanted && this.isSelectingSpikeCarrier()
   }
 
   create() {
@@ -690,13 +679,8 @@ export default class UI extends Phaser.Scene {
     if (Round.instance.attackSide === Side.PLAYER) {
       const commandBtn = this.commandMapping[CommandState.PLANT]!.boundingBox
       const commandIcon = this.commandMapping[CommandState.PLANT]!.icon
-      if (this.isSelectingSpikeCarrier()) {
-        commandBtn.setAlpha(1)
-        commandIcon.setAlpha(1)
-      } else {
-        commandBtn.setAlpha(0.25)
-        commandIcon.setAlpha(0.25)
-      }
+      commandBtn.setAlpha(0.25)
+      commandIcon.setAlpha(0.25)
     } else {
       if (Round.instance.player) {
         const selectedAgent = Round.instance.player.selectedAgent
@@ -715,11 +699,5 @@ export default class UI extends Phaser.Scene {
         infoBox.update()
       }
     })
-  }
-
-  isSelectingSpikeCarrier() {
-    const player = Round.instance.player
-    const selectedAgent = player.selectedAgent
-    return selectedAgent.hasSpike
   }
 }

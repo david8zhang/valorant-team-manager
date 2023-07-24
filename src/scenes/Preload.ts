@@ -20,6 +20,7 @@ export default class Preload extends Phaser.Scene {
     this.load.image('agent-preround', 'agents/agent-preround.png')
     this.load.image('agent-rifle', 'agents/agent-rifle.png')
     this.load.image('agent-smg', 'agents/agent-smg.png')
+    this.load.image('agent-death', 'agents/agent-death.png')
 
     this.load.image('move-icon', 'ui/move-icon.png')
     this.load.image('watch-icon', 'ui/watch-icon.png')

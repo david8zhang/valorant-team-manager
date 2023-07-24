@@ -40,6 +40,14 @@ export const getRangeForPoints = (
   }
 }
 
+export const GUN_TYPE_TO_TEXTURE: {
+  [key in GunTypes]: string
+} = {
+  [GunTypes.PISTOL]: 'agent-pistol',
+  [GunTypes.SMG]: 'agent-smg',
+  [GunTypes.RIFLE]: 'agent-rifle',
+}
+
 export const GUN_CONFIGS: {
   [key in GunTypes]: GunConfig
 } = {

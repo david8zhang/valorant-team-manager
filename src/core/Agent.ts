@@ -303,7 +303,6 @@ export class Agent {
   onDeath() {
     this.deathStreak++
     this.killStreak = 0
-    this.processColdStreakStart()
   }
 
   processHotStreakStart() {

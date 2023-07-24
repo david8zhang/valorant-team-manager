@@ -1,5 +1,5 @@
 import Round from '~/scenes/Round'
-import { GunTypes, GUN_CONFIGS } from '~/utils/GunConstants'
+import { GunTypes, GUN_CONFIGS, GUN_TYPE_TO_TEXTURE } from '~/utils/GunConstants'
 import { MapConstants, Region } from '~/utils/MapConstants'
 import { Agent } from '../Agent'
 import { State } from './StateMachine'
@@ -14,13 +14,14 @@ export class RespawnState extends State {
       agent.currWeapon = this.buyNewWeapon(agent)
       agent.credits -= GUN_CONFIGS[agent.currWeapon].cost
     }
-
+    agent.sprite.setTexture(GUN_TYPE_TO_TEXTURE[agent.currWeapon])
     agent.reset({
       x: randomPointWithinRegion.x,
       y: randomPointWithinRegion.y,
       sightAngle: 90,
       showOnMap: true,
     })
+    agent.processColdStreakStart()
   }
   buyNewWeapon(agent: Agent): GunTypes {
     let bestWeaponToPurchase = GunTypes.PISTOL
